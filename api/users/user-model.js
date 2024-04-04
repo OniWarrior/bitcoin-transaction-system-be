@@ -20,6 +20,14 @@ function addUser(user) {
 
 }
 
+function addClient(client) {
+
+}
+
+function addTrader(trader) {
+
+}
+
 
 module.exports = {
     findByEmail,
