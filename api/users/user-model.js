@@ -19,3 +19,9 @@ function addUser(user) {
         .insert(user)
 
 }
+
+
+module.exports = {
+    findByEmail,
+    addUser
+}
