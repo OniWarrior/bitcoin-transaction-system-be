@@ -72,6 +72,7 @@ function addTrader(trader) {
 async function findClientByFullName(client) {
     const foundClient = await db('Client')
         .select([
+            'client_id',
             'first_name',
             'last_name',
             'email'])
@@ -90,6 +91,7 @@ async function findClientByFullName(client) {
 async function findClientByEmail(client) {
     const foundClient = await db('Client')
         .select([
+            'client_id',
             'first_name',
             'last_name',
             'email'
@@ -105,6 +107,7 @@ async function findClientByEmail(client) {
 async function findClientByEmailAndFullName(client) {
     const foundClient = await db('Client')
         .select([
+            'client_id',
             'first_name',
             'last_name',
             'email'
