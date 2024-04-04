@@ -61,5 +61,7 @@ function addTrader(trader) {
 
 module.exports = {
     findByEmail,
-    addUser
+    addUser,
+    addTrader,
+    addClient
 }
