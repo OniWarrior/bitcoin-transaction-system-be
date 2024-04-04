@@ -1,6 +1,8 @@
 const db = require('../data/dbConfig')
 
 
+
+// Find a user by email--not client or trader
 async function findByEmail(email) {
     const account = await db('User')
         .select(['email', 'password'])
@@ -10,6 +12,8 @@ async function findByEmail(email) {
 
 }
 
+
+// Add a user to database
 function addUser(user) {
     return db('User')
         .returning([
@@ -20,6 +24,8 @@ function addUser(user) {
 
 }
 
+
+// add a client to database
 function addClient(client) {
     return db('Client')
         .returning([
@@ -39,6 +45,8 @@ function addClient(client) {
 
 }
 
+
+// add a trader to database
 function addTrader(trader) {
     return db('Trader')
         .returning([
@@ -58,6 +66,9 @@ function addTrader(trader) {
 
 }
 
+
+// For trader--find the client based on entering the first name and last name 
+// of client
 async function findClientByFullName(client) {
     const foundClient = await db('Client')
         .select([
@@ -74,6 +85,8 @@ async function findClientByFullName(client) {
 
 }
 
+
+// For trader--find the client based on entering their email
 async function findClientByEmail(client) {
     const foundClient = await db('Client')
         .select([
@@ -86,6 +99,9 @@ async function findClientByEmail(client) {
     return foundClient
 }
 
+
+// For trader--find the client based on entering their
+// email, first name, and last name.
 async function findClientByEmailAndFullName(client) {
     const foundClient = await db('Client')
         .select([
