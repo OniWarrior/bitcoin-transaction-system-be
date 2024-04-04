@@ -40,6 +40,21 @@ function addClient(client) {
 }
 
 function addTrader(trader) {
+    return db('Trader')
+        .returning([
+            'first_name',
+            'last_name',
+            'phone_num',
+            'cell_num',
+            'email',
+            'street_addr',
+            'city',
+            'state',
+            'zip_code'
+
+        ])
+        .insert(trader)
+
 
 }
 
