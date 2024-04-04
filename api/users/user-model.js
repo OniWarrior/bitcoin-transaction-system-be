@@ -131,7 +131,8 @@ function findClientBitcoinWallet(email) {
 }
 
 // For client--update the amount of bitcoin
-// after buying and/or selling bitcoin.
+// after buying and/or selling bitcoin. Also update
+// in the event the client pays the commission amount via bitcoin
 function updateBitcoinWallet(email, bitcoin) {
     return db('Client')
         .returning([
@@ -140,6 +141,19 @@ function updateBitcoinWallet(email, bitcoin) {
         .where('email', email)
         .update('Bitcoin_balance', bitcoin)
 }
+
+// For client--update the USD balance after
+// buying and/or selling of bitcoin. Also
+// update in the event the client pays the commission amount via USD
+function updateUSDBalance(email, USD) {
+    return db('Client')
+        .returning([
+            'USD_balance'
+        ])
+        .where('email', email)
+        .update('USD', USD)
+}
+
 
 
 
@@ -153,5 +167,6 @@ module.exports = {
     findClientByEmail,
     findClientByEmailAndFullName,
     findClientBitcoinWallet,
-    updateBitcoinWallet
+    updateBitcoinWallet,
+    updateUSDBalance
 }
