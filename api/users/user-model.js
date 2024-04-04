@@ -130,16 +130,18 @@ function findClientBitcoinWallet(email) {
         .first()
 }
 
-// For client--Add bitcoin to bitcoin balance after
-// purchasing bitcoin
-function addBitcoinToWallet(email, bitcoin) {
+// For client--update the amount of bitcoin
+// after buying and/or selling bitcoin.
+function updateBitcoinWallet(email, bitcoin) {
     return db('Client')
         .returning([
             'Bitcoin_balance'
         ])
         .where('email', email)
-        .insert(bitcoin)
+        .update('Bitcoin_balance', bitcoin)
 }
+
+
 
 
 module.exports = {
@@ -151,5 +153,5 @@ module.exports = {
     findClientByEmail,
     findClientByEmailAndFullName,
     findClientBitcoinWallet,
-    addBitcoinToWallet
+    updateBitcoinWallet
 }
