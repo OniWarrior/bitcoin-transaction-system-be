@@ -21,6 +21,21 @@ function addUser(user) {
 }
 
 function addClient(client) {
+    return db('Client')
+        .returning([
+            'first_name',
+            'last_name',
+            'phone_num',
+            'cell_num',
+            'email',
+            'street_addr',
+            'city',
+            'state',
+            'zip_code',
+            'USD_balance',
+            'Bitcoin_balance'
+        ])
+        .insert(client)
 
 }
 
