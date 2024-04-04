@@ -58,10 +58,27 @@ function addTrader(trader) {
 
 }
 
+async function findClientByFullName(client) {
+    const foundClient = await db('Client')
+        .select([
+            'first_name',
+            'last_name',
+            'email'])
+        .where({
+            first_name: client.first_name,
+            last_name: client.last_name
+        })
+        .first()
+    return foundClient
+
+
+}
+
 
 module.exports = {
     findByEmail,
     addUser,
     addTrader,
-    addClient
+    addClient,
+    findClientByFullName
 }
