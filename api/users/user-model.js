@@ -154,6 +154,20 @@ function updateUSDBalance(email, USD) {
         .update('USD', USD)
 }
 
+// For client--creates a record of the order placed
+// by the client. Whether they bought or sold bitcoin.
+function addOrder(order) {
+    return db('Order')
+        .returning([
+            'client_id',
+            'date',
+            'comm_paid',
+            'comm_type',
+            'Bitcoin_value'
+        ])
+        .insert(order)
+}
+
 
 
 
@@ -168,5 +182,6 @@ module.exports = {
     findClientByEmailAndFullName,
     findClientBitcoinWallet,
     updateBitcoinWallet,
-    updateUSDBalance
+    updateUSDBalance,
+    addOrder
 }
