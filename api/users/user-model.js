@@ -122,6 +122,15 @@ async function findClientByEmailAndFullName(client) {
 }
 
 
+// For client-- find the clients bitcoin wallet
+function findClientBitcoinWallet(email) {
+    return db('Client')
+        .select(['Bitcoin_balance'])
+        .where('email', email)
+        .first()
+}
+
+
 module.exports = {
     findByEmail,
     addUser,
@@ -129,5 +138,6 @@ module.exports = {
     addClient,
     findClientByFullName,
     findClientByEmail,
-    findClientByEmailAndFullName
+    findClientByEmailAndFullName,
+    findClientBitcoinWallet
 }
