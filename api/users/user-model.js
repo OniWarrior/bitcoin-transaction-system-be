@@ -74,11 +74,24 @@ async function findClientByFullName(client) {
 
 }
 
+async function findClientByEmail(client) {
+    const foundClient = await db('Client')
+        .select([
+            'first_name',
+            'last_name',
+            'email'
+        ])
+        .where('email', client.email)
+        .first()
+    return foundClient
+}
+
 
 module.exports = {
     findByEmail,
     addUser,
     addTrader,
     addClient,
-    findClientByFullName
+    findClientByFullName,
+    findClientByEmail
 }
