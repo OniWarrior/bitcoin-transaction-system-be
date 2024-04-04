@@ -9,3 +9,7 @@ async function findByEmail(email) {
     return account;
 
 }
+
+async function addUser(user) {
+
+}
