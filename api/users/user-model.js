@@ -168,6 +168,19 @@ function addOrder(order) {
         .insert(order)
 }
 
+//For trader--creates a record of the transaction placed
+// by the trader on behalf of their client
+function addTransaction(transaction) {
+    return db('Transaction')
+        .returning([
+            'trader_id',
+            'client_id',
+            'date',
+            'amount_paid'
+        ])
+        .insert(transaction)
+}
+
 
 
 
@@ -183,5 +196,6 @@ module.exports = {
     findClientBitcoinWallet,
     updateBitcoinWallet,
     updateUSDBalance,
-    addOrder
+    addOrder,
+    addTransaction
 }
