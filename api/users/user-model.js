@@ -10,6 +10,12 @@ async function findByEmail(email) {
 
 }
 
-async function addUser(user) {
+function addUser(user) {
+    return db('User')
+        .returning([
+            'email',
+            'password',
+            'user_type'])
+        .insert(user)
 
 }
