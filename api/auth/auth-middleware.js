@@ -61,3 +61,27 @@ const checkIfEmailAlreadyRegistered = (req, res, next) => {
             res.status(500).json(`Server error: ${err.message}`)
         })
 }
+
+
+// check for missing or undefined email/password when
+// signing in or registering.
+
+const checkForMissingEmailOrPassword = (req, res, next) => {
+    const { email, password } = req.body
+
+    if (!email || email === "" ||
+        !password || password == "") {
+        res.status(400).json("Email and password are required")
+
+    }
+    else {
+        next()
+    }
+}
+
+module.exports = {
+    restricted,
+    checkIfEmailExists,
+    checkIfEmailAlreadyRegistered,
+    checkForMissingEmailOrPassword
+}
