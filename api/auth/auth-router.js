@@ -82,3 +82,5 @@ const makeToken = (user) => {
 
 }
 
+module.exports = router
+
