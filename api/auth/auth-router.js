@@ -51,6 +51,9 @@ router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
 
 
             }
+            else {
+                res.status(401).json('Invalid email/password credentials')
+            }
 
 
 
