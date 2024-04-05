@@ -16,6 +16,7 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
         let user = req.body
         const rounds = parseInt(process.env.ROUNDS)
         const hash = bcrypt.hashSync(user.password, rounds)
+        user.password = hash
 
         const addUser = await User.addUser(user)
 
@@ -30,4 +31,8 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
 
 
 })
+
+
+// path to login an existing user
+router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async(req, res, next))
 
