@@ -34,5 +34,7 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
 
 
 // path to login an existing user
-router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async(req, res, next))
+router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async (req, res, next) => {
+    const { email, password } = req.body
+})
 
