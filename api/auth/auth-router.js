@@ -8,7 +8,8 @@ const {
 
 } = require('./auth-middleware');
 
-const User = require('../users/user-model')
+const User = require('../users/user-model');
+const { JWT_SECRET } = require('../secrets/secret');
 
 // path to register new account
 router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPassword, async (req, res, next) => {
@@ -77,9 +78,7 @@ const makeToken = (user) => {
         expiresIn: '1d'
     }
 
-
-
-
+    return jwt.sign(payload, JWT_SECRET, option)
 
 }
 
