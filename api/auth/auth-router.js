@@ -38,7 +38,8 @@ router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
     const { email, password } = req.body
 
     User.findByEmail(email)
-        .then([user]=> {
+        .then(([user]) => {
+            const token = makeToken(user)
 
         })
 
