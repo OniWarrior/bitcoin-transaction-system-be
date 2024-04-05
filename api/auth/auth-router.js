@@ -19,6 +19,12 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
 
 
 
+        if (addUser(user)) {
+            res.status(201).json(addUser)
+        }
+
+
+
 
 
 
