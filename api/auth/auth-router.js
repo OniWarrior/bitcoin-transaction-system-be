@@ -42,6 +42,14 @@ router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
             if (user && bcrypt.compareSync(password, user.password)) {
                 const token = makeToken(user)
 
+                res.status(200)
+                    .cookie('token', token)
+                    .json({
+                        message: `Welcome back ${user.email}`,
+                        token
+                    })
+
+
             }
 
 
