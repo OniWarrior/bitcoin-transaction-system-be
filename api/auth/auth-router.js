@@ -73,6 +73,12 @@ const makeToken = (user) => {
         password: user.password
     }
 
+    const option = {
+        expiresIn: '1d'
+    }
+
+
+
 
 
 }
