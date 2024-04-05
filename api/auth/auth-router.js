@@ -17,19 +17,14 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
         const rounds = parseInt(process.env.ROUNDS)
         const hash = bcrypt.hashSync(user.password, rounds)
 
+        const addUser = await User.addUser(user)
 
-
-        if (addUser(user)) {
+        if (addUser) {
             res.status(201).json(addUser)
         }
-
-
-
-
-
-
     }
     catch (err) {
+        res.status(500).json(`Server error: ${err.message}`)
 
     }
 
