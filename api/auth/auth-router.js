@@ -59,6 +59,9 @@ router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
 
 
         })
+        .catch(err => {
+            res.status(500).json(`Server error: ${err.message}`)
+        })
 
 })
 
