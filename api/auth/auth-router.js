@@ -15,6 +15,8 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
     try {
         let user = req.body
         const rounds = parseInt(process.env.ROUNDS)
+        const hash = bcrypt.hashSync(user.password, rounds)
+
 
 
 
