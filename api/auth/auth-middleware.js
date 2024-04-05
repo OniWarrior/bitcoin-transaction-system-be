@@ -43,3 +43,21 @@ const checkIfEmailExists = (req, res, next) => {
         })
 
 }
+
+// Check if Email already exists when registering a new account
+const checkIfEmailAlreadyRegistered = (req, res, next) => {
+    const { email } = req.body
+
+    User.findClientByEmail(email)
+        .then(rows => {
+            if (rows.email) {
+                res.status(422).json("Email is already registered")
+            }
+            else {
+                next()
+            }
+        })
+        .catch(err => {
+            res.status(500).json(`Server error: ${err.message}`)
+        })
+}
