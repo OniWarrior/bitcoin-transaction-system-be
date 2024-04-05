@@ -39,7 +39,13 @@ router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
 
     User.findByEmail(email)
         .then(([user]) => {
-            const token = makeToken(user)
+            if (user && bcrypt.compareSync(password, user.password)) {
+                const token = makeToken(user)
+
+            }
+
+
+
 
         })
 
