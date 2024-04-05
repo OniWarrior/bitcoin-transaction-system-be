@@ -65,3 +65,8 @@ router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
 
 })
 
+//create token after successful login
+const makeToken = (user) => {
+
+}
+
