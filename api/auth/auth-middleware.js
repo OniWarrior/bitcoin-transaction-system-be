@@ -28,4 +28,18 @@ const restricted = (req, res, next) => {
 const checkIfEmailExists = (req, res, next) => {
     const { email } = req.body
 
+    User.findClientByEmail(email)
+        .then(rows => {
+            if (rows.length) {
+                req.userData = rows[0]
+                next()
+            }
+            else {
+                res.status(401).json('Invalid credentials')
+            }
+        })
+        .catch(err => {
+            res.status(500).json(`Server error: ${err.message}`)
+        })
+
 }
