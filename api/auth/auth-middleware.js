@@ -22,3 +22,10 @@ const restricted = (req, res, next) => {
     }
 
 }
+
+
+// Checks if Email exists when signing in.
+const checkIfEmailExists = (req, res, next) => {
+    const { email } = req.body
+
+}
