@@ -4,5 +4,7 @@ const User = require('../users/user-model.js')
 
 // verifies the json web token in user's authorization header
 const restricted = (req, res, next) => {
+    const token = req.headers.authorization
+
 
 }
