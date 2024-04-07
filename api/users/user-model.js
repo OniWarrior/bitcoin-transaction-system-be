@@ -182,7 +182,12 @@ function addMoneyTransfer(transaction) {
 }
 
 
+// For Client--retrieve past orders
+// of buying and selling bitcoin
+async function retrievePastOrders(clientId) {
 
+
+}
 
 
 module.exports = {
