@@ -185,8 +185,17 @@ function addMoneyTransfer(transaction) {
 // For Client--retrieve past orders
 // of buying and selling bitcoin
 async function retrievePastOrders(clientId) {
-
-
+    const orders = await ('Order')
+        .select([
+            'order_id',
+            'date',
+            'comm_paid',
+            'comm_type',
+            'Bitcoin_value'
+        ])
+        .where('client_id', clientId)
+        .first()
+    return orders
 }
 
 
