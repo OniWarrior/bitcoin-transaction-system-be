@@ -58,18 +58,7 @@ async function findClientByEmailAndFullName(client) {
     return foundClient
 }
 
-//For trader--creates a record of the transferred money
-// from the client to the trader.
-function addMoneyTransfer(transaction) {
-    return db('Transaction')
-        .returning([
-            'trader_id',
-            'client_id',
-            'date',
-            'amount_paid'
-        ])
-        .insert(transaction)
-}
+
 
 
 module.exports = {
