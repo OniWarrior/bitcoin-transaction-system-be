@@ -5,7 +5,8 @@ const { restricted } = require('../auth/auth-middleware')
 
 // retrieve all past orders for client
 router.get('/Orders', restricted, (req, res, next) => {
-    Client.retrievePastOrders()
+    const decoded = jwtDecode(req.headers.authorization)
+    Client.retrievePastOrders(decoded.client_id)
         .then((response) => {
             res.status(200).json(response)
         })
@@ -14,3 +15,4 @@ router.get('/Orders', restricted, (req, res, next) => {
         })
 
 })
+
