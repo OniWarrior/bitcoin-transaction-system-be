@@ -38,6 +38,18 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
             Bitcoin_balance: user.Bitcoin_balance
         }
 
+        const traderCredentials = {
+            first_name: user.first_name,
+            last_name: user.last_name,
+            phone_num: user.phone_num,
+            cell_phone: user.cell_num,
+            email: user.email,
+            street_addr: user.street_addr,
+            city: user.city,
+            state: user.state,
+            zip_code: user.zip_code
+        }
+
         const userCredentials = {
             email: user.email,
             password: user.password,
