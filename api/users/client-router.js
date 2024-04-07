@@ -16,3 +16,9 @@ router.get('/Orders', restricted, (req, res, next) => {
 
 })
 
+
+// path to buy bitcoin
+router.post('/BuyBitcoin', restricted, (req, res, next) => {
+
+})
+
