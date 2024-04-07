@@ -24,6 +24,11 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
         user.USD_balance = 0
         user.Bitcoin_balance = 0
 
+        // Initial values for membership level
+        // of client and the number of trades.
+        user.mem_level = 'Silver'
+        user.num_trades = 0
+
         const clientCredentials = {
             first_name: user.first_name,
             last_name: user.last_name,
@@ -35,7 +40,9 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
             state: user.state,
             zip_code: user.zip_code,
             USD_balance: user.USD_balance,
-            Bitcoin_balance: user.Bitcoin_balance
+            Bitcoin_balance: user.Bitcoin_balance,
+            mem_level: user.mem_level,
+            num_trades: user.num_trades
         }
 
         const traderCredentials = {

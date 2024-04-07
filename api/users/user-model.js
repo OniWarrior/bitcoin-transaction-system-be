@@ -39,7 +39,9 @@ function addClient(client) {
             'state',
             'zip_code',
             'USD_balance',
-            'Bitcoin_balance'
+            'Bitcoin_balance',
+            'mem_level',
+            'num_trades',
         ])
         .insert(client)
 
