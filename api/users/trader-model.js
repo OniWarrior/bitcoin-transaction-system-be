@@ -58,11 +58,30 @@ async function findClientByEmailAndFullName(client) {
     return foundClient
 }
 
+// For Trader--insert cancelled payment or transaction
+//into cancel log
+function addTransacOrPayment(cancelled) {
+    return db('Cancel_log')
+        .returning([
+            'order_id',
+            'client_id',
+            'trader_id',
+            'transac_id',
+            'date',
+            'comm_paid',
+            'comm_type',
+            'Bitcoin_value',
+            'amount_paid'
+        ])
+        .insert(cancelled)
+}
+
 
 
 
 module.exports = {
     findClientByEmail,
     findClientByEmailAndFullName,
-    findClientByFullName
+    findClientByFullName,
+    addTransacOrPayment
 }
