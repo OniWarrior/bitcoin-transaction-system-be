@@ -69,7 +69,16 @@ async function retrievePastOrders(clientId) {
 }
 
 // For Client--Transfer money to a 
-// trader
-async function transerMoney() {
+// trader i.e create a record that money was transferred
+function transerMoney(transfer) {
+    return db('Transfer')
+        .returning([
+            'transac_id',
+            'client_id',
+            'trader_id',
+            'amount_paid',
+            'date'
+        ])
+        .insert(transfer)
 
 }
