@@ -56,13 +56,24 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
             user_type: user.user_type
         }
 
+
+
         const addUser = await User.addUser(userCredentials)
 
 
 
         if (addUser) {
-            res.status(201).json(addUser)
+
+            if (user.user_type === 'client') {
+                const addClient = await User.addClient(clientCredentials)
+
+                if (addClient) {
+                    res.status(201).json(addUser, addClient)
+                }
+            }
         }
+
+
     }
     catch (err) {
         res.status(500).json(`Server error: ${err.message}`)
