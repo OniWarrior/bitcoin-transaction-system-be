@@ -82,3 +82,13 @@ function transerMoney(transfer) {
         .insert(transfer)
 
 }
+
+
+module.exports = {
+    findClientBitcoinWallet,
+    updateBitcoinWallet,
+    updateUSDBalance,
+    addOrder,
+    retrievePastOrders,
+    transerMoney
+}
