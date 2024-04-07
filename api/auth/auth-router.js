@@ -71,6 +71,13 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
                     res.status(201).json(addUser, addClient)
                 }
             }
+            else if (user.user_type === 'trader') {
+                const addTrader = await User.addTrader(traderCredentials)
+
+                if (addTrader) {
+                    res.status(201).json(addUser, addTrader)
+                }
+            }
         }
 
 
