@@ -11,7 +11,7 @@ function findClientBitcoinWallet(email) {
         .first()
 }
 
-// For client--update the amount of bitcoin
+// For client and Trader--update the amount of bitcoin
 // after buying and/or selling bitcoin. Also update
 // in the event the client pays the commission amount via bitcoin
 function updateBitcoinWallet(email, bitcoin) {
@@ -23,7 +23,7 @@ function updateBitcoinWallet(email, bitcoin) {
         .update('Bitcoin_balance', bitcoin)
 }
 
-// For client--update the USD balance after
+// For client and Trader--update the USD balance after
 // buying and/or selling of bitcoin. Also
 // update in the event the client pays the commission amount via USD
 function updateUSDBalance(email, USD) {
@@ -35,7 +35,7 @@ function updateUSDBalance(email, USD) {
         .update('USD', USD)
 }
 
-// For client--creates a record of the order placed
+// For client and Trader issuing transaction--creates a record of the order placed
 // by the client. Whether they bought or sold bitcoin.
 function addOrder(order) {
     return db('Order')
@@ -64,7 +64,7 @@ async function retrievePastOrders(clientId) {
             'Bitcoin_value'
         ])
         .where('client_id', clientId)
-        .first()
+
     return orders
 }
 

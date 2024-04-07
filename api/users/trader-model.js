@@ -64,6 +64,5 @@ async function findClientByEmailAndFullName(client) {
 module.exports = {
     findClientByEmail,
     findClientByEmailAndFullName,
-    findClientByFullName,
-    addMoneyTransfer
+    findClientByFullName
 }
