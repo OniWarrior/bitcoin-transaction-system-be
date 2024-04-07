@@ -9,5 +9,8 @@ router.get('/Orders', restricted, (req, res, next) => {
         .then((response) => {
             res.status(200).json(response)
         })
+        .catch(err => {
+            res.status(500).json(`Server error: ${err.message}`)
+        })
 
 })
