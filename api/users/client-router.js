@@ -181,5 +181,14 @@ router.get('/BitcoinWallet', restricted, async (req, res, next) => {
 })
 
 
+// path to transfer money to trader
+router.post('/TransferMoney', restricted, async (req, res, next) => {
+    try {
 
+    }
+    catch (err) {
+        res.status(500)
+            .json(`Server Error: ${err.message}`)
+    }
+})
 
