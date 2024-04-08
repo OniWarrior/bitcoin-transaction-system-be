@@ -159,3 +159,8 @@ router.post('/SellBitcoin', restricted, async (req, res, next) => {
 
 })
 
+
+router.get('/BitcoinWallet', restricted, async (req, res, next) => {
+
+})
+
