@@ -47,6 +47,19 @@ router.post('/BuyBitcoin', restricted, (req, res, next) => {
 
 router.post('/SellBitcoin', restricted, async (req, res, next) => {
     try {
+        const decoded = jwtDecode(req.headers.authorization)
+        const order = req.body
+
+        const currentBalance = await Client.findClientBalance(decoded.email)
+        const updatedBalance = currentBalance +
+            (order.Bitcoin_value *
+                order.bitcoin_price)
+        const currentBitcoin = await Client.findClientBitcoinWallet(decoded.email)
+        const updatedBitcoin = currentBitcoin - order.Bitcoin_value
+
+        const addOrder = await Client.addOrder(order)
+
+
 
     }
     catch (err) {
