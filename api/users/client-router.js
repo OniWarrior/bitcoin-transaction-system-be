@@ -44,3 +44,16 @@ router.post('/BuyBitcoin', restricted, (req, res, next) => {
 
 })
 
+
+router.post('/SellBitcoin', restricted, async (req, res, next) => {
+    try {
+
+    }
+    catch (err) {
+
+    }
+
+
+
+})
+
