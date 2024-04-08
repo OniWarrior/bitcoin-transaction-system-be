@@ -11,6 +11,14 @@ function findClientBitcoinWallet(email) {
         .first()
 }
 
+// For client-- find the client's usd balance
+function findClientBalance(email) {
+    return db('Client')
+        .select(['USD_balance'])
+        .where('email', email)
+        .first()
+}
+
 // For client and Trader--update the amount of bitcoin
 // after buying and/or selling bitcoin. Also update
 // in the event the client pays the commission amount via bitcoin
