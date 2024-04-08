@@ -9,6 +9,15 @@ function findClientID(email) {
         .first()
 }
 
+// For client--find the trader id
+// associated with the client
+function findTraderID(clientId) {
+    return db('Trader')
+        .select(['trader_id'])
+        .where('client_id', clientId)
+        .first()
+}
+
 // For client-- find the clients bitcoin wallet
 function findClientBitcoinWallet(email) {
     return db('Client')
@@ -106,5 +115,6 @@ module.exports = {
     addOrder,
     retrievePastOrders,
     transerMoney,
-    findClientID
+    findClientID,
+    findTraderID
 }

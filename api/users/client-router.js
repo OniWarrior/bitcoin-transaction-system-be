@@ -2,6 +2,8 @@ const router = require('express').Router()
 const Client = require('./client-model')
 const { default: jwtDecode } = require('jwt-decode')
 const { restricted } = require('../auth/auth-middleware')
+const Trader = require('./trader-model')
+
 
 // retrieve all past orders for client
 router.get('/Orders', restricted, (req, res, next) => {
@@ -188,11 +190,51 @@ router.post('/TransferMoney', restricted, async (req, res, next) => {
         // check the usd balance first
         const decoded = jwtDecode(req.headers.authorization)
         const usdWallet = await Client.findClientBalance(decoded.email)
+        const transfer = req.body
 
         if (usdWallet <= 0) {
             res.status(401)
                 .json('You do not have enough usd in your account')
         }
+
+        // retrieve client id, trader id
+        const clientId = await Client.findClientID(decoded.email)
+        const traderId = await Client.findTraderID(clientId)
+
+        // create object for the record
+        const transferCreds = {
+            trader_id: traderId,
+            client_id: clientId,
+            amount_paid: transfer.amount_paid,
+            date: Date()
+        }
+
+
+        // create record of money transfer
+        const transferMoney = await Client.transerMoney(transferCreds)
+
+        // update the usd balance of the client
+        const reducedBalance = usdWallet - transfer.amount_paid
+        const updateUSDBalance = await Client.updateUSDBalance(reducedBalance)
+
+        // update the transfer account of the trader
+        const updateTransferAccount = await Trader.updateTransferAccountById(traderId, transfer.amount_paid)
+
+
+
+
+        if (usdWallet &&
+            clientId &&
+            traderId &&
+            transferMoney &&
+            updateUSDBalance,
+            updateTransferAccount) {
+            res.status(201)
+                .json(usdWallet, clientId, traderId, updateUSDBalance, updateTransferAccount)
+
+        }
+
+
 
     }
     catch (err) {
