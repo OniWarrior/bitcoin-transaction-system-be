@@ -1,7 +1,13 @@
 const db = require('../data/dbConfig')
 
 
-
+// For client-- find client to retrieve id
+function findClientID(email) {
+    return db('Client')
+        .select(['client_id'])
+        .where('email', email)
+        .first()
+}
 
 // For client-- find the clients bitcoin wallet
 function findClientBitcoinWallet(email) {
@@ -52,7 +58,7 @@ function addOrder(order) {
             'date',
             'comm_paid',
             'comm_type',
-            'Bitcoin_value'
+            'Bitcoin_balance'
         ])
         .insert(order)
 }
@@ -69,7 +75,7 @@ async function retrievePastOrders(clientId) {
             'date',
             'comm_paid',
             'comm_type',
-            'Bitcoin_value'
+            'Bitcoin_balance'
         ])
         .where('client_id', clientId)
 
@@ -99,5 +105,6 @@ module.exports = {
     updateUSDBalance,
     addOrder,
     retrievePastOrders,
-    transerMoney
+    transerMoney,
+    findClientID
 }
