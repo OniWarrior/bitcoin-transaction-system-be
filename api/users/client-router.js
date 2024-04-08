@@ -161,6 +161,9 @@ router.post('/SellBitcoin', restricted, async (req, res, next) => {
 
 
 router.get('/BitcoinWallet', restricted, async (req, res, next) => {
+    const decode = jwtDecode(req.headers.authorization)
+    let client = req.body
+
 
 })
 
