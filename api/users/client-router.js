@@ -185,6 +185,15 @@ router.get('/BitcoinWallet', restricted, async (req, res, next) => {
 router.post('/TransferMoney', restricted, async (req, res, next) => {
     try {
 
+        // check the usd balance first
+        const decoded = jwtDecode(req.headers.authorization)
+        const usdWallet = await Client.findClientBalance(decoded.email)
+
+        if (usdWallet <= 0) {
+            res.status(401)
+                .json('You do not have enough usd in your account')
+        }
+
     }
     catch (err) {
         res.status(500)
