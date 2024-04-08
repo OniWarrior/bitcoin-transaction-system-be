@@ -105,12 +105,21 @@ router.post('/SellBitcoin', restricted, async (req, res, next) => {
 
         }
         else {
-            const updatedBitcoin = currentBitcoin - order.Bitcoin_value
+            const updatedBitcoin = currentBitcoin - order.Bitcoin_balance
             const currentBalance = await Client.findClientBalance(decoded.email)
             const updatedBalance = currentBalance +
-                (order.Bitcoin_value *
+                (order.Bitcoin_balance *
                     order.bitcoin_price)
-
+            if (order.comm_type === 'USD') {
+                updatedBalance = currentBalance +
+                    (order.Bitcoin_balance *
+                        order.bitcoin_price) - order.comm_paid
+            }
+            else if (order.comm_type === 'Bitcoin') {
+                updatedBitcoin = currentBitcoin -
+                    order.Bitcoin_balance -
+                    order.comm_paid
+            }
 
             const updateBitcoin = await Client.updateBitcoinWallet(decoded.email,
                 updatedBitcoin)
