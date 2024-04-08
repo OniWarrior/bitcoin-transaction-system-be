@@ -19,6 +19,28 @@ router.get('/Orders', restricted, (req, res, next) => {
 
 // path to buy bitcoin
 router.post('/BuyBitcoin', restricted, (req, res, next) => {
+    const decoded = jwtDecode(req.headers.authorization)
+    const order = req.body
+    Client.addOrder(order)
+        .then((response) => {
+            const currentBitcoin = Client.findClientBitcoinWallet(decoded.email)
+            const updatedBitcoin = currentBitcoin + order.bitcoin_amount
+            Client.updateBitcoinWallet(decoded.email, updatedBitcoin)
+                .then(() => {
+                    const currentBalance = Client.findClientBalance(email)
+                    const updatedBalance = currentBalance - order.comm_paid
+                    Client.updateUSDBalance(decoded.email, updatedBalance)
+
+                })
+
+            res.status(201).json(response)
+
+        })
+        .catch(err => {
+            res.status(500).json(`Server Error: ${err.message}`)
+        })
+
+
 
 })
 

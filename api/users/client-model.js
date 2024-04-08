@@ -94,6 +94,7 @@ function transerMoney(transfer) {
 
 module.exports = {
     findClientBitcoinWallet,
+    findClientBalance,
     updateBitcoinWallet,
     updateUSDBalance,
     addOrder,
