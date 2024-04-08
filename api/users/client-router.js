@@ -160,10 +160,26 @@ router.post('/SellBitcoin', restricted, async (req, res, next) => {
 })
 
 
+// path to retrieve bitcoin wallet of client
 router.get('/BitcoinWallet', restricted, async (req, res, next) => {
-    const decode = jwtDecode(req.headers.authorization)
-    let client = req.body
+    try {
+        const decoded = jwtDecode(req.headers.authorization)
+        const wallet = await Client.findClientBitcoinWallet(decoded.email)
+        if (wallet) {
+            res.status(200)
+                .json(wallet)
+        }
+
+    }
+    catch (err) {
+        res.status(500)
+            .json(`Server Error: ${err.message}`)
+    }
+
 
 
 })
+
+
+
 
