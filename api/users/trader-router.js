@@ -45,3 +45,10 @@ router.get('/FindClient', restricted, async (req, res, next) => {
     }
 
 })
+
+
+// path to retrieve all transfer payments made by clients
+// and retrieve all transactions made by the trader
+router.get('/RetrievePaymentsAndTransacs', restricted, async (req, res, next) => {
+
+})
