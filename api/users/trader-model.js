@@ -85,6 +85,22 @@ function addTransacOrPayment(cancelled) {
         .insert(cancelled)
 }
 
+// For Trader--retrieve transfer payments
+async function retrieveTransferPayments(clientId) {
+    const transactions = await db('Transfer')
+        .select([
+            'transac_id',
+            'client_id',
+            'trader_id',
+            'amount_paid',
+            'date'
+        ])
+        .where('client_id', clientId)
+
+    return transactions
+
+}
+
 
 
 
@@ -94,5 +110,6 @@ module.exports = {
     addTransacOrPayment,
     updateTransferAccountById,
     updateUSDBalanceOfTrader,
-    updateBitcoinBalanceOfTrader
+    updateBitcoinBalanceOfTrader,
+    retrieveTransferPayments
 }

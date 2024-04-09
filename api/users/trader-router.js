@@ -49,6 +49,31 @@ router.get('/FindClient', restricted, async (req, res, next) => {
 
 // path to retrieve all transfer payments made by clients
 // and retrieve all transactions made by the trader
-router.get('/RetrievePaymentsAndTransacs', restricted, async (req, res, next) => {
+router.get('client_id/RetrievePaymentsAndTransacs', restricted, async (req, res, next) => {
+
+    try {
+        const { client_id } = req.params
+
+
+        const orders = await Client.retrievePastOrders(client_id)
+        const transfers = await Trader.retrieveTransferPayments(client_id)
+
+        if (orders && transfers) {
+            res.status(200)
+                .json(orders, transfers)
+
+        }
+
+    }
+    catch (err) {
+        res.status(500)
+            .json(`Server Error: ${err.message}`)
+    }
+
+
+
+
+
+
 
 })
