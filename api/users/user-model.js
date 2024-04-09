@@ -63,7 +63,7 @@ function addTrader(trader) {
             'zip_code',
             'Bitcoin_balance',
             'USD_balance',
-            'transfer_balance'
+            'transfer_balance',
 
         ])
         .insert(trader)

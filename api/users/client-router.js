@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const Client = require('./client-model')
 const { default: jwtDecode } = require('jwt-decode')
-const { restricted } = require('../auth/auth-middleware')
+const { restricted, checkIfPasswordExists } = require('../auth/auth-middleware')
 const Trader = require('./trader-model')
 
 
@@ -30,7 +30,7 @@ router.get('/Orders', restricted, async (req, res, next) => {
 
 
 // path to buy bitcoin
-router.post('/BuyBitcoin', restricted, async (req, res, next) => {
+router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)
         const order = req.body
@@ -231,7 +231,7 @@ router.post('/BuyBitcoin', restricted, async (req, res, next) => {
 })
 
 
-router.post('/SellBitcoin', restricted, async (req, res, next) => {
+router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)
         const order = req.body
