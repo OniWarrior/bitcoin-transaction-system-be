@@ -1,13 +1,23 @@
 const db = require('../data/dbConfig')
 
 
-// For client-- find client to retrieve id
-function findClientID(email) {
-    return db('Client')
-        .select(['client_id'])
+
+// For client--retrieve client info
+async function retrieveClientInfo(email) {
+    const clientInfo = await db('Client')
+        .select([
+            'client_id',
+            'Bitcoin_balance',
+            'USD_balance',
+            'num_trades',
+            'mem_level'
+        ])
         .where('email', email)
         .first()
+    return clientInfo
 }
+
+
 
 // For client--find the trader id
 // associated with the client
@@ -18,21 +28,7 @@ function findTraderID(clientId) {
         .first()
 }
 
-// For client-- find the clients bitcoin wallet
-function findClientBitcoinWallet(email) {
-    return db('Client')
-        .select(['Bitcoin_balance'])
-        .where('email', email)
-        .first()
-}
 
-// For client-- find the client's usd balance
-function findClientBalance(email) {
-    return db('Client')
-        .select(['USD_balance'])
-        .where('email', email)
-        .first()
-}
 
 // For client and Trader--update the amount of bitcoin
 // after buying and/or selling bitcoin. Also update
@@ -58,6 +54,14 @@ function updateUSDBalance(email, USD) {
         .update('USD', USD)
 }
 
+// For client--Update the number of trades for client
+function updateNumTrades(email, trades) {
+    return db('Client')
+        .returning(['num_trades'])
+        .where('email', email)
+        .update(trades)
+}
+
 // For client and Trader issuing transaction--creates a record of the order placed
 // by the client. Whether they bought or sold bitcoin.
 function addOrder(order) {
@@ -78,7 +82,7 @@ function addOrder(order) {
 // For Client--retrieve past orders
 // of buying and selling bitcoin
 async function retrievePastOrders(clientId) {
-    const orders = await ('Order')
+    const orders = await db('Order')
         .select([
             'order_id',
             'date',
@@ -108,13 +112,12 @@ function transerMoney(transfer) {
 
 
 module.exports = {
-    findClientBitcoinWallet,
-    findClientBalance,
+    retrieveClientInfo,
+    retrievePastOrders,
+    findTraderID,
     updateBitcoinWallet,
     updateUSDBalance,
     addOrder,
-    retrievePastOrders,
     transerMoney,
-    findClientID,
-    findTraderID
+    updateNumTrades
 }

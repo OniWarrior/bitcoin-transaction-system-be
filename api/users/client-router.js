@@ -9,12 +9,12 @@ const Trader = require('./trader-model')
 router.get('/Orders', restricted, async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)
-        const clientId = await Client.findClientID(decoded.email)
-        const orders = await Client.retrievePastOrders(clientId)
-        if (clientId &&
+        const client = await Client.retrieveClientInfo(decoded.email)
+        const orders = await Client.retrievePastOrders(client.client_id)
+        if (client &&
             orders) {
             res.status(200)
-                .json(clientId, orders)
+                .json(client, orders)
         }
 
 
@@ -34,44 +34,116 @@ router.post('/BuyBitcoin', restricted, async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)
         const order = req.body
-        const client_id = await Client.findClientID(decoded.email)
+        const client = await Client.retrieveClientInfo(decoded.email)
 
 
-        const currentBalance = await Client.findClientBalance(decoded.email)
-        if (currentBalance <
+        // Check balance to see if enough money exists to purchase bitcoin
+
+
+        if (client.USD_balance <
             (order.Bitcoin_balance * order.bitcoin_price)) {
             res.status(401)
                 .json('Client does not possess enough currency in account to make purchase')
         }
         else {
-            const updatedBalance = currentBalance -
+
+            // Update balance and update bitcoin amount
+            let updatedBalance = currentBalance -
                 (order.Bitcoin_balance *
                     order.bitcoin_price)
-            const currentBitcoin = await Client.findClientBitcoinWallet(decoded.email)
-            const updatedBitcoin = currentBitcoin +
+            const currentBitcoin = client.Bitcoin_balance
+            let updatedBitcoin = currentBitcoin +
                 order.Bitcoin_balance
-            if (order.comm_type === 'USD') {
-                updatedBalance = currentBalance -
-                    (order.Bitcoin_balance *
-                        order.bitcoin_price) -
-                    order.comm_paid
 
+
+            // retrieve member level of client
+            const memberLevel = client.mem_level
+            let commissionPay = 0
+
+
+            // Update balance according to choice made
+            // by client on how to pay for commission payment
+            if (order.comm_type === 'USD') {
+
+                // calculate commission pay based on member level
+                if (memberLevel === 'Silver') {
+                    commissionPay = (order.Bitcoin_balance * order.Bitcoin_price) * 0.1
+
+
+                    // reject if client doesn't possess enough money
+                    if (client.USD_balance <
+                        ((order.Bitcoin_balance * order.bitcoin_price) +
+                            commissionPay)) {
+                        res.status(401)
+                            .json('Client does not possess enough fiat USD to make purchase')
+                    }
+                    else {
+                        updatedBalance -= commissionPay
+
+                    }
+
+                }
+                else if (memberLevel === 'Gold') {
+                    commissionPay = (order.Bitcoin_balance * order.Bitcoin_price) * 0.05
+
+                    // reject if client doesn't possess enough money
+                    if (client.USD_balance <
+                        ((order.Bitcoin_balance * order.bitcoin_price) +
+                            commissionPay)) {
+                        res.status(401)
+                            .json('Client does not possess enough fiat USD to make purchase')
+                    }
+                    else {
+                        updatedBalance -= commissionPay
+
+                    }
+
+                }
 
             }
             else if (order.comm_type === 'Bitcoin') {
-                updatedBitcoin = currentBitcoin +
-                    order.Bitcoin_balance - order.comm_paid
+
+                // calculate commission pay based on member level
+                if (memberLevel === 'Silver') {
+
+                    commissionPay = (order.Bitcoin_balance) * 0.1
+
+
+                    // reject if client doesn't possess enough money
+                    if (client.Bitcoin_balance < commissionPay) {
+                        res.status(401)
+                            .json('Client does not possess enough bitcoin to make purchase')
+                    }
+                    else {
+                        updatedBalance -= commissionPay
+
+                    }
+
+                }
+                else if (memberLevel === 'Gold') {
+                    commissionPay = (order.Bitcoin_balance) * 0.05
+                    // reject if client doesn't possess enough money
+                    if (client.Bitcoin_balance < commissionPay) {
+                        res.status(401)
+                            .json('Client does not possess enough bitcoin to make purchase')
+                    }
+                    else {
+                        updatedBalance -= commissionPay
+
+                    }
+
+                }
 
             }
 
 
-
+            // Insert the updated bitcoin and usd balance to database account
             const updateBitcoin = await Client.updateBitcoinWallet(decoded.email,
                 updatedBitcoin)
             const updateUSD = await Client.updateUSDBalance(decoded.email,
                 updatedBalance)
 
-
+            // create object for record of order
             const orderCreds = {
                 client_id: client_id,
                 date: Date(),
@@ -82,13 +154,17 @@ router.post('/BuyBitcoin', restricted, async (req, res, next) => {
             }
 
 
+            const updateNumTrades = await Client.updateNumTrades(client.email, client.num_trades)
 
+
+            // insert order into order table
             const addOrder = await Client.addOrder(orderCreds)
             if (addOrder &&
                 updateBitcoin &&
-                updateUSD) {
+                updateUSD &&
+                updateNumTrades) {
                 res.status(201)
-                    .json(addOrder, updateBitcoin, updateUSD)
+                    .json(addOrder, updateBitcoin, updateUSD, updateNumTrades)
             }
         }
 
@@ -108,8 +184,11 @@ router.post('/SellBitcoin', restricted, async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)
         const order = req.body
+
+        // retrieve client id
         const client_id = await Client.findClientID(decoded.email)
 
+        // retrieve current bitcoin balance and check to see if sale can be made
         const currentBitcoin = await Client.findClientBitcoinWallet(decoded.email)
         if (currentBitcoin !== order.Bitcoin_value) {
             res.status(401)
@@ -117,11 +196,16 @@ router.post('/SellBitcoin', restricted, async (req, res, next) => {
 
         }
         else {
+
+            // update balance of bitcoin and balance of usd
             const updatedBitcoin = currentBitcoin - order.Bitcoin_balance
             const currentBalance = await Client.findClientBalance(decoded.email)
             const updatedBalance = currentBalance +
                 (order.Bitcoin_balance *
                     order.bitcoin_price)
+
+            // update balance or bitcoin balance based on selection
+            // of how client wants to pay commission
             if (order.comm_type === 'USD') {
                 updatedBalance = currentBalance +
                     (order.Bitcoin_balance *
@@ -133,11 +217,15 @@ router.post('/SellBitcoin', restricted, async (req, res, next) => {
                     order.comm_paid
             }
 
+
+            // insert balance and bitcoin into tables to update
             const updateBitcoin = await Client.updateBitcoinWallet(decoded.email,
                 updatedBitcoin)
             const updateUSD = await Client.updateUSDBalance(decoded.email,
                 updatedBalance)
 
+
+            // create object for record of order
             const orderCreds = {
                 client_id: client_id,
                 date: Date(),
