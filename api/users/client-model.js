@@ -2,14 +2,33 @@ const db = require('../data/dbConfig')
 
 
 
-
-// For client-- find the clients bitcoin wallet
-function findClientBitcoinWallet(email) {
-    return db('Client')
-        .select(['Bitcoin_balance'])
+// For client--retrieve client info
+async function retrieveClientInfo(email) {
+    const clientInfo = await db('Client')
+        .select([
+            'client_id',
+            'Bitcoin_balance',
+            'USD_balance',
+            'num_trades',
+            'mem_level'
+        ])
         .where('email', email)
         .first()
+    return clientInfo
 }
+
+
+
+// For client--find the trader id
+// associated with the client
+function findTraderID(clientId) {
+    return db('Trader')
+        .select(['trader_id'])
+        .where('client_id', clientId)
+        .first()
+}
+
+
 
 // For client and Trader--update the amount of bitcoin
 // after buying and/or selling bitcoin. Also update
@@ -35,6 +54,14 @@ function updateUSDBalance(email, USD) {
         .update('USD', USD)
 }
 
+// For client--Update the number of trades for client
+function updateNumTrades(email, trades) {
+    return db('Client')
+        .returning(['num_trades'])
+        .where('email', email)
+        .update(trades)
+}
+
 // For client and Trader issuing transaction--creates a record of the order placed
 // by the client. Whether they bought or sold bitcoin.
 function addOrder(order) {
@@ -44,7 +71,7 @@ function addOrder(order) {
             'date',
             'comm_paid',
             'comm_type',
-            'Bitcoin_value'
+            'Bitcoin_balance'
         ])
         .insert(order)
 }
@@ -55,13 +82,13 @@ function addOrder(order) {
 // For Client--retrieve past orders
 // of buying and selling bitcoin
 async function retrievePastOrders(clientId) {
-    const orders = await ('Order')
+    const orders = await db('Order')
         .select([
             'order_id',
             'date',
             'comm_paid',
             'comm_type',
-            'Bitcoin_value'
+            'Bitcoin_balance'
         ])
         .where('client_id', clientId)
 
@@ -85,10 +112,12 @@ function transerMoney(transfer) {
 
 
 module.exports = {
-    findClientBitcoinWallet,
+    retrieveClientInfo,
+    retrievePastOrders,
+    findTraderID,
     updateBitcoinWallet,
     updateUSDBalance,
     addOrder,
-    retrievePastOrders,
-    transerMoney
+    transerMoney,
+    updateNumTrades
 }

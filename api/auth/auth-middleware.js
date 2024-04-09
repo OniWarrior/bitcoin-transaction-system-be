@@ -1,6 +1,7 @@
 const { JWT_SECRET } = require('../secrets/secret.js')
 const jwt = require('jsonwebtoken')
 const User = require('../users/user-model.js')
+const Client = require('../users/client-model.js')
 
 // verifies the json web token in user's authorization header
 const restricted = (req, res, next) => {
@@ -79,9 +80,32 @@ const checkForMissingEmailOrPassword = (req, res, next) => {
     }
 }
 
+// check if password exists to confirm identity of client
+const checkIfPasswordExists = async (req, res, next) => {
+    try {
+        const { email, password } = req.body
+        const client = await Client.retrieveClientInfo(email)
+        if (password != client.password) {
+            res.status(400)
+                .json('Invalid credentials. Identity not confirmed')
+        }
+        else {
+            next()
+        }
+
+    }
+    catch (err) {
+        res.status(500).json(`Server Error: ${err.message}`)
+    }
+
+
+
+}
+
 module.exports = {
     restricted,
     checkIfEmailExists,
     checkIfEmailAlreadyRegistered,
-    checkForMissingEmailOrPassword
+    checkForMissingEmailOrPassword,
+    checkIfPasswordExists
 }

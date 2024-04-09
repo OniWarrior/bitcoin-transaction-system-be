@@ -60,7 +60,10 @@ function addTrader(trader) {
             'street_addr',
             'city',
             'state',
-            'zip_code'
+            'zip_code',
+            'Bitcoin_balance',
+            'USD_balance',
+            'transfer_balance',
 
         ])
         .insert(trader)

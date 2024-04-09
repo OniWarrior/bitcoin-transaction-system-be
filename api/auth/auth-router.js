@@ -21,8 +21,8 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
 
         // Initial balance for the fiat account and bitcoin
         // account fro client.
-        user.USD_balance = 0
-        user.Bitcoin_balance = 0
+        user.USD_balance = 0.00
+        user.Bitcoin_balance = 0.00
 
         // Initial values for membership level
         // of client and the number of trades.
@@ -54,7 +54,10 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
             street_addr: user.street_addr,
             city: user.city,
             state: user.state,
-            zip_code: user.zip_code
+            zip_code: user.zip_code,
+            Bitcoin_balance: user.Bitcoin_balance,
+            USD_balance: user.USD_balance,
+            transfer_balance: user.transfer_balance
         }
 
         const userCredentials = {

@@ -1,8 +1,34 @@
 const db = require('../data/dbConfig')
 
+// For trader--update the USD balance account of trader
+function updateUSDBalanceOfTrader(traderId, USD) {
+    return db('Trader')
+        .returning([
+            'USD_balance'
+        ])
+        .where('trader_id', traderId)
+        .update('USD', USD)
+}
 
+// For trader--update the Bitcoin balance account of trader
+function updateBitcoinBalanceOfTrader(traderId, Bitcoin) {
+    return db('Trader')
+        .returning([
+            'Bitcoin_balance'
+        ])
+        .where('trader_id', traderId)
+        .update('Bitcoin_balance', Bitcoin)
+}
 
-
+// For trader --update the transfer account of trader
+function updateTransferAccountById(traderId, USD) {
+    return db('Trader')
+        .returning([
+            'transfer_balance'
+        ])
+        .where('trader_id', traderId)
+        .update('USD', USD)
+}
 
 // For trader--find the client based on entering the first name and last name 
 // of client
@@ -83,5 +109,8 @@ module.exports = {
     findClientByEmail,
     findClientByEmailAndFullName,
     findClientByFullName,
-    addTransacOrPayment
+    addTransacOrPayment,
+    updateTransferAccountById,
+    updateUSDBalanceOfTrader,
+    updateBitcoinBalanceOfTrader
 }
