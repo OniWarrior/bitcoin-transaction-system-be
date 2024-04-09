@@ -145,7 +145,7 @@ router.post('/BuyBitcoin', restricted, async (req, res, next) => {
 
             // create object for record of order
             const orderCreds = {
-                client_id: client_id,
+                client_id: client.client_id,
                 date: Date(),
                 comm_paid: order.comm_paid,
                 comm_type: order.comm_type,
@@ -185,12 +185,12 @@ router.post('/SellBitcoin', restricted, async (req, res, next) => {
         const decoded = jwtDecode(req.headers.authorization)
         const order = req.body
 
-        // retrieve client id
-        const client_id = await Client.findClientID(decoded.email)
+        // retrieve client info
+        const client = await Client.retrieveClientInfo(decoded.email)
 
         // retrieve current bitcoin balance and check to see if sale can be made
-        const currentBitcoin = await Client.findClientBitcoinWallet(decoded.email)
-        if (currentBitcoin !== order.Bitcoin_value) {
+
+        if (client.Bitcoin_balance < order.Bitcoin_balance) {
             res.status(401)
                 .json('Client does not posses enough bitcoin to perform sell')
 
@@ -198,23 +198,71 @@ router.post('/SellBitcoin', restricted, async (req, res, next) => {
         else {
 
             // update balance of bitcoin and balance of usd
-            const updatedBitcoin = currentBitcoin - order.Bitcoin_balance
-            const currentBalance = await Client.findClientBalance(decoded.email)
-            const updatedBalance = currentBalance +
+            let updatedBitcoin = client.Bitcoin_balance - order.Bitcoin_balance
+            let updatedBalance = client.USD_balance +
                 (order.Bitcoin_balance *
                     order.bitcoin_price)
+            let commissionPay = 0
 
             // update balance or bitcoin balance based on selection
             // of how client wants to pay commission
             if (order.comm_type === 'USD') {
-                updatedBalance = currentBalance +
-                    (order.Bitcoin_balance *
-                        order.bitcoin_price) - order.comm_paid
+
+                if (client.mem_level === 'Silver') {
+                    commissionPay = (order.Bitcoin_balance *
+                        order.bitcoin_price) * 0.1
+                    if (client.USD_balance < commissionPay) {
+                        res.status(401)
+                            .json('Client does not possess enough fiat USD to pay commission')
+                    }
+                    else {
+                        updatedBalance -= commissionPay
+
+                    }
+
+                }
+                else if (client.mem_level === 'Gold') {
+
+                    commissionPay = (order.Bitcoin_balance *
+                        order.bitcoin_price) * 0.05
+                    if (client.USD_balance < commissionPay) {
+                        res.status(401)
+                            .json('Client does not possess enough fiat USD to pay commission')
+                    }
+                    else {
+                        updatedBalance -= commissionPay
+
+                    }
+
+                }
+
             }
             else if (order.comm_type === 'Bitcoin') {
-                updatedBitcoin = currentBitcoin -
-                    order.Bitcoin_balance -
-                    order.comm_paid
+                if (client.mem_level === 'Silver') {
+                    commissionPay = (order.Bitcoin_balance) * 0.1
+                    if (client.Bitcoin_balance < commissionPay) {
+                        res.status(401)
+                            .json('Client does not possess enough bitcoin to pay commission')
+                    }
+                    else {
+                        updatedBitcoin -= commissionPay
+
+                    }
+
+                }
+                else if (client.mem_level === 'Gold') {
+
+                    commissionPay = (order.Bitcoin_balance) * 0.05
+                    if (client.Bitcoin_balance < commissionPay) {
+                        res.status(401)
+                            .json('Client does not possess enough bitcoin to pay commission')
+                    }
+                    else {
+                        updatedBitcoin -= commissionPay
+
+                    }
+
+                }
             }
 
 
@@ -227,7 +275,7 @@ router.post('/SellBitcoin', restricted, async (req, res, next) => {
 
             // create object for record of order
             const orderCreds = {
-                client_id: client_id,
+                client_id: client.client_id,
                 date: Date(),
                 comm_paid: order.comm_paid,
                 comm_type: order.comm_type,
@@ -235,16 +283,18 @@ router.post('/SellBitcoin', restricted, async (req, res, next) => {
 
             }
             const addOrder = await Client.addOrder(orderCreds)
-
+            const updateNumTrades = await Client.updateNumTrades(client.email, client.num_trades)
 
 
             if (addOrder &&
                 updateBitcoin &&
-                updateUSD) {
+                updateUSD &&
+                updateNumTrades) {
                 res.status(201)
                     .json(addOrder,
                         updateBitcoin,
-                        updateUSD)
+                        updateUSD,
+                        updateNumTrades)
             }
 
         }
@@ -341,3 +391,4 @@ router.post('/TransferMoney', restricted, async (req, res, next) => {
     }
 })
 
+module.exports = router
