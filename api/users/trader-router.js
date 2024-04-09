@@ -6,24 +6,41 @@ const Trader = require('./trader-model')
 
 
 // path to retrieve client in search
-router.get('/FindClient/:client_id', restricted, async (req, res, next) => {
+router.get('/FindClient', restricted, async (req, res, next) => {
     try {
         // get client search credentials
         const client = req.body
+        let temp;
 
+
+        // search for client based on email,fullname and email
         if (!client.first_name && !client.last_name && client.email) {
+            temp = await Trader.findClientByEmail(email)
 
         }
         else if (client.first_name && client.last_name && client.email) {
+            temp = Trader.findClientByEmailAndFullName(client)
 
         }
         else if (client.email) {
+            temp = await Trader.findClientByEmail(email)
 
         }
+
+        const retrievedClient = temp
+        if (retrievedClient) {
+            res.status(200)
+                .json(retrievedClient)
+        }
+
+
+
 
 
     }
     catch (err) {
+        res.status(500)
+            .json(`Server Error: ${err.message}`)
 
     }
 

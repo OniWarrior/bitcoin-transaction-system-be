@@ -34,7 +34,7 @@ function updateTransferAccountById(traderId, USD) {
 
 
 // For trader--find the client based on entering their email
-async function findClientByEmail(client) {
+async function findClientByEmail(email) {
     const foundClient = await db('Client')
         .select([
             'client_id',
@@ -42,7 +42,7 @@ async function findClientByEmail(client) {
             'last_name',
             'email'
         ])
-        .where('email', client.email)
+        .where('email', email)
         .first()
     return foundClient
 }
