@@ -85,7 +85,8 @@ function addTransacOrPayment(cancelled) {
         .insert(cancelled)
 }
 
-// For Trader--retrieve transfer payments
+// For Trader--retrieve transfer payments--either pending or payments in which
+// money as been invested
 async function retrieveTransferPayments(clientId) {
     const transactions = await db('Transfer')
         .select([
@@ -96,6 +97,29 @@ async function retrieveTransferPayments(clientId) {
             'date'
         ])
         .where('client_id', clientId)
+
+    return transactions
+
+}
+
+// For Trader-- update the Transfer records of
+// non invested transfers to invested
+function updateTransferRecords(clientId, notInvested, isInvested) {
+    return db('Transfer')
+        .returning([
+            'isInvested'
+        ])
+        .where({ client_id: clientId, isInvested: notInvested })
+        .update('isInvested', isInvested)
+
+}
+
+// For Trader--retrieve the total amount of transfer money that exists
+// that comes from payment transfers that are not invested
+async function retrieveTotalFromPendingTransferPayments(clientId, isInvested) {
+    const transactions = await db('Transfer')
+        .sum('amount_paid')
+        .where({ client_id: clientId, isInvested: isInvested })
 
     return transactions
 
@@ -147,5 +171,7 @@ module.exports = {
     retrieveTransferPayments,
     updateIsCancelledOrder,
     updateIsCancelledTransfer,
-    retreiveTraderInfo
+    retreiveTraderInfo,
+    retrieveTotalFromPendingTransferPayments,
+    updateTransferRecords
 }
