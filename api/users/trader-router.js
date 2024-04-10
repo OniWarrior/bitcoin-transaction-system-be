@@ -318,14 +318,25 @@ router.post('/CancelPaymentOrTransaction', restricted, async (req, res, next) =>
         }
         const cancelledTransaction = await Trader.addTransacOrPayment(paymentOrtransaction)
 
-        if ((cancelledTransaction &&
-            order)) {
-            res.status(201)
-                .json(cancelledTransaction, order)
+        // consolidate data ops in single object for transacs and orders
+        const cancelledTransactionAndOrders = {
+            cancelledTransaction,
+            order
         }
-        else if (cancelledTransaction && transfer) {
+
+        // consolidate data ops for cancelled and transfers for single object
+        const cancelledTransactionAndTransfers = {
+            cancelledTransaction,
+            transfer
+        }
+
+        if ((cancelledTransactionAndOrders)) {
             res.status(201)
-                .json(cancelledTransaction, transfer)
+                .json(cancelledTransactionAndOrders)
+        }
+        else if (cancelledTransactionAndTransfers) {
+            res.status(201)
+                .json(cancelledTransactionAndTransfers)
 
         }
 
