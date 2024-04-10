@@ -119,6 +119,22 @@ function updateIsCancelledTransfer(clientId, isCancelled) {
         .update(isCancelled)
 }
 
+// For Trader--retrieve trader info
+async function retreiveTraderInfo(email) {
+    const foundInfo = await db('Client')
+        .select([
+
+            'Bitcoin_balance',
+            'USD_balance',
+            'transfer_balance',
+        ])
+        .where('email', email)
+        .first()
+    return foundInfo
+
+
+}
+
 
 
 module.exports = {
@@ -130,5 +146,6 @@ module.exports = {
     updateBitcoinBalanceOfTrader,
     retrieveTransferPayments,
     updateIsCancelledOrder,
-    updateIsCancelledTransfer
+    updateIsCancelledTransfer,
+    retreiveTraderInfo
 }

@@ -5,29 +5,176 @@ const { restricted, checkIfPasswordExists } = require('../auth/auth-middleware')
 const Trader = require('./trader-model')
 
 
+
+// path to retrieve all transfers of a particular client
+router.get('/GetTransfers', restricted, async (req, res, next) => {
+    try {
+
+    }
+    catch (err) {
+        res.status(500)
+            .json(`Server Error: ${err.message}`)
+    }
+
+
+})
+
+// path to buy bitcoin for client 
+router.post('/BuyBitcoin', restricted, async (req, res, next) => {
+    try {
+        const pageDetails = req.body
+        const decoded = jwtDecode(req.headers.authorization)
+        const trader = await Trader.retreiveTraderInfo(decoded.email)
+        const client = await Client.retrieveClientInfo(pageDetails.client_email)
+
+
+        // Check balance to see if enough money exists to purchase bitcoin
+
+
+        if (trader.transfer_balance <
+            (pageDetails.Bitcoin_balance * pageDetails.bitcoin_price)) {
+            res.status(401)
+                .json('Trader does not possess enough USD in transfer account to make purchase')
+        }
+        else {
+            // Update balance and update bitcoin amount
+            let updatedBalance = trader.transfer_balance -
+                (pageDetails.Bitcoin_balance *
+                    pageDetails.bitcoin_price)
+            const currentBitcoin = client.Bitcoin_balance
+            let updatedBitcoin = currentBitcoin +
+                pageDetails.Bitcoin_balance
+
+
+            // retrieve member level of client
+            const memberLevel = client.mem_level
+            let commissionPay = 0.00
+
+
+
+
+            // calculate commission pay based on member level
+            if (memberLevel === 'Silver') {
+                commissionPay = (pageDetails.Bitcoin_balance * pageDetails.Bitcoin_price) * 0.1
+
+
+                // reject if not enough is present in transfer doesn't possess enough money
+                if (trader.transfer_balance <
+                    ((pageDetails.Bitcoin_balance * pageDetails.bitcoin_price) +
+                        commissionPay)) {
+                    res.status(401)
+                        .json('Client does not possess enough fiat USD to make purchase')
+                }
+                else {
+                    updatedBalance -= commissionPay
+
+
+                }
+
+            }
+            else if (memberLevel === 'Gold') {
+                commissionPay = (pageDetails.Bitcoin_balance * pageDetails.Bitcoin_price) * 0.05
+
+                // reject if client doesn't possess enough money
+                if (trader.transfer_balance <
+                    ((pageDetails.Bitcoin_balance * pageDetails.bitcoin_price) +
+                        commissionPay)) {
+                    res.status(401)
+                        .json('Client does not possess enough fiat USD to make purchase')
+                }
+                else {
+                    updatedBalance -= commissionPay
+
+
+                }
+
+            }
+
+            // Insert the updated bitcoin 
+            const updateBitcoin = await Client.updateBitcoinWallet(decoded.email,
+                updatedBitcoin)
+
+
+            // create object for record of order
+            const orderCreds = {
+                client_id: client.client_id,
+                date: Date(),
+                comm_paid: commissionPay,
+                comm_type: 'USD',
+                Bitcoin_balance: order.Bitcoin_balance
+
+            }
+
+            // increment trades by 1 and update number of client trades
+            const incrementedTrades = (client.num_trades + 1)
+            const updateNumTrades = await Client.updateNumTrades(client.email, incrementedTrades)
+
+            // Update trader balance--based on comm_type
+            const traderId = await Client.findTraderID(client.client_id)
+            let updateUSDBalanceOfTrader;
+
+
+            // insert order into order table
+            const addOrder = await Client.addOrder(orderCreds)
+
+            if (client.comm_type === 'USD') {
+                updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(traderId, commissionPayUSD)
+
+                if (addOrder &&
+                    client &&
+                    updateBitcoin &&
+                    updateUSD &&
+                    updateNumTrades &&
+                    traderId &&
+                    updateUSDBalanceOfTrader) {
+                    res.status(201)
+                        .json(addOrder,
+                            client,
+                            updateBitcoin,
+                            updateUSD,
+                            updateNumTrades,
+                            traderId,
+                            updateUSDBalanceOfTrader)
+                }
+            }
+
+
+
+
+        }
+
+
+
+    }
+    catch (err) {
+        res.status(500)
+            .json(`Server Error: ${err.message}`)
+    }
+})
+
 // path to retrieve client in search
-router.get('/FindClient', restricted, async (req, res, next) => {
+router.get('/clients/search', restricted, async (req, res, next) => {
     try {
         // get client search credentials
         const client = req.body
-        let temp;
+        let retrievedClient;
 
 
         // search for client based on email,fullname and email
         if (!client.first_name && !client.last_name && client.email) {
-            temp = await Trader.findClientByEmail(email)
+            retrievedClient = await Trader.findClientByEmail(email)
 
         }
         else if (client.first_name && client.last_name && client.email) {
-            temp = Trader.findClientByEmailAndFullName(client)
+            retrievedClient = Trader.findClientByEmailAndFullName(client)
 
         }
         else if (client.email) {
-            temp = await Trader.findClientByEmail(email)
+            retrievedClient = await Trader.findClientByEmail(email)
 
         }
 
-        const retrievedClient = temp
+
         if (retrievedClient) {
             res.status(200)
                 .json(retrievedClient)
@@ -45,16 +192,18 @@ router.get('/FindClient', restricted, async (req, res, next) => {
 
 // path to retrieve all transfer payments made by clients
 // and retrieve all transactions made by the trader
-router.get('client_id/RetrievePaymentsAndTransacs', restricted, async (req, res, next) => {
+router.get('/clients/:client_id/payments-and-transactions', restricted, async (req, res, next) => {
 
     try {
         const { client_id } = req.params
         const orders = await Client.retrievePastOrders(client_id)
         const transfers = await Trader.retrieveTransferPayments(client_id)
 
-        if (orders && transfers) {
+        const ordersAndTransfers = { orders, transfers }
+
+        if (ordersAndTransfers) {
             res.status(200)
-                .json(orders, transfers)
+                .json(ordersAndTransfers)
         }
 
     }

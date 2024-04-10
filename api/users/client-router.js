@@ -48,7 +48,7 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
         else {
 
             // Update balance and update bitcoin amount
-            let updatedBalance = currentBalance -
+            let updatedBalance = client.USD_balance -
                 (order.Bitcoin_balance *
                     order.bitcoin_price)
             const currentBitcoin = client.Bitcoin_balance
