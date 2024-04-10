@@ -121,7 +121,7 @@ function updateIsCancelledTransfer(clientId, isCancelled) {
 
 // For Trader--retrieve trader info
 async function retreiveTraderInfo(email) {
-    const foundInfo = await db('Client')
+    const foundInfo = await db('Trader')
         .select([
 
             'Bitcoin_balance',

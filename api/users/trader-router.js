@@ -10,6 +10,13 @@ const Trader = require('./trader-model')
 router.get('/GetTransfers', restricted, async (req, res, next) => {
     try {
 
+        const pageDetails = req.body
+        const transfers = await Trader.retrieveTransferPayments(pageDetails.client_id)
+        if (transfers) {
+            res.status(200)
+                .json(transfers)
+        }
+
     }
     catch (err) {
         res.status(500)
