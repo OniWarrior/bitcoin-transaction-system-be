@@ -101,6 +101,23 @@ async function retrieveTransferPayments(clientId) {
 
 }
 
+// For Trader--update order record
+// to indicate that a tranfser payment is cancelled
+function updateIsCancelledOrder(clientId, isCancelled) {
+    return db('Order')
+        .select(['isCancelled'])
+        .where('client_id', clientId)
+        .update(isCancelled)
+}
+
+// For Trader--update tranfser record
+// to indicate that a tranfser payment is cancelled 
+function updateIsCancelledTransfer(clientId, isCancelled) {
+    return db('Transfer')
+        .select(['isCancelled'])
+        .where('client_id', clientId)
+        .update(isCancelled)
+}
 
 
 
@@ -111,5 +128,7 @@ module.exports = {
     updateTransferAccountById,
     updateUSDBalanceOfTrader,
     updateBitcoinBalanceOfTrader,
-    retrieveTransferPayments
+    retrieveTransferPayments,
+    updateIsCancelledOrder,
+    updateIsCancelledTransfer
 }

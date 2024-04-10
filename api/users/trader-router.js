@@ -33,10 +33,6 @@ router.get('/FindClient', restricted, async (req, res, next) => {
                 .json(retrievedClient)
         }
 
-
-
-
-
     }
     catch (err) {
         res.status(500)
@@ -53,15 +49,12 @@ router.get('client_id/RetrievePaymentsAndTransacs', restricted, async (req, res,
 
     try {
         const { client_id } = req.params
-
-
         const orders = await Client.retrievePastOrders(client_id)
         const transfers = await Trader.retrieveTransferPayments(client_id)
 
         if (orders && transfers) {
             res.status(200)
                 .json(orders, transfers)
-
         }
 
     }
@@ -70,10 +63,45 @@ router.get('client_id/RetrievePaymentsAndTransacs', restricted, async (req, res,
             .json(`Server Error: ${err.message}`)
     }
 
-
-
-
-
-
-
 })
+
+// path to cancel a payment or transaction
+router.post('/CancelPaymentOrTransaction', restricted, async (req, res, next) => {
+    try {
+        const paymentOrtransfer = req.body
+        let order;
+        let transfer;
+        const isCancelled = true
+
+        // differentiate between order and transfer payment
+        if ('comm_type' in paymentOrtransfer) {
+            // update order to show that order is cancelled
+
+            order = await Trader.updateIsCancelledOrder(paymentOrtransfer.client_id, isCancelled)
+        }
+        else {
+            // update transfer to show that transfer is cancelled
+            transfer = await Trader.updateIsCancelledTransfer(paymentOrtransfer.client_id, isCancelled)
+        }
+        const cancelledTransaction = await Trader.addTransacOrPayment(paymentOrtransaction)
+
+        if ((cancelledTransaction &&
+            order)) {
+            res.status(201)
+                .json(cancelledTransaction, order)
+        }
+        else if (cancelledTransaction && transfer) {
+            res.status(201)
+                .json(cancelledTransaction, transfer)
+
+        }
+
+    }
+    catch (err) {
+        res.status(500)
+            .json(`Server Error: ${err.message}`)
+    }
+})
+
+
+module.exports = router
