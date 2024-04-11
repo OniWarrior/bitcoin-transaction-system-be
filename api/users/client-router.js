@@ -18,7 +18,7 @@ router.get('/Orders', restricted, async (req, res, next) => {
         }
         if (dataOps) {
             res.status(200)
-                .json(client, orders)
+                .json(dataOps)
         }
 
 
@@ -230,7 +230,7 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
 
 })
 
-
+// path to sell bitcoin 
 router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)

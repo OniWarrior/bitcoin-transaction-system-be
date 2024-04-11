@@ -108,7 +108,8 @@ function transerMoney(transfer) {
             'trader_id',
             'amount_paid',
             'date',
-            'isCancelled'
+            'isCancelled',
+            'isInvested'
         ])
         .insert(transfer)
 
