@@ -34,3 +34,9 @@ async function retrieveMonthlyTransactions(month, year) {
         .first()
     return transactions
 }
+
+module.exports = {
+    retrieveDailyTransactions,
+    retrieveWeeklyTransactions,
+    retrieveMonthlyTransactions
+}
