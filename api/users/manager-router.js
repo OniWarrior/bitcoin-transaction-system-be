@@ -7,6 +7,13 @@ const { restricted } = require('../auth/auth-middleware')
 // path to retrieve total number of transactions for the week
 router.get('/total-daily-transactions', restricted, async (req, res, next) => {
     try {
+        const date = req.body
+        const totalDailyTransactions = await Manager.retrieveDailyTransactions(date.date)
+
+        if (totalDailyTransactions) {
+            res.status(200)
+                .json(totalDailyTransactions)
+        }
 
     }
     catch (err) {
