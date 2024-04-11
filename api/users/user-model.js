@@ -2,6 +2,16 @@ const db = require('../data/dbConfig')
 
 
 
+
+// update the member level of the client
+async function updateMemberLevel(clientId, memberLevelUp) {
+    const updatedClient = await db('Client')
+        .returning(['mem_level'])
+        .where('client_id', clientId)
+        .update(memberLevelUp)
+    return updatedClient
+}
+
 // Find a user by email--not client or trader
 async function findByEmail(email) {
     const account = await db('User')
@@ -72,4 +82,4 @@ function addTrader(trader) {
 }
 
 
-module.exports = { findByEmail, addUser, addClient, addTrader }
+module.exports = { findByEmail, addUser, addClient, addTrader, updateMemberLevel }
