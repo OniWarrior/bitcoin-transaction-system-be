@@ -3,7 +3,7 @@ const Client = require('./client-model')
 const { default: jwtDecode } = require('jwt-decode')
 const { restricted, checkIfPasswordExists } = require('../auth/auth-middleware')
 const Trader = require('./trader-model')
-const { update } = require('../data/dbConfig')
+
 
 
 // retrieve all past orders for client
@@ -151,13 +151,16 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
             const updateUSD = await Client.updateUSDBalance(decoded.email,
                 updatedBalance)
 
+            let currentDate = new Date().getDate()
+
             // create object for record of order
             const orderCreds = {
                 client_id: client.client_id,
-                date: Date(),
+                date: currentDate,
                 comm_paid: commissionPay,
                 comm_type: order.comm_type,
-                Bitcoin_balance: order.Bitcoin_balance
+                Bitcoin_balance: order.Bitcoin_balance,
+                isCancelled: false
 
             }
 
@@ -322,15 +325,16 @@ router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, 
                 updatedBitcoin)
             const updateUSD = await Client.updateUSDBalance(decoded.email,
                 updatedBalance)
-
+            let currentDate = new Date().getDate()
 
             // create object for record of order
             const orderCreds = {
                 client_id: client.client_id,
-                date: Date(),
+                date: currentDate,
                 comm_paid: commissionPay,
                 comm_type: order.comm_type,
-                Bitcoin_balance: order.Bitcoin_balance
+                Bitcoin_balance: order.Bitcoin_balance,
+                isCancelled: false
 
             }
             // increment trades by 1 and update number of client trades
@@ -428,7 +432,7 @@ router.post('/TransferMoney', restricted, async (req, res, next) => {
         // retrieve client id, trader id
 
         const traderId = await Client.findTraderID(client.client_id)
-        let currentDate = new Date().getDate
+        let currentDate = new Date().getDate()
 
         // create object for the record
         const transferCreds = {
