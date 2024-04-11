@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const Client = require('./client-model')
 const { default: jwtDecode } = require('jwt-decode')
-const { restricted, checkIfPasswordExists } = require('../auth/auth-middleware')
+const { restricted } = require('../auth/auth-middleware')
 const Trader = require('./trader-model')
 
 
@@ -79,7 +79,8 @@ router.post('/BuyBitcoin', restricted, async (req, res, next) => {
                 date: Date(),
                 comm_paid: commissionPay,
                 comm_type: 'USD',
-                Bitcoin_balance: pageDetails.Bitcoin_balance
+                Bitcoin_balance: pageDetails.Bitcoin_balance,
+                isCancelled: false
 
             }
 
@@ -107,23 +108,20 @@ router.post('/BuyBitcoin', restricted, async (req, res, next) => {
             // insert order into order table
             const addOrder = await Client.addOrder(orderCreds)
 
-            // consolidate all database ops into single object for json
-            const dataOps = {
-                client,
-                transfersNotInvested,
-                updateBitcoin,
-                updateNumTrades,
-                traderId,
-                updateTransferBalance,
-                updateUSDBalanceOfTrader,
-                addOrder,
-                updateNonInvestedTransferRecords,
-                trader
-            }
 
-            if (dataOps) {
+
+            if (client &&
+                transfersNotInvested &&
+                updateBitcoin &&
+                updateNumTrades &&
+                traderId &&
+                updateTransferBalance &&
+                updateUSDBalanceOfTrader &&
+                addOrder &&
+                updateNonInvestedTransferRecords &&
+                trader) {
                 res.status(201)
-                    .json(dataOps)
+                    .json('Successfully purchased bitcoin')
             }
 
         }
@@ -182,14 +180,17 @@ router.post('/SellBitcoin', restricted, async (req, res, next) => {
             const updateBitcoin = await Client.updateBitcoinWallet(decoded.email,
                 updatedBitcoin)
 
+            let currentDate = new Date().getDate()
+
 
             // create object for record of order
             const orderCreds = {
                 client_id: client.client_id,
-                date: Date(),
+                date: currentDate,
                 comm_paid: commissionPay,
                 comm_type: 'Bitcoin',
-                Bitcoin_balance: pageDetails.Bitcoin_balance
+                Bitcoin_balance: pageDetails.Bitcoin_balance,
+                isCancelled: false
 
             }
 
@@ -212,18 +213,16 @@ router.post('/SellBitcoin', restricted, async (req, res, next) => {
             // insert order into order table
             const addOrder = await Client.addOrder(orderCreds)
 
-            // consolidate all database ops into single object for json
-            const dataOps = {
-                client,
-                updateBitcoin,
-                updateNumTrades,
-                trader,
-                updateTraderBitcoinBalance
-            }
 
-            if (dataOps) {
+
+            if (addOrder &&
+                client &&
+                updateBitcoin &&
+                updateNumTrades &&
+                trader &&
+                updateTraderBitcoinBalance) {
                 res.status(201)
-                    .json(dataOps)
+                    .json('Successfully sold bitcoin')
             }
 
         }
@@ -283,11 +282,14 @@ router.get('/clients/:client_id/payments-and-transactions', restricted, async (r
         const orders = await Client.retrievePastOrders(client_id)
         const transfers = await Trader.retrieveTransferPayments(client_id)
 
-        const ordersAndTransfers = { orders, transfers }
 
-        if (ordersAndTransfers) {
+
+        if (orders && transfers) {
             res.status(200)
-                .json(ordersAndTransfers)
+                .json({
+                    orders: orders,
+                    transfers: transfers
+                })
         }
 
     }
@@ -318,25 +320,25 @@ router.post('/CancelPaymentOrTransaction', restricted, async (req, res, next) =>
         }
         const cancelledTransaction = await Trader.addTransacOrPayment(paymentOrtransaction)
 
-        // consolidate data ops in single object for transacs and orders
-        const cancelledTransactionAndOrders = {
-            cancelledTransaction,
-            order
-        }
 
-        // consolidate data ops for cancelled and transfers for single object
-        const cancelledTransactionAndTransfers = {
-            cancelledTransaction,
-            transfer
-        }
 
-        if ((cancelledTransactionAndOrders)) {
+
+
+        if ((cancelledTransaction &&
+            order)) {
             res.status(201)
-                .json(cancelledTransactionAndOrders)
+                .json({
+                    cancelledTransaction: cancelledTransaction,
+                    cancelledOrder: order
+                })
         }
-        else if (cancelledTransactionAndTransfers) {
+        else if (cancelledTransaction &&
+            transfer) {
             res.status(201)
-                .json(cancelledTransactionAndTransfers)
+                .json({
+                    cancelledTransaction: cancelledTransaction,
+                    cancelledTransfer: transfer
+                })
 
         }
 
