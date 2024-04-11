@@ -62,6 +62,8 @@ function updateNumTrades(email, trades) {
         .update(trades)
 }
 
+
+
 // For client and Trader issuing transaction--creates a record of the order placed
 // by the client. Whether they bought or sold bitcoin.
 function addOrder(order) {
@@ -71,7 +73,8 @@ function addOrder(order) {
             'date',
             'comm_paid',
             'comm_type',
-            'Bitcoin_balance'
+            'Bitcoin_balance',
+            'isCancelled'
         ])
         .insert(order)
 }
@@ -104,7 +107,9 @@ function transerMoney(transfer) {
             'client_id',
             'trader_id',
             'amount_paid',
-            'date'
+            'date',
+            'isCancelled',
+            'isInvested'
         ])
         .insert(transfer)
 

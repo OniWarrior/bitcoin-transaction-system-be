@@ -11,10 +11,14 @@ router.get('/Orders', restricted, async (req, res, next) => {
         const decoded = jwtDecode(req.headers.authorization)
         const client = await Client.retrieveClientInfo(decoded.email)
         const orders = await Client.retrievePastOrders(client.client_id)
-        if (client &&
-            orders) {
+
+        const dataOps = {
+            client,
+            orders
+        }
+        if (dataOps) {
             res.status(200)
-                .json(client, orders)
+                .json(dataOps)
         }
 
 
@@ -48,7 +52,7 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
         else {
 
             // Update balance and update bitcoin amount
-            let updatedBalance = currentBalance -
+            let updatedBalance = client.USD_balance -
                 (order.Bitcoin_balance *
                     order.bitcoin_price)
             const currentBitcoin = client.Bitcoin_balance
@@ -174,41 +178,37 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
             if (client.comm_type === 'USD') {
                 updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(traderId, commissionPayUSD)
 
-                if (addOrder &&
-                    client &&
-                    updateBitcoin &&
-                    updateUSD &&
-                    updateNumTrades &&
-                    traderId &&
-                    updateUSDBalanceOfTrader) {
+                const dataOps = {
+                    addOrder,
+                    client,
+                    updateBitcoin,
+                    updateUSD,
+                    updateNumTrades,
+                    traderId,
+                    updateUSDBalanceOfTrader
+                }
+
+                if (dataOps) {
                     res.status(201)
-                        .json(addOrder,
-                            client,
-                            updateBitcoin,
-                            updateUSD,
-                            updateNumTrades,
-                            traderId,
-                            updateUSDBalanceOfTrader)
+                        .json(dataOps)
                 }
             }
             else if (client.comm_type === 'Bitcoin') {
                 updateBitcoinBalanceOfTrader = await Trader.updateBitcoinBalanceOfTrader(traderId, commissionPayBitcoin)
 
-                if (addOrder &&
-                    client &&
-                    updateBitcoin &&
-                    updateUSD &&
-                    updateNumTrades &&
-                    traderId &&
-                    updateBitcoinBalanceOfTrader) {
+
+                const dataOps = {
+                    addOrder,
+                    client,
+                    updateBitcoin,
+                    updateUSD,
+                    updateNumTrades,
+                    traderId,
+                    updateUSDBalanceOfTrader
+                }
+                if (dataOps) {
                     res.status(201)
-                        .json(addOrder,
-                            client,
-                            updateBitcoin,
-                            updateUSD,
-                            updateNumTrades,
-                            traderId,
-                            updateBitcoinBalanceOfTrader)
+                        .json(dataOps)
                 }
             }
 
@@ -230,7 +230,7 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
 
 })
 
-
+// path to sell bitcoin 
 router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)
@@ -353,42 +353,36 @@ router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, 
 
             if (client.comm_type === 'USD') {
                 updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(traderId, commissionPayUSD)
+                const dataOps = {
+                    addOrder,
+                    client,
+                    updateBitcoin,
+                    updateUSD,
+                    updateNumTrades,
+                    traderId,
+                    updateUSDBalanceOfTrader
+                }
 
-                if (addOrder &&
-                    client &&
-                    updateBitcoin &&
-                    updateUSD &&
-                    updateNumTrades &&
-                    traderId &&
-                    updateUSDBalanceOfTrader) {
+                if (dataOps) {
                     res.status(201)
-                        .json(addOrder,
-                            client,
-                            updateBitcoin,
-                            updateUSD,
-                            updateNumTrades,
-                            traderId,
-                            updateUSDBalanceOfTrader)
+                        .json(dataOps)
                 }
             }
             else if (client.comm_type === 'Bitcoin') {
                 updateBitcoinBalanceOfTrader = await Trader.updateBitcoinBalanceOfTrader(traderId, commissionPayBitcoin)
 
-                if (addOrder &&
-                    client &&
-                    updateBitcoin &&
-                    updateUSD &&
-                    updateNumTrades &&
-                    traderId &&
-                    updateBitcoinBalanceOfTrader) {
+                const dataOps = {
+                    addOrder,
+                    client,
+                    updateBitcoin,
+                    updateUSD,
+                    updateNumTrades,
+                    traderId,
+                    updateUSDBalanceOfTrader
+                }
+                if (dataOps) {
                     res.status(201)
-                        .json(addOrder,
-                            client,
-                            updateBitcoin,
-                            updateUSD,
-                            updateNumTrades,
-                            traderId,
-                            updateBitcoinBalanceOfTrader)
+                        .json(dataOps)
                 }
             }
 
@@ -465,15 +459,17 @@ router.post('/TransferMoney', restricted, async (req, res, next) => {
         const updateTransferAccount = await Trader.updateTransferAccountById(traderId, transfer.amount_paid)
 
 
-
-
-        if (client &&
-            traderId &&
-            transferMoney &&
+        const dataOps = {
+            client,
+            traderId,
+            transferMoney,
             updateUSDBalance,
-            updateTransferAccount) {
+            updateTransferAccount
+        }
+
+        if (dataOps) {
             res.status(201)
-                .json(client, traderId, updateUSDBalance, updateTransferAccount)
+                .json(dataOps)
 
         }
 

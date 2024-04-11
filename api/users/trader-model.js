@@ -30,28 +30,11 @@ function updateTransferAccountById(traderId, USD) {
         .update('USD', USD)
 }
 
-// For trader--find the client based on entering the first name and last name 
-// of client
-async function findClientByFullName(client) {
-    const foundClient = await db('Client')
-        .select([
-            'client_id',
-            'first_name',
-            'last_name',
-            'email'])
-        .where({
-            first_name: client.first_name,
-            last_name: client.last_name
-        })
-        .first()
-    return foundClient
 
-
-}
 
 
 // For trader--find the client based on entering their email
-async function findClientByEmail(client) {
+async function findClientByEmail(email) {
     const foundClient = await db('Client')
         .select([
             'client_id',
@@ -59,7 +42,7 @@ async function findClientByEmail(client) {
             'last_name',
             'email'
         ])
-        .where('email', client.email)
+        .where('email', email)
         .first()
     return foundClient
 }
@@ -102,15 +85,93 @@ function addTransacOrPayment(cancelled) {
         .insert(cancelled)
 }
 
+// For Trader--retrieve transfer payments--either pending or payments in which
+// money as been invested
+async function retrieveTransferPayments(clientId) {
+    const transactions = await db('Transfer')
+        .select([
+            'transac_id',
+            'client_id',
+            'trader_id',
+            'amount_paid',
+            'date'
+        ])
+        .where('client_id', clientId)
+
+    return transactions
+
+}
+
+// For Trader-- update the Transfer records of
+// non invested transfers to invested
+function updateTransferRecords(clientId, notInvested, isInvested) {
+    return db('Transfer')
+        .returning([
+            'isInvested'
+        ])
+        .where({ client_id: clientId, isInvested: notInvested })
+        .update('isInvested', isInvested)
+
+}
+
+// For Trader--retrieve the total amount of transfer money that exists
+// that comes from payment transfers that are not invested
+async function retrieveTotalFromPendingTransferPayments(clientId, isInvested) {
+    const transactions = await db('Transfer')
+        .sum('amount_paid')
+        .where({ client_id: clientId, isInvested: isInvested })
+
+    return transactions
+
+}
+
+// For Trader--update order record
+// to indicate that a tranfser payment is cancelled
+function updateIsCancelledOrder(clientId, isCancelled) {
+    return db('Order')
+        .select(['isCancelled'])
+        .where('client_id', clientId)
+        .update(isCancelled)
+}
+
+// For Trader--update tranfser record
+// to indicate that a tranfser payment is cancelled 
+function updateIsCancelledTransfer(clientId, isCancelled) {
+    return db('Transfer')
+        .select(['isCancelled'])
+        .where('client_id', clientId)
+        .update(isCancelled)
+}
+
+// For Trader--retrieve trader info
+async function retreiveTraderInfo(email) {
+    const foundInfo = await db('Trader')
+        .select([
+
+            'Bitcoin_balance',
+            'USD_balance',
+            'transfer_balance',
+        ])
+        .where('email', email)
+        .first()
+    return foundInfo
+
+
+}
 
 
 
 module.exports = {
     findClientByEmail,
     findClientByEmailAndFullName,
-    findClientByFullName,
     addTransacOrPayment,
     updateTransferAccountById,
     updateUSDBalanceOfTrader,
-    updateBitcoinBalanceOfTrader
+    updateBitcoinBalanceOfTrader,
+    retrieveTransferPayments,
+    updateIsCancelledOrder,
+    updateIsCancelledTransfer,
+    retreiveTraderInfo,
+    retrieveTotalFromPendingTransferPayments,
+    updateTransferRecords
 }
