@@ -4,6 +4,7 @@ const db = require('../data/dbConfig')
 
 // For client--retrieve client info
 async function retrieveClientInfo(email) {
+
     const clientInfo = await db('Client')
         .select([
             'client_id',

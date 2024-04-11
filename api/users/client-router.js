@@ -5,6 +5,7 @@ const { restricted, checkIfPasswordExists } = require('../auth/auth-middleware')
 const Trader = require('./trader-model')
 
 
+
 // retrieve all past orders for client
 router.get('/Orders', restricted, async (req, res, next) => {
     try {
@@ -12,13 +13,10 @@ router.get('/Orders', restricted, async (req, res, next) => {
         const client = await Client.retrieveClientInfo(decoded.email)
         const orders = await Client.retrievePastOrders(client.client_id)
 
-        const dataOps = {
-            client,
-            orders
-        }
-        if (dataOps) {
+
+        if (client && orders) {
             res.status(200)
-                .json(dataOps)
+                .json(orders)
         }
 
 
@@ -153,13 +151,16 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
             const updateUSD = await Client.updateUSDBalance(decoded.email,
                 updatedBalance)
 
+            let currentDate = new Date().getDate()
+
             // create object for record of order
             const orderCreds = {
                 client_id: client.client_id,
-                date: Date(),
+                date: currentDate,
                 comm_paid: commissionPay,
                 comm_type: order.comm_type,
-                Bitcoin_balance: order.Bitcoin_balance
+                Bitcoin_balance: order.Bitcoin_balance,
+                isCancelled: false
 
             }
 
@@ -178,43 +179,39 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
             if (client.comm_type === 'USD') {
                 updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(traderId, commissionPayUSD)
 
-                const dataOps = {
-                    addOrder,
-                    client,
-                    updateBitcoin,
-                    updateUSD,
-                    updateNumTrades,
-                    traderId,
-                    updateUSDBalanceOfTrader
-                }
 
-                if (dataOps) {
+
+                if (addOrder &&
+                    client &&
+                    updateBitcoin &&
+                    updateUSD &&
+                    updateNumTrades &&
+                    traderId,
+                    updateBitcoinBalanceOfTrader
+
+                ) {
                     res.status(201)
-                        .json(dataOps)
+                        .json('Successfully purchased Bitcoin')
                 }
             }
             else if (client.comm_type === 'Bitcoin') {
                 updateBitcoinBalanceOfTrader = await Trader.updateBitcoinBalanceOfTrader(traderId, commissionPayBitcoin)
 
 
-                const dataOps = {
-                    addOrder,
-                    client,
-                    updateBitcoin,
-                    updateUSD,
-                    updateNumTrades,
+
+                if (addOrder &&
+                    client &&
+                    updateBitcoin &&
+                    updateUSD &&
+                    updateNumTrades &&
                     traderId,
-                    updateUSDBalanceOfTrader
-                }
-                if (dataOps) {
+                    updateBitcoinBalanceOfTrader
+
+                ) {
                     res.status(201)
-                        .json(dataOps)
+                        .json('Successfully purchased Bitcoin')
                 }
             }
-
-
-
-
 
 
         }
@@ -328,15 +325,16 @@ router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, 
                 updatedBitcoin)
             const updateUSD = await Client.updateUSDBalance(decoded.email,
                 updatedBalance)
-
+            let currentDate = new Date().getDate()
 
             // create object for record of order
             const orderCreds = {
                 client_id: client.client_id,
-                date: Date(),
+                date: currentDate,
                 comm_paid: commissionPay,
                 comm_type: order.comm_type,
-                Bitcoin_balance: order.Bitcoin_balance
+                Bitcoin_balance: order.Bitcoin_balance,
+                isCancelled: false
 
             }
             // increment trades by 1 and update number of client trades
@@ -353,36 +351,32 @@ router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, 
 
             if (client.comm_type === 'USD') {
                 updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(traderId, commissionPayUSD)
-                const dataOps = {
-                    addOrder,
-                    client,
-                    updateBitcoin,
-                    updateUSD,
-                    updateNumTrades,
-                    traderId,
-                    updateUSDBalanceOfTrader
-                }
 
-                if (dataOps) {
+
+                if (addOrder &&
+                    client &&
+                    updateBitcoin &&
+                    updateUSD &&
+                    updateNumTrades &&
+                    traderId &&
+                    updateUSDBalanceOfTrader) {
                     res.status(201)
-                        .json(dataOps)
+                        .json('Successfully sold bitcoin')
                 }
             }
             else if (client.comm_type === 'Bitcoin') {
                 updateBitcoinBalanceOfTrader = await Trader.updateBitcoinBalanceOfTrader(traderId, commissionPayBitcoin)
 
-                const dataOps = {
-                    addOrder,
-                    client,
-                    updateBitcoin,
-                    updateUSD,
-                    updateNumTrades,
-                    traderId,
-                    updateUSDBalanceOfTrader
-                }
-                if (dataOps) {
+
+                if (addOrder &&
+                    client &&
+                    updateBitcoin &&
+                    updateUSD &&
+                    updateNumTrades &&
+                    traderId &&
+                    updateUSDBalanceOfTrader) {
                     res.status(201)
-                        .json(dataOps)
+                        .json('Successfully sold bitcoin')
                 }
             }
 
@@ -438,13 +432,16 @@ router.post('/TransferMoney', restricted, async (req, res, next) => {
         // retrieve client id, trader id
 
         const traderId = await Client.findTraderID(client.client_id)
+        let currentDate = new Date().getDate()
 
         // create object for the record
         const transferCreds = {
-            trader_id: traderId,
             client_id: client.client_id,
+            trader_id: traderId,
             amount_paid: transfer.amount_paid,
-            date: Date()
+            date: currentDate,
+            isCancelled: false,
+            isInvested: false
         }
 
 
@@ -459,17 +456,13 @@ router.post('/TransferMoney', restricted, async (req, res, next) => {
         const updateTransferAccount = await Trader.updateTransferAccountById(traderId, transfer.amount_paid)
 
 
-        const dataOps = {
-            client,
-            traderId,
-            transferMoney,
-            updateUSDBalance,
-            updateTransferAccount
-        }
-
-        if (dataOps) {
+        if (client &&
+            traderId &&
+            transferMoney &&
+            updateUSDBalance &&
+            updateTransferAccount) {
             res.status(201)
-                .json(dataOps)
+                .json('Successfully transferred payment to trader')
 
         }
 

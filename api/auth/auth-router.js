@@ -8,6 +8,8 @@ const {
 
 } = require('./auth-middleware');
 
+
+const Client = require('../users/client-model')
 const User = require('../users/user-model');
 const { JWT_SECRET } = require('../secrets/secret');
 
@@ -103,33 +105,99 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
 
 // path to login an existing user
 router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async (req, res, next) => {
-    const { email, password } = req.body
 
-    User.findByEmail(email)
-        .then(([user]) => {
-            if (user && bcrypt.compareSync(password, user.password)) {
-                const token = makeToken(user)
 
-                res.status(200)
+    try {
+        const { email, password } = req.body
+
+        // find user by email
+        const foundUser = await User.findByEmail(email)
+
+        // retrieve the information of the user if they are client user type
+        let client
+
+        // check user type
+        if (foundUser.user_type === 'Client') {
+
+            // Retrieve client info
+            client = await Client.retrieveClientInfo(email)
+
+            // check member level
+            if (client.mem_level === 'Gold') {
+                const encryption = bcrypt.compareSync(password, foundUser.password)
+
+                if (foundUser && encryption) {
+                    const token = makeToken(foundUser)
+
+                    res.status(201)
+                        .cookie('token', token)
+                        .json({
+                            message: `Welcome back ${foundUser.email}`, token,
+                        })
+                }
+                else {
+                    res.status(401).json('Invalid email/password credentials')
+                }
+            }
+            else {  // clients member level is Silver
+
+                // retrieve the total number of trades for the client for the month
+                let month = new Date().getMonth()
+                const totalTransactions = await User.getClientNumTrades(client.client_id, month)
+                let updateMemberLevel
+
+                // check if the client member level needs to be updated
+                if (totalTransactions >= 20) {
+                    let memberLevel = "Gold"
+                    updateMemberLevel = await User.updateMemberLevel(client.client_id, memberLevel)
+                }
+
+                // find whether or not the password matches database password
+                const encryption = bcrypt.compareSync(password, foundUser.password)
+
+
+
+                if (foundUser && encryption) {
+                    const token = makeToken(foundUser)
+
+                    res.status(201)
+                        .cookie('token', token)
+                        .json({
+                            message: `Welcome back ${foundUser.email}`, token,
+                        })
+                }
+                else {
+                    res.status(401).json('Invalid email/password credentials')
+                }
+
+
+
+            }
+        }
+        else {
+
+            // find whether or not the password matches database password
+            const encryption = bcrypt.compareSync(password, foundUser.password)
+
+            if (foundUser && encryption) {
+                const token = makeToken(foundUser)
+
+                res.status(201)
                     .cookie('token', token)
                     .json({
-                        message: `Welcome back ${user.email}`,
-                        token
+                        message: `Welcome back ${foundUser.email}`, token,
                     })
-
-
             }
             else {
                 res.status(401).json('Invalid email/password credentials')
             }
+        }
+    }
+    catch (err) {
+        res.status(500)
+            .json(`Server error: ${err.message}`)
 
-
-
-
-        })
-        .catch(err => {
-            res.status(500).json(`Server error: ${err.message}`)
-        })
+    }
 
 })
 
@@ -148,6 +216,8 @@ const makeToken = (user) => {
     return jwt.sign(payload, JWT_SECRET, option)
 
 }
+
+
 
 module.exports = router
 
