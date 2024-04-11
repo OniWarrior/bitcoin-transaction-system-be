@@ -12,7 +12,7 @@ async function retrieveDailyTransactions(todaysDate) {
     return transactions
 }
 
-// Manager op--retrieve all orders made on the current week
+// Manager op--retrieve total number orders made on the current week
 // note-- dates are inputted by manager
 async function retrieveWeeklyTransactions(startDate, endDate) {
     const transactions = await db('Order')
@@ -22,4 +22,15 @@ async function retrieveWeeklyTransactions(startDate, endDate) {
     return transactions
 
 
+}
+
+
+// Manager op--retrieve total number of orders made during the month
+// note--month and year are provided by manager
+async function retrieveMonthlyTransactions(month, year) {
+    const transactions = await db('Order')
+        .count('order_id')
+        .whereRaw('MONTH(date)=? and YEAR(date)=?', [month, year])
+        .first()
+    return transactions
 }
