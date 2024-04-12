@@ -306,6 +306,7 @@ router.post('/CancelPaymentOrTransaction', restricted, async (req, res, next) =>
         const paymentOrtransfer = req.body
         let order;
         let transfer;
+
         const isCancelled = true
 
         // differentiate between order and transfer payment
@@ -313,11 +314,14 @@ router.post('/CancelPaymentOrTransaction', restricted, async (req, res, next) =>
             // update order to show that order is cancelled
 
             order = await Trader.updateIsCancelledOrder(paymentOrtransfer.client_id, isCancelled)
+
         }
         else {
             // update transfer to show that transfer is cancelled
             transfer = await Trader.updateIsCancelledTransfer(paymentOrtransfer.client_id, isCancelled)
         }
+
+        paymentOrtransfer.isCancelled = true
         const cancelledTransaction = await Trader.addTransacOrPayment(paymentOrtransaction)
 
 

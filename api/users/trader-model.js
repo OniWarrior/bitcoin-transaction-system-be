@@ -79,7 +79,7 @@ function addTransacOrPayment(cancelled) {
             'date',
             'comm_paid',
             'comm_type',
-            'Bitcoin_value',
+            'Bitcoin_balance',
             'amount_paid'
         ])
         .insert(cancelled)
