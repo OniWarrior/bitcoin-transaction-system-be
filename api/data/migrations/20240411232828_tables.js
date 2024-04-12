@@ -29,7 +29,7 @@ exports.up = function (knex) {
             Client.integer('num_trades').notNullable()
         })
         .createTable('Trader', Trader => {
-            Trader.increments('client_id')
+            Trader.increments('trader_id')
             Trader.string('first_name', 50).notNullable()
             Trader.string('last_name', 50).notNullable()
             Trader.string('phone_num', 14).notNullable()
@@ -49,6 +49,15 @@ exports.up = function (knex) {
             Trader.decimal('transfer_balance', 10, 2).notNullable().default(0)
 
 
+        })
+        .createTable('Order', Order => {
+            Order.increments('order_id')
+            Order.integer('client_id').notNullable()
+            Order.date('date').notNullable()
+            Order.decimal('comm_paid', 10, 2).notNullable().default(0)
+            Order.string('comm_type', 7).notNullable()
+            Order.decimal('Bitcoin_balance', 10, 2).notNullable().default(0)
+            Order.boolean('isCancelled').notNullable()
         })
 
 
