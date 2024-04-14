@@ -12,7 +12,7 @@ const clients = [
         street_addr: ' 2015 hello ln',
         zip_code: '75050',
         Bitcoin_balance: 10.00,
-        USD_balance: 100000,
+        USD_balance: 100000.00,
         mem_level: 'Silver',
         num_trades: 5
     },
@@ -28,7 +28,7 @@ const clients = [
         street_addr: ' 2020 kawaii ln',
         zip_code: '75050',
         Bitcoin_balance: 15.00,
-        USD_balance: 300000,
+        USD_balance: 300000.00,
         mem_level: 'Silver',
         num_trades: 10
 
@@ -46,7 +46,7 @@ const clients = [
         street_addr: ' 2023 kawaii ln',
         zip_code: '76118',
         Bitcoin_balance: 20.00,
-        USD_balance: 1000000,
+        USD_balance: 1000000.00,
         mem_level: 'Gold',
         num_trades: 20
     },
@@ -63,7 +63,7 @@ const clients = [
         street_addr: ' 2019 oahu ln',
         zip_code: '76118',
         Bitcoin_balance: 11.00,
-        USD_balance: 100000,
+        USD_balance: 100000.00,
         mem_level: 'Silver',
         num_trades: 5
     },
@@ -79,7 +79,7 @@ const clients = [
         street_addr: ' 2028 kawaii ln',
         zip_code: '75050',
         Bitcoin_balance: 15.00,
-        USD_balance: 300000,
+        USD_balance: 300000.00,
         mem_level: 'Silver',
         num_trades: 10
 
@@ -97,7 +97,7 @@ const clients = [
         street_addr: ' 2000 big island ln',
         zip_code: '75050',
         Bitcoin_balance: 20.00,
-        USD_balance: 1000000,
+        USD_balance: 1000000.00,
         mem_level: 'Gold',
         num_trades: 20
     },
@@ -113,7 +113,7 @@ const clients = [
         street_addr: ' 3000 big lake dr',
         zip_code: '75050',
         Bitcoin_balance: 9.00,
-        USD_balance: 50000,
+        USD_balance: 50000.00,
         mem_level: 'Silver',
         num_trades: 4
     },
@@ -129,7 +129,7 @@ const clients = [
         street_addr: ' 4000 kawaii ln',
         zip_code: '76118',
         Bitcoin_balance: 25.00,
-        USD_balance: 3000000,
+        USD_balance: 3000000.00,
         mem_level: 'Gold',
         num_trades: 35
 
@@ -147,7 +147,7 @@ const clients = [
         street_addr: ' 6000 ebby ln',
         zip_code: '75050',
         Bitcoin_balance: 3.00,
-        USD_balance: 30000,
+        USD_balance: 30000.00,
         mem_level: 'Silver',
         num_trades: 2
     },
@@ -163,7 +163,7 @@ const clients = [
         street_addr: ' 6000 don ln',
         zip_code: '75019',
         Bitcoin_balance: 5.00,
-        USD_balance: 25000,
+        USD_balance: 25000.00,
         mem_level: 'Silver',
         num_trades: 6
     },
@@ -179,7 +179,7 @@ const clients = [
         street_addr: ' 1000 legacy ln',
         zip_code: '76118',
         Bitcoin_balance: 10.00,
-        USD_balance: 300000,
+        USD_balance: 300000.00,
         mem_level: 'Silver',
         num_trades: 10
 
@@ -197,7 +197,7 @@ const clients = [
         street_addr: ' 2050 kawaii ln',
         zip_code: '75050',
         Bitcoin_balance: 40.00,
-        USD_balance: 1000000,
+        USD_balance: 1000000.00,
         mem_level: 'Gold',
         num_trades: 40
     },
@@ -214,7 +214,7 @@ const clients = [
         street_addr: ' 5060 hell ln',
         zip_code: '75032',
         Bitcoin_balance: 10.00,
-        USD_balance: 100000,
+        USD_balance: 100000.00,
         mem_level: 'Silver',
         num_trades: 5
     },
@@ -230,7 +230,7 @@ const clients = [
         street_addr: ' 1010 courtesy ln',
         zip_code: '76118',
         Bitcoin_balance: 19.00,
-        USD_balance: 3000000,
+        USD_balance: 3000000.00,
         mem_level: 'Gold',
         num_trades: 33
 
@@ -248,7 +248,7 @@ const clients = [
         street_addr: ' 6214 Tokyo ln',
         zip_code: '76118',
         Bitcoin_balance: 2.50,
-        USD_balance: 10000,
+        USD_balance: 10000.00,
         mem_level: 'Silver',
         num_trades: 3
     },
@@ -265,7 +265,7 @@ const clients = [
         street_addr: ' 2222 Doom ln',
         zip_code: '75052',
         Bitcoin_balance: 10.00,
-        USD_balance: 100000,
+        USD_balance: 100000.00,
         mem_level: 'Silver',
         num_trades: 5
     },
@@ -281,7 +281,7 @@ const clients = [
         street_addr: ' 2020 kawaii ln',
         zip_code: '75050',
         Bitcoin_balance: 13.60,
-        USD_balance: 40000,
+        USD_balance: 40000.00,
         mem_level: 'Silver',
         num_trades: 10
 
@@ -299,7 +299,7 @@ const clients = [
         street_addr: ' 1100 Lala ln',
         zip_code: '75050',
         Bitcoin_balance: 28.00,
-        USD_balance: 10000000,
+        USD_balance: 10000000.00,
         mem_level: 'Gold',
         num_trades: 26
     },
@@ -315,7 +315,7 @@ const clients = [
         street_addr: ' 9685 John ln',
         zip_code: '75053',
         Bitcoin_balance: 10.00,
-        USD_balance: 100000,
+        USD_balance: 100000.00,
         mem_level: 'Silver',
         num_trades: 5
     },
@@ -331,7 +331,7 @@ const clients = [
         street_addr: ' 8596 western ln',
         zip_code: '76118',
         Bitcoin_balance: 9.00,
-        USD_balance: 400000,
+        USD_balance: 400000.00,
         mem_level: 'Silver',
         num_trades: 9
 
