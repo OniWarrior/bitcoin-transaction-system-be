@@ -18,8 +18,8 @@ const clients = [
     },
     {
         client_id: 2,
-        first_name: 'dennis',
-        last_name: 'ritchie',
+        first_name: 'Dennis',
+        last_name: 'Ritchie',
         phone_num: '(214)-888-8888',
         cell_num: '(817)-333-4444',
         email: 'helloThere@gmail.com',
