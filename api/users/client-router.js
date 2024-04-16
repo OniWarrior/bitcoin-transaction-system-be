@@ -151,12 +151,13 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
             const updateUSD = await Client.updateUSDBalance(decoded.email,
                 updatedBalance)
 
-            let currentDate = new Date().getDate()
+            const date = new Date()
+            const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
 
             // create object for record of order
             const orderCreds = {
                 client_id: client.client_id,
-                date: currentDate,
+                date: formattedDate,
                 comm_paid: commissionPay,
                 comm_type: order.comm_type,
                 Bitcoin_balance: order.Bitcoin_balance,
@@ -186,8 +187,8 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
                     updateBitcoin &&
                     updateUSD &&
                     updateNumTrades &&
-                    traderId,
-                    updateBitcoinBalanceOfTrader
+                    traderId &&
+                    updateUSDBalanceOfTrader
 
                 ) {
                     res.status(201)
@@ -204,7 +205,7 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
                     updateBitcoin &&
                     updateUSD &&
                     updateNumTrades &&
-                    traderId,
+                    traderId &&
                     updateBitcoinBalanceOfTrader
 
                 ) {
@@ -325,12 +326,13 @@ router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, 
                 updatedBitcoin)
             const updateUSD = await Client.updateUSDBalance(decoded.email,
                 updatedBalance)
-            let currentDate = new Date().getDate()
+            const date = new Date()
+            const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
 
             // create object for record of order
             const orderCreds = {
                 client_id: client.client_id,
-                date: currentDate,
+                date: formattedDate,
                 comm_paid: commissionPay,
                 comm_type: order.comm_type,
                 Bitcoin_balance: order.Bitcoin_balance,
@@ -374,7 +376,7 @@ router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, 
                     updateUSD &&
                     updateNumTrades &&
                     traderId &&
-                    updateUSDBalanceOfTrader) {
+                    updateBitcoinBalanceOfTrader) {
                     res.status(201)
                         .json('Successfully sold bitcoin')
                 }
@@ -399,6 +401,7 @@ router.get('/BitcoinWallet', restricted, async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)
         const wallet = await Client.retrieveClientInfo(decoded.email)
+
         if (wallet) {
             res.status(200)
                 .json(wallet.Bitcoin_balance)
@@ -432,14 +435,15 @@ router.post('/TransferMoney', restricted, async (req, res, next) => {
         // retrieve client id, trader id
 
         const traderId = await Client.findTraderID(client.client_id)
-        let currentDate = new Date().getDate()
+        const date = new Date()
+        const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
 
         // create object for the record
         const transferCreds = {
             client_id: client.client_id,
             trader_id: traderId,
             amount_paid: transfer.amount_paid,
-            date: currentDate,
+            date: formattedDate,
             isCancelled: false,
             isInvested: false
         }

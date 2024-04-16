@@ -29,7 +29,7 @@ const restricted = (req, res, next) => {
 const checkIfEmailExists = (req, res, next) => {
     const { email } = req.body
 
-    User.findClientByEmail(email)
+    User.findByEmail(email)
         .then(rows => {
             if (rows.length) {
                 req.userData = rows[0]
@@ -49,7 +49,7 @@ const checkIfEmailExists = (req, res, next) => {
 const checkIfEmailAlreadyRegistered = (req, res, next) => {
     const { email } = req.body
 
-    User.findClientByEmail(email)
+    User.findByEmail(email)
         .then(rows => {
             if (rows.email) {
                 res.status(422).json("Email is already registered")

@@ -9,7 +9,7 @@ const Trader = require('./trader-model')
 
 
 // path to buy bitcoin for client 
-router.post('/BuyBitcoin', restricted, async (req, res, next) => {
+router.post('/TraderBuyBitcoin', restricted, async (req, res, next) => {
     try {
         const pageDetails = req.body
         const decoded = jwtDecode(req.headers.authorization)
@@ -72,11 +72,14 @@ router.post('/BuyBitcoin', restricted, async (req, res, next) => {
             const updateBitcoin = await Client.updateBitcoinWallet(decoded.email,
                 updatedBitcoin)
 
+            const date = new Date()
+            const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
+
 
             // create object for record of order
             const orderCreds = {
                 client_id: client.client_id,
-                date: Date(),
+                date: formattedDate,
                 comm_paid: commissionPay,
                 comm_type: 'USD',
                 Bitcoin_balance: pageDetails.Bitcoin_balance,
@@ -136,7 +139,7 @@ router.post('/BuyBitcoin', restricted, async (req, res, next) => {
 
 
 // path to sell bitcoin by trader
-router.post('/SellBitcoin', restricted, async (req, res, next) => {
+router.post('/TraderSellBitcoin', restricted, async (req, res, next) => {
     try {
         const pageDetails = req.body
         const decoded = jwtDecode(req.headers.authorization)
@@ -180,13 +183,14 @@ router.post('/SellBitcoin', restricted, async (req, res, next) => {
             const updateBitcoin = await Client.updateBitcoinWallet(decoded.email,
                 updatedBitcoin)
 
-            let currentDate = new Date().getDate()
+            const date = new Date()
+            const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
 
 
             // create object for record of order
             const orderCreds = {
                 client_id: client.client_id,
-                date: currentDate,
+                date: formattedDate,
                 comm_paid: commissionPay,
                 comm_type: 'Bitcoin',
                 Bitcoin_balance: pageDetails.Bitcoin_balance,

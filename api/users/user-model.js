@@ -34,10 +34,7 @@ async function findByEmail(email) {
 // Add a user to database
 function addUser(user) {
     return db('User')
-        .returning([
-            'email',
-            'password',
-            'user_type'])
+        .returning(['email', 'password', 'user_type'])
         .insert(user)
 
 }

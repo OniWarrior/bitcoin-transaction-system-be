@@ -21,16 +21,18 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
         const hash = bcrypt.hashSync(user.password, rounds)
         user.password = hash
 
-        // Initial balance for the fiat account and bitcoin
-        // account fro client.
-        user.USD_balance = 0.00
-        user.Bitcoin_balance = 0.00
-
-        // Initial values for membership level
-        // of client and the number of trades.
-        user.mem_level = 'Silver'
-        user.num_trades = 0
-
+        /*   // Initial balance for the fiat account and bitcoin
+           // account for client and trader.
+           let USD_balance = 0.00
+           let Bitcoin_balance = 0.00
+   
+           // Initial values for membership level
+           // of client and the number of trades.
+           let mem_level = 'Silver'
+           let num_trades = 0
+          
+           // transfer balance is 0 for trader.
+           let transfer_balance = 0.00 */
         const clientCredentials = {
             first_name: user.first_name,
             last_name: user.last_name,
@@ -40,11 +42,7 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
             street_addr: user.street_addr,
             city: user.city,
             state: user.state,
-            zip_code: user.zip_code,
-            USD_balance: user.USD_balance,
-            Bitcoin_balance: user.Bitcoin_balance,
-            mem_level: user.mem_level,
-            num_trades: user.num_trades
+            zip_code: user.zip_code
         }
 
         const traderCredentials = {
@@ -57,9 +55,9 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
             city: user.city,
             state: user.state,
             zip_code: user.zip_code,
-            Bitcoin_balance: user.Bitcoin_balance,
-            USD_balance: user.USD_balance,
-            transfer_balance: user.transfer_balance
+            USD_balance: USD_balance,
+            Bitcoin_balance: Bitcoin_balance,
+            transfer_balance: transfer_balance
         }
 
         const userCredentials = {
@@ -76,14 +74,14 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
 
         if (addUser) {
 
-            if (user.user_type === 'client') {
+            if (user.user_type === 'Client') {
                 const addClient = await User.addClient(clientCredentials)
 
                 if (addClient) {
                     res.status(201).json(addUser, addClient)
                 }
             }
-            else if (user.user_type === 'trader') {
+            else if (user.user_type === 'Trader') {
                 const addTrader = await User.addTrader(traderCredentials)
 
                 if (addTrader) {

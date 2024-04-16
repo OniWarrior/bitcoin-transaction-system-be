@@ -2,8 +2,8 @@
 const clients = [
     {
         client_id: 1,
-        first_name: 'john',
-        last_name: 'bryon',
+        first_name: 'John',
+        last_name: 'Bryon',
         phone_num: '(214)-111-2222',
         cell_num: '(514)-333-4444',
         email: 'johnson_bryon@gmail.com',
