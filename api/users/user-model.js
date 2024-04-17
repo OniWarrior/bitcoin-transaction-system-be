@@ -21,12 +21,13 @@ async function updateMemberLevel(clientId, memberLevelUp) {
 }
 
 // Find a user by email--not client or trader
-async function findByEmail(email) {
-    const account = await db('User')
-        .select(['email', 'password'])
-        .where('email', email)
+function findByEmail(email) {
+    return db('User')
+        .select('email', 'password')
+        .where({ email: email })
         .first()
-    return account;
+
+
 
 }
 
@@ -44,6 +45,7 @@ function addUser(user) {
 function addClient(client) {
     return db('Client')
         .returning([
+            'client_id',
             'first_name',
             'last_name',
             'phone_num',
@@ -67,6 +69,7 @@ function addClient(client) {
 function addTrader(trader) {
     return db('Trader')
         .returning([
+            'trader_id',
             'first_name',
             'last_name',
             'phone_num',

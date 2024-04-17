@@ -56,7 +56,7 @@ router.get('/total-monthly-transactions', restricted, async (req, res, next) => 
 
         if (totalMonthlyTransactions) {
             res.status(200)
-                .json(`Server Error: ${err.message}`)
+                .json(totalMonthlyTransactions)
         }
 
     } catch (err) {

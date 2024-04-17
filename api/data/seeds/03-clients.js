@@ -2,6 +2,7 @@
 const clients = [
     {
         client_id: 1,
+        trader_id: 1,
         first_name: 'John',
         last_name: 'Bryon',
         phone_num: '(214)-111-2222',
@@ -18,6 +19,7 @@ const clients = [
     },
     {
         client_id: 2,
+        trader_id: 1,
         first_name: 'Dennis',
         last_name: 'Ritchie',
         phone_num: '(214)-888-8888',
@@ -36,6 +38,7 @@ const clients = [
 
     {
         client_id: 3,
+        trader_id: 1,
         first_name: 'Chelsey',
         last_name: 'Jacobsen',
         phone_num: '(214)-999-9999',
@@ -53,6 +56,7 @@ const clients = [
 
     {
         client_id: 4,
+        trader_id: 1,
         first_name: 'Craig',
         last_name: 'Jones',
         phone_num: '(214)-111-2222',
@@ -69,6 +73,7 @@ const clients = [
     },
     {
         client_id: 5,
+        trader_id: 1,
         first_name: 'John',
         last_name: 'Smith',
         phone_num: '(972)-888-8888',
@@ -87,6 +92,7 @@ const clients = [
 
     {
         client_id: 6,
+        trader_id: 2,
         first_name: 'Brian',
         last_name: 'Kernigan',
         phone_num: '(699)-999-9999',
@@ -103,6 +109,7 @@ const clients = [
     },
     {
         client_id: 7,
+        trader_id: 2,
         first_name: 'Jake',
         last_name: 'Mallory',
         phone_num: '(215)-111-2222',
@@ -119,6 +126,7 @@ const clients = [
     },
     {
         client_id: 8,
+        trader_id: 2,
         first_name: 'John',
         last_name: 'Bonham',
         phone_num: '(213)-888-8888',
@@ -137,6 +145,7 @@ const clients = [
 
     {
         client_id: 9,
+        trader_id: 2,
         first_name: 'John',
         last_name: 'Johns',
         phone_num: '(114)-111-9999',
@@ -153,6 +162,7 @@ const clients = [
     },
     {
         client_id: 10,
+        trader_id: 2,
         first_name: 'john',
         last_name: 'bryon',
         phone_num: '(214)-196-2222',
@@ -169,6 +179,7 @@ const clients = [
     },
     {
         client_id: 11,
+        trader_id: 3,
         first_name: 'Abe',
         last_name: 'Lincoln',
         phone_num: '(666)-888-8888',
@@ -187,6 +198,7 @@ const clients = [
 
     {
         client_id: 12,
+        trader_id: 3,
         first_name: 'Ivan',
         last_name: 'Drago',
         phone_num: '(214)-555-5555',
@@ -204,6 +216,7 @@ const clients = [
 
     {
         client_id: 13,
+        trader_id: 3,
         first_name: 'Stephen',
         last_name: 'Johnson',
         phone_num: '(999)-111-2222',
@@ -220,6 +233,7 @@ const clients = [
     },
     {
         client_id: 14,
+        trader_id: 3,
         first_name: 'James',
         last_name: 'Sunderland',
         phone_num: '(888)-888-8888',
@@ -238,6 +252,7 @@ const clients = [
 
     {
         client_id: 15,
+        trader_id: 3,
         first_name: 'Winston',
         last_name: 'Churchill',
         phone_num: '(214)-999-9999',
@@ -255,6 +270,7 @@ const clients = [
 
     {
         client_id: 16,
+        trader_id: 4,
         first_name: 'Julia',
         last_name: 'Bond',
         phone_num: '(972)-444-2222',
@@ -271,6 +287,7 @@ const clients = [
     },
     {
         client_id: 17,
+        trader_id: 4,
         first_name: 'Bilbo',
         last_name: 'Baggins',
         phone_num: '(214)-123-4567',
@@ -289,6 +306,7 @@ const clients = [
 
     {
         client_id: 18,
+        trader_id: 4,
         first_name: 'Gandolf',
         last_name: 'Vinar',
         phone_num: '(214)-654-9874',
@@ -305,6 +323,7 @@ const clients = [
     },
     {
         client_id: 19,
+        trader_id: 4,
         first_name: 'Frodo',
         last_name: 'Baggins',
         phone_num: '(214)-745-2222',
@@ -321,6 +340,7 @@ const clients = [
     },
     {
         client_id: 20,
+        trader_id: 4,
         first_name: 'Aragorn',
         last_name: 'Ranger',
         phone_num: '(214)-736-8736',

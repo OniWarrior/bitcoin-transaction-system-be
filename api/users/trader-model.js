@@ -6,8 +6,8 @@ function updateUSDBalanceOfTrader(traderId, USD) {
         .returning([
             'USD_balance'
         ])
-        .where('trader_id', traderId)
-        .update('USD', USD)
+        .where({ trader_id: traderId })
+        .update({ USD_balance: USD })
 }
 
 // For trader--update the Bitcoin balance account of trader
@@ -16,8 +16,8 @@ function updateBitcoinBalanceOfTrader(traderId, Bitcoin) {
         .returning([
             'Bitcoin_balance'
         ])
-        .where('trader_id', traderId)
-        .update('Bitcoin_balance', Bitcoin)
+        .where({ trader_id: traderId })
+        .update({ Bitcoin_balance: Bitcoin })
 }
 
 // For trader --update the transfer account of trader
@@ -27,7 +27,7 @@ function updateTransferAccountById(traderId, USD) {
             'transfer_balance'
         ])
         .where('trader_id', traderId)
-        .update('USD', USD)
+        .update({ transfer_balance: USD })
 }
 
 
@@ -36,14 +36,15 @@ function updateTransferAccountById(traderId, USD) {
 // For trader--find the client based on entering their email
 async function findClientByEmail(email) {
     const foundClient = await db('Client')
-        .select([
+        .returning([
             'client_id',
             'first_name',
             'last_name',
             'email'
         ])
-        .where('email', email)
+        .where({ email: email })
         .first()
+
     return foundClient
 }
 
@@ -127,27 +128,28 @@ async function retrieveTotalFromPendingTransferPayments(clientId, isInvested) {
 
 // For Trader--update order record
 // to indicate that a tranfser payment is cancelled
-function updateIsCancelledOrder(clientId, isCancelled) {
+function updateIsCancelledOrder(orderId, isCancelled, traderId) {
     return db('Order')
-        .select(['isCancelled'])
-        .where('client_id', clientId)
-        .update(isCancelled)
+        .where('order_id', orderId)
+        .update({ isCancelled: isCancelled, trader_id: traderId })
+        .returning('isCancelled');
 }
 
 // For Trader--update tranfser record
 // to indicate that a tranfser payment is cancelled 
-function updateIsCancelledTransfer(clientId, isCancelled) {
+function updateIsCancelledTransfer(transacId, isCancelled) {
     return db('Transfer')
-        .select(['isCancelled'])
-        .where('client_id', clientId)
-        .update(isCancelled)
+        .where('transac_id', transacId)
+        .update({ isCancelled: isCancelled })
+        .returning(['isCancelled'])
+
 }
 
 // For Trader--retrieve trader info
 async function retreiveTraderInfo(email) {
     const foundInfo = await db('Trader')
         .select([
-
+            'trader_id',
             'Bitcoin_balance',
             'USD_balance',
             'transfer_balance',

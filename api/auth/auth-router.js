@@ -21,44 +21,7 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
         const hash = bcrypt.hashSync(user.password, rounds)
         user.password = hash
 
-        /*   // Initial balance for the fiat account and bitcoin
-           // account for client and trader.
-           let USD_balance = 0.00
-           let Bitcoin_balance = 0.00
-   
-           // Initial values for membership level
-           // of client and the number of trades.
-           let mem_level = 'Silver'
-           let num_trades = 0
-          
-           // transfer balance is 0 for trader.
-           let transfer_balance = 0.00 */
-        const clientCredentials = {
-            first_name: user.first_name,
-            last_name: user.last_name,
-            phone_num: user.phone_num,
-            cell_phone: user.cell_num,
-            email: user.email,
-            street_addr: user.street_addr,
-            city: user.city,
-            state: user.state,
-            zip_code: user.zip_code
-        }
 
-        const traderCredentials = {
-            first_name: user.first_name,
-            last_name: user.last_name,
-            phone_num: user.phone_num,
-            cell_phone: user.cell_num,
-            email: user.email,
-            street_addr: user.street_addr,
-            city: user.city,
-            state: user.state,
-            zip_code: user.zip_code,
-            USD_balance: USD_balance,
-            Bitcoin_balance: Bitcoin_balance,
-            transfer_balance: transfer_balance
-        }
 
         const userCredentials = {
             email: user.email,
@@ -74,18 +37,47 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
 
         if (addUser) {
 
+
             if (user.user_type === 'Client') {
+
+                const clientCredentials = {
+
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    phone_num: user.phone_num,
+                    cell_num: user.cell_num,
+                    email: user.email,
+                    street_addr: user.street_addr,
+                    city: user.city,
+                    state: user.state,
+                    zip_code: user.zip_code
+                }
+
                 const addClient = await User.addClient(clientCredentials)
 
                 if (addClient) {
-                    res.status(201).json(addUser, addClient)
+                    res.status(201).json({ user: addUser, client: addClient })
                 }
             }
             else if (user.user_type === 'Trader') {
+
+                const traderCredentials = {
+
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    phone_num: user.phone_num,
+                    cell_num: user.cell_num,
+                    email: user.email,
+                    street_addr: user.street_addr,
+                    city: user.city,
+                    state: user.state,
+                    zip_code: user.zip_code,
+
+                }
                 const addTrader = await User.addTrader(traderCredentials)
 
                 if (addTrader) {
-                    res.status(201).json(addUser, addTrader)
+                    res.status(201).json({ user: addUser, trader: addTrader })
                 }
             }
         }

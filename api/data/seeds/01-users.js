@@ -1,4 +1,12 @@
-const users = [
+const bcrypt = require('bcrypt')
+
+
+
+
+
+
+
+let users = [
     {
         user_id: 1,
         email: 'johnson_bryon@gmail.com',
@@ -158,6 +166,13 @@ const users = [
 
 ]
 
+// loop through array of objects and assign hashed passwords
+for (let i = 0; i < users.length - 1; i++) {
+    const rounds = parseInt(process.env.ROUNDS)
+    const hash = bcrypt.hashSync(users[i].password, rounds)
+    const hashedPassword = hash
+    users[i].password = hashedPassword
+}
 
 
 

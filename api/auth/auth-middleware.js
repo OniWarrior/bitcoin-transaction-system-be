@@ -26,41 +26,38 @@ const restricted = (req, res, next) => {
 
 
 // Checks if Email exists when signing in.
-const checkIfEmailExists = (req, res, next) => {
+const checkIfEmailExists = async (req, res, next) => {
     const { email } = req.body
 
-    User.findByEmail(email)
-        .then(rows => {
-            if (rows.length) {
-                req.userData = rows[0]
-                next()
-            }
-            else {
-                res.status(401).json('Invalid credentials')
-            }
-        })
-        .catch(err => {
-            res.status(500).json(`Server error: ${err.message}`)
-        })
+
+
+    const user = await User.findByEmail(email)
+    if (user) {
+        req.userData = user
+        next()
+    }
+    else {
+        res.status(401).json('Invalid credentials')
+    }
+
+
+
+
 
 }
 
 // Check if Email already exists when registering a new account
-const checkIfEmailAlreadyRegistered = (req, res, next) => {
+const checkIfEmailAlreadyRegistered = async (req, res, next) => {
     const { email } = req.body
 
-    User.findByEmail(email)
-        .then(rows => {
-            if (rows.email) {
-                res.status(422).json("Email is already registered")
-            }
-            else {
-                next()
-            }
-        })
-        .catch(err => {
-            res.status(500).json(`Server error: ${err.message}`)
-        })
+    const user = await User.findByEmail(email)
+    if (user) {
+        res.status(422).json("Email is already registered")
+    }
+    else {
+        next()
+    }
+
 }
 
 

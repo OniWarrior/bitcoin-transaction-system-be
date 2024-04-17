@@ -30,7 +30,7 @@ async function retrieveWeeklyTransactions(startDate, endDate) {
 async function retrieveMonthlyTransactions(month, year) {
     const transactions = await db('Order')
         .count('order_id')
-        .whereRaw('MONTH(date)=? and YEAR(date)=?', [month, year])
+        .whereRaw('EXTRACT(MONTH FROM date) = ? AND EXTRACT(YEAR FROM date) = ?', [month, year])
         .first()
     return transactions
 }
