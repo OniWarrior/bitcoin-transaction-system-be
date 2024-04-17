@@ -8,10 +8,12 @@ async function retrieveClientInfo(email) {
     const clientInfo = await db('Client')
         .select([
             'client_id',
+            'trader_id',
             'Bitcoin_balance',
             'USD_balance',
             'num_trades',
-            'mem_level'
+            'mem_level',
+            'email'
         ])
         .where('email', email)
         .first()
@@ -20,14 +22,7 @@ async function retrieveClientInfo(email) {
 
 
 
-// For client--find the trader id
-// associated with the client
-function findTraderID(clientId) {
-    return db('Trader')
-        .select(['trader_id'])
-        .where('client_id', clientId)
-        .first()
-}
+
 
 
 
@@ -40,7 +35,7 @@ function updateBitcoinWallet(email, bitcoin) {
             'Bitcoin_balance'
         ])
         .where('email', email)
-        .update('Bitcoin_balance', bitcoin)
+        .update({ Bitcoin_balance: bitcoin })
 }
 
 // For client and Trader--update the USD balance after
@@ -52,15 +47,15 @@ function updateUSDBalance(email, USD) {
             'USD_balance'
         ])
         .where('email', email)
-        .update('USD', USD)
+        .update({ USD_balance: USD })
 }
 
 // For client--Update the number of trades for client
 function updateNumTrades(email, trades) {
     return db('Client')
-        .returning(['num_trades'])
         .where('email', email)
-        .update(trades)
+        .update({ num_trades: trades })
+        .returning(['num_trades']);
 }
 
 
@@ -120,7 +115,6 @@ function transerMoney(transfer) {
 module.exports = {
     retrieveClientInfo,
     retrievePastOrders,
-    findTraderID,
     updateBitcoinWallet,
     updateUSDBalance,
     addOrder,

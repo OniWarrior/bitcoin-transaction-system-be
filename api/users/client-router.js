@@ -1,6 +1,6 @@
 const router = require('express').Router()
 const Client = require('./client-model')
-const { default: jwtDecode } = require('jwt-decode')
+const { jwtDecode } = require('jwt-decode');
 const { restricted, checkIfPasswordExists } = require('../auth/auth-middleware')
 const Trader = require('./trader-model')
 
@@ -43,7 +43,8 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
 
 
         if (client.USD_balance <
-            (order.Bitcoin_balance * order.bitcoin_price)) {
+            (order.Bitcoin_balance * order.bitcoin_price) ||
+            isNaN(client.USD_balance) || client.USD_balance < 0) {
             res.status(401)
                 .json('Client does not possess enough currency in account to make purchase')
         }
@@ -151,12 +152,13 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
             const updateUSD = await Client.updateUSDBalance(decoded.email,
                 updatedBalance)
 
-            let currentDate = new Date().getDate()
+            const date = new Date()
+            const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
 
             // create object for record of order
             const orderCreds = {
                 client_id: client.client_id,
-                date: currentDate,
+                date: formattedDate,
                 comm_paid: commissionPay,
                 comm_type: order.comm_type,
                 Bitcoin_balance: order.Bitcoin_balance,
@@ -168,16 +170,16 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
             const incrementedTrades = (client.num_trades + 1)
             const updateNumTrades = await Client.updateNumTrades(client.email, incrementedTrades)
 
-            // Update trader balance--based on comm_type
-            const traderId = await Client.findTraderID(client.client_id)
+            // Update trader balance--based on comm_type            
             let updateUSDBalanceOfTrader;
             let updateBitcoinBalanceOfTrader;
 
             // insert order into order table
             const addOrder = await Client.addOrder(orderCreds)
 
-            if (client.comm_type === 'USD') {
-                updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(traderId, commissionPayUSD)
+            if (order.comm_type === 'USD') {
+
+                updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(client.trader_id, commissionPayUSD)
 
 
 
@@ -186,16 +188,18 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
                     updateBitcoin &&
                     updateUSD &&
                     updateNumTrades &&
-                    traderId,
-                    updateBitcoinBalanceOfTrader
+                    updateUSDBalanceOfTrader
 
                 ) {
                     res.status(201)
-                        .json('Successfully purchased Bitcoin')
+                        .json({
+                            message: 'Successfully bought bitcoin',
+                            amount: order.Bitcoin_balance
+                        })
                 }
             }
-            else if (client.comm_type === 'Bitcoin') {
-                updateBitcoinBalanceOfTrader = await Trader.updateBitcoinBalanceOfTrader(traderId, commissionPayBitcoin)
+            else if (order.comm_type === 'Bitcoin') {
+                updateBitcoinBalanceOfTrader = await Trader.updateBitcoinBalanceOfTrader(client.trader_id, commissionPayBitcoin)
 
 
 
@@ -204,12 +208,16 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
                     updateBitcoin &&
                     updateUSD &&
                     updateNumTrades &&
-                    traderId,
                     updateBitcoinBalanceOfTrader
 
                 ) {
                     res.status(201)
-                        .json('Successfully purchased Bitcoin')
+                        .json(
+                            {
+                                message: 'Successfully bought bitcoin',
+                                amount: order.Bitcoin_balance
+                            }
+                        )
                 }
             }
 
@@ -235,10 +243,11 @@ router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, 
 
         // retrieve client info
         const client = await Client.retrieveClientInfo(decoded.email)
-
+        res.status(200).json(client)
         // retrieve current bitcoin balance and check to see if sale can be made
 
-        if (client.Bitcoin_balance < order.Bitcoin_balance) {
+        if (client.Bitcoin_balance < order.Bitcoin_balance ||
+            isNaN(client.Bitcoin_balance) || client.Bitcoin_balance < 0) {
             res.status(401)
                 .json('Client does not posses enough bitcoin to perform sell')
 
@@ -319,18 +328,19 @@ router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, 
                 }
             }
 
-
+            res.status(200).json(updatedBalance)
             // insert balance and bitcoin into tables to update
             const updateBitcoin = await Client.updateBitcoinWallet(decoded.email,
                 updatedBitcoin)
             const updateUSD = await Client.updateUSDBalance(decoded.email,
                 updatedBalance)
-            let currentDate = new Date().getDate()
+            const date = new Date()
+            const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
 
             // create object for record of order
             const orderCreds = {
                 client_id: client.client_id,
-                date: currentDate,
+                date: formattedDate,
                 comm_paid: commissionPay,
                 comm_type: order.comm_type,
                 Bitcoin_balance: order.Bitcoin_balance,
@@ -342,15 +352,15 @@ router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, 
             const updateNumTrades = await Client.updateNumTrades(client.email, incrementedTrades)
 
             // Update trader balance--based on comm_type
-            const traderId = await Client.findTraderID(client.client_id)
+
             let updateUSDBalanceOfTrader;
             let updateBitcoinBalanceOfTrader;
 
             // insert order into order table
             const addOrder = await Client.addOrder(orderCreds)
 
-            if (client.comm_type === 'USD') {
-                updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(traderId, commissionPayUSD)
+            if (order.comm_type === 'USD') {
+                updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(client.trader_id, commissionPayUSD)
 
 
                 if (addOrder &&
@@ -358,14 +368,16 @@ router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, 
                     updateBitcoin &&
                     updateUSD &&
                     updateNumTrades &&
-                    traderId &&
                     updateUSDBalanceOfTrader) {
                     res.status(201)
-                        .json('Successfully sold bitcoin')
+                        .json({
+                            message: 'successfully sold bitcoin',
+                            amount: order.Bitcoin_balance
+                        })
                 }
             }
-            else if (client.comm_type === 'Bitcoin') {
-                updateBitcoinBalanceOfTrader = await Trader.updateBitcoinBalanceOfTrader(traderId, commissionPayBitcoin)
+            else if (order.comm_type === 'Bitcoin') {
+                updateBitcoinBalanceOfTrader = await Trader.updateBitcoinBalanceOfTrader(client.trader_id, commissionPayBitcoin)
 
 
                 if (addOrder &&
@@ -373,10 +385,12 @@ router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, 
                     updateBitcoin &&
                     updateUSD &&
                     updateNumTrades &&
-                    traderId &&
-                    updateUSDBalanceOfTrader) {
+                    updateBitcoinBalanceOfTrader) {
                     res.status(201)
-                        .json('Successfully sold bitcoin')
+                        .json({
+                            message: 'successfully sold bitcoin',
+                            amount: order.Bitcoin_balance
+                        })
                 }
             }
 
@@ -399,6 +413,7 @@ router.get('/BitcoinWallet', restricted, async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)
         const wallet = await Client.retrieveClientInfo(decoded.email)
+
         if (wallet) {
             res.status(200)
                 .json(wallet.Bitcoin_balance)
@@ -431,15 +446,16 @@ router.post('/TransferMoney', restricted, async (req, res, next) => {
 
         // retrieve client id, trader id
 
-        const traderId = await Client.findTraderID(client.client_id)
-        let currentDate = new Date().getDate()
+
+        const date = new Date()
+        const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
 
         // create object for the record
         const transferCreds = {
             client_id: client.client_id,
-            trader_id: traderId,
+            trader_id: client.trader_id,
             amount_paid: transfer.amount_paid,
-            date: currentDate,
+            date: formattedDate,
             isCancelled: false,
             isInvested: false
         }
@@ -453,11 +469,10 @@ router.post('/TransferMoney', restricted, async (req, res, next) => {
         const updateUSDBalance = await Client.updateUSDBalance(reducedBalance)
 
         // update the transfer account of the trader
-        const updateTransferAccount = await Trader.updateTransferAccountById(traderId, transfer.amount_paid)
+        const updateTransferAccount = await Trader.updateTransferAccountById(client.trader_id, transfer.amount_paid)
 
 
         if (client &&
-            traderId &&
             transferMoney &&
             updateUSDBalance &&
             updateTransferAccount) {

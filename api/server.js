@@ -6,7 +6,9 @@ const helmet = require('helmet')
 const { restricted } = require('../api/auth/auth-middleware')
 
 const authRouter = require('../api/auth/auth-router')
-const userRouter = require('../api/auth/user-router')
+const clientRouter = require('../api/users/client-router')
+const traderRouter = require('../api/users/trader-router')
+const managerRouter = require('../api/users/manager-router')
 
 const server = express()
 
@@ -16,6 +18,6 @@ server.use(cors())
 server.use(cookieParser())
 
 server.use('/api/auth', authRouter)
-server.use('/api/users', userRouter, restricted)
+server.use('/api/users', clientRouter, traderRouter, managerRouter, restricted)
 
 module.exports = server

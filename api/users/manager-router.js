@@ -6,8 +6,10 @@ const { restricted } = require('../auth/auth-middleware')
 // path to retrieve total number of daily transactions
 router.get('/total-daily-transactions', restricted, async (req, res, next) => {
     try {
+        // retrieve date information from body then reformat to be retrieved from database
         const date = req.body
-        const totalDailyTransactions = await Manager.retrieveDailyTransactions(date.date)
+        const formattedDate = `${date.year}` + '-' + `${date.month}` + '-' + `${date.day}`
+        const totalDailyTransactions = await Manager.retrieveDailyTransactions(formattedDate)
 
         if (totalDailyTransactions) {
             res.status(200)
@@ -25,8 +27,12 @@ router.get('/total-daily-transactions', restricted, async (req, res, next) => {
 // path to retrieve total number of transactions for the week
 router.get('/total-weekly-transactions', restricted, async (req, res, next) => {
     try {
+
+        // retrieve date information from body then reformat to be retrieved from database
         const date = req.body
-        const totalWeeklyTransactions = await Manager.retrieveWeeklyTransactions(date.startDate, date.endDate)
+        const startDate = `${date.startDate.year}` + '-' + `${date.startDate.month}` + '-' + `${date.startDate.day}`
+        const endDate = `${date.endDate.year}` + '-' + `${date.endDate.month}` + '-' + `${date.endDate.day}`
+        const totalWeeklyTransactions = await Manager.retrieveWeeklyTransactions(startDate, endDate)
 
         if (totalWeeklyTransactions) {
             res.status(200)
@@ -43,12 +49,14 @@ router.get('/total-weekly-transactions', restricted, async (req, res, next) => {
 // path to retrieve total number of transactions for the month
 router.get('/total-monthly-transactions', restricted, async (req, res, next) => {
     try {
+
+        // retrieve date information then retrieve monthly transacs from database
         const date = req.body
         const totalMonthlyTransactions = await Manager.retrieveMonthlyTransactions(date.month, date.year)
 
         if (totalMonthlyTransactions) {
             res.status(200)
-                .json(`Server Error: ${err.message}`)
+                .json(totalMonthlyTransactions)
         }
 
     } catch (err) {
