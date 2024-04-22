@@ -196,7 +196,8 @@ const makeToken = (user) => {
     const payload = {
         user_id: user.user_id,
         email: user.email,
-        password: user.password
+        password: user.password,
+        user_type: user.user_type
     }
 
     const option = {
