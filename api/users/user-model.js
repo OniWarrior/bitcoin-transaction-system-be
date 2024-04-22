@@ -23,7 +23,7 @@ async function updateMemberLevel(clientId, memberLevelUp) {
 // Find a user by email--not client or trader
 function findByEmail(email) {
     return db('User')
-        .select('email', 'password')
+        .select('email', 'password', 'user_type')
         .where({ email: email })
         .first()
 
