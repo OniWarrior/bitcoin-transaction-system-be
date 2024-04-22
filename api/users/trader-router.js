@@ -7,7 +7,6 @@ const Trader = require('./trader-model')
 
 
 
-
 // path to buy bitcoin for client 
 router.post('/TraderBuyBitcoin', restricted, async (req, res, next) => {
     try {
