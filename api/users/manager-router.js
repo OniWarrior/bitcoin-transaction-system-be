@@ -34,7 +34,7 @@ router.post('/weekly', async (req, res, next) => {
 
         // retrieve date information from body then reformat to be retrieved from database
         const date = req.body
-        const startDate = `${date.start_year}` + '-' + `${date.star_month}` + '-' + `${date.start_day}`
+        const startDate = `${date.start_year}` + '-' + `${date.start_month}` + '-' + `${date.start_day}`
         const endDate = `${date.end_year}` + '-' + `${date.end_month}` + '-' + `${date.end_day}`
         const totalWeeklyTransactions = await Manager.retrieveWeeklyTransactions(startDate, endDate)
 
