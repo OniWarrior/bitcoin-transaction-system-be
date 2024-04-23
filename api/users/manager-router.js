@@ -29,7 +29,7 @@ router.post('/daily', async (req, res, next) => {
 
 
 // path to retrieve total number of transactions for the week
-router.get('/total-weekly-transactions', restricted, async (req, res, next) => {
+router.post('/weekly', async (req, res, next) => {
     try {
 
         // retrieve date information from body then reformat to be retrieved from database
@@ -51,7 +51,7 @@ router.get('/total-weekly-transactions', restricted, async (req, res, next) => {
 })
 
 // path to retrieve total number of transactions for the month
-router.get('/total-monthly-transactions', restricted, async (req, res, next) => {
+router.post('/monthly', async (req, res, next) => {
     try {
 
         // retrieve date information then retrieve monthly transacs from database
