@@ -4,7 +4,7 @@ const { restricted } = require('../auth/auth-middleware')
 
 
 // path to retrieve total number of daily transactions
-router.post('/Daily', restricted, async (req, res, next) => {
+router.post('/daily', restricted, async (req, res, next) => {
     try {
 
         // retrieve date information from body then reformat to be retrieved from database
