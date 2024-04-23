@@ -4,7 +4,7 @@ const { restricted } = require('../auth/auth-middleware')
 
 
 // path to retrieve total number of daily transactions
-router.get('/total-daily-transactions', restricted, async (req, res, next) => {
+router.post('/total-daily-transactions', restricted, async (req, res, next) => {
     try {
         // retrieve date information from body then reformat to be retrieved from database
         const date = req.body
@@ -14,6 +14,9 @@ router.get('/total-daily-transactions', restricted, async (req, res, next) => {
         if (totalDailyTransactions) {
             res.status(200)
                 .json(totalDailyTransactions)
+        }
+        else {
+            res.status(404).json({ message: "No transactions found for this date." });
         }
 
     }
