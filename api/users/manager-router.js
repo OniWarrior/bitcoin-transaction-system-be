@@ -6,7 +6,7 @@ const { restricted } = require('../auth/auth-middleware')
 // path to retrieve total number of daily transactions
 router.post('/total-daily-transactions', restricted, async (req, res, next) => {
     try {
-        res.status(200).json("I have arrived")
+
         // retrieve date information from body then reformat to be retrieved from database
         const date = req.body
         const formattedDate = `${date.year}-${date.month}-${date.day}`;
