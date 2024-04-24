@@ -7,7 +7,7 @@ const Trader = require('./trader-model')
 
 
 // retrieve all past orders for client
-router.get('/Orders', restricted, async (req, res, next) => {
+router.get('/Orders', async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)
         const client = await Client.retrieveClientInfo(decoded.email)
@@ -32,7 +32,7 @@ router.get('/Orders', restricted, async (req, res, next) => {
 
 
 // path to buy bitcoin
-router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, next) => {
+router.post('/BuyBitcoin', checkIfPasswordExists, async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)
         const order = req.body
@@ -236,7 +236,7 @@ router.post('/BuyBitcoin', restricted, checkIfPasswordExists, async (req, res, n
 })
 
 // path to sell bitcoin 
-router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, next) => {
+router.post('/SellBitcoin', checkIfPasswordExists, async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)
         const order = req.body
@@ -409,7 +409,7 @@ router.post('/SellBitcoin', restricted, checkIfPasswordExists, async (req, res, 
 
 
 // path to retrieve bitcoin wallet of client
-router.get('/BitcoinWallet', restricted, async (req, res, next) => {
+router.get('/BitcoinWallet', async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)
         const wallet = await Client.retrieveClientInfo(decoded.email)
