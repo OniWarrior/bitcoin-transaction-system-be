@@ -111,9 +111,9 @@ router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
 
             // Retrieve client info
             client = await Client.retrieveClientInfo(email)
-
+            res.status(200).json(client)
             // check member level
-            if (client.client.mem_level === 'Gold') {
+            if (client.mem_level === 'Gold') {
                 const encryption = bcrypt.compareSync(password, foundUser.password)
 
                 if (foundUser && encryption) {
