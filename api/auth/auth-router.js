@@ -111,7 +111,7 @@ router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
 
             // Retrieve client info
             client = await Client.retrieveClientInfo(email)
-            res.status(200).json({ message: 'hello there', client: client })
+
             // check member level
             if (client.mem_level === 'Gold') {
                 const encryption = bcrypt.compareSync(password, foundUser.password)
@@ -135,7 +135,7 @@ router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
                 let month = new Date().getMonth()
                 const totalTransactions = await User.getClientNumTrades(client.client_id, month)
                 let updateMemberLevel
-
+                res.status(200).json({ message: 'hello there', totalTransactions: totalTransactions })
                 // check if the client member level needs to be updated
                 if (totalTransactions >= 20) {
                     let memberLevel = "Gold"
