@@ -115,7 +115,7 @@ router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
             // check member level
             if (client.mem_level === 'Gold') {
                 const encryption = bcrypt.compareSync(password, foundUser.password)
-                res.status(200).json({ client: client.mem_level })
+
                 if (foundUser && encryption) {
                     const token = makeToken(foundUser)
 
