@@ -111,7 +111,7 @@ router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
 
             // Retrieve client info
             client = await Client.retrieveClientInfo(email)
-            if (client.mem_level) {
+            if (client.mem_level === 'Gold') {
                 res.status(200).json({ cllient: client.mem_level })
             }
             // check member level
