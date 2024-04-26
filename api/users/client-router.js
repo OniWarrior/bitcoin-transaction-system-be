@@ -438,7 +438,7 @@ router.post('/TransferMoney', async (req, res, next) => {
         const decoded = jwtDecode(req.headers.authorization)
         const client = await Client.retrieveClientInfo(decoded.email)
         const transfer = req.body
-        res.status(200).json({ message: "here", transfer })
+
         if (client.USD_balance <= 0) {
             res.status(401)
                 .json('You do not have enough usd in your account')
@@ -470,7 +470,7 @@ router.post('/TransferMoney', async (req, res, next) => {
 
         // update the transfer account of the trader
         const updateTransferAccount = await Trader.updateTransferAccountById(client.trader_id, transfer.amount_paid)
-
+        res.status(200).json({ message: "here", transfer })
 
         if (client &&
             transferMoney &&
