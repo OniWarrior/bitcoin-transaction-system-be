@@ -433,7 +433,7 @@ router.get('/BitcoinWallet', async (req, res, next) => {
 // path to transfer money to trader
 router.post('/TransferMoney', async (req, res, next) => {
     try {
-
+        res.status(200).json(req.body)
         // check the usd balance first
         const decoded = jwtDecode(req.headers.authorization)
         const client = await Client.retrieveClientInfo(decoded.email)
