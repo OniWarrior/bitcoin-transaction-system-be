@@ -431,7 +431,7 @@ router.get('/BitcoinWallet', async (req, res, next) => {
 
 
 // path to transfer money to trader
-router.post('/TransferMoney', restricted, async (req, res, next) => {
+router.post('/TransferMoney', async (req, res, next) => {
     try {
 
         // check the usd balance first
