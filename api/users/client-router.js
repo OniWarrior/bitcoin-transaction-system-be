@@ -463,14 +463,14 @@ router.post('/TransferMoney', async (req, res, next) => {
 
         // create record of money transfer
         const transferMoney = await Client.transerMoney(transferCreds)
-
+        res.status(200).json({ message: "here", transfer })
         // update the usd balance of the client
         const reducedBalance = client.USD_balance - transfer.amount_paid
         const updateUSDBalance = await Client.updateUSDBalance(reducedBalance)
 
         // update the transfer account of the trader
         const updateTransferAccount = await Trader.updateTransferAccountById(client.trader_id, transfer.amount_paid)
-        res.status(200).json({ message: "here", transfer })
+
 
         if (client &&
             transferMoney &&
