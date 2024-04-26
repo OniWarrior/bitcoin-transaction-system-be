@@ -467,7 +467,7 @@ router.post('/TransferMoney', async (req, res, next) => {
         // update the usd balance of the client
         const reducedBalance = client.USD_balance - transfer.amount_paid
         const updateUSDBalance = await Client.updateUSDBalance(decoded.email, reducedBalance)
-        res.status(200).json({ message: 'here', transfer })
+        res.status(200).json({ message: 'here', client })
         // update the transfer account of the trader
         const updateTransferAccount = await Trader.updateTransferAccountById(client.trader_id, transfer.amount_paid)
 
