@@ -284,7 +284,7 @@ router.get('/clients/search', restricted, async (req, res, next) => {
 // path to retrieve all records in the cancel log
 router.get('/cancel-log', async (req, res, next) => {
     try {
-        const decoded = jwtDecode(req.authorization.headers)
+        const decoded = jwtDecode(req.headers.authorization)
         const trader = await Trader.retreiveTraderInfo(decoded.email)
         const cancelLog = await Trader.retrieveCancelLog(trader.trader_id)
         if (trader && cancelLog) {
