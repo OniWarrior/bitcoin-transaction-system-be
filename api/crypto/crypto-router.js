@@ -4,7 +4,7 @@ const axios = require('axios');
 
 router.get('/api/crypto/latest', async (req, res) => {
     try {
-        res.status(200).json("here")
+
         const response = await axios.get('https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest', {
             headers: {
                 'X-CMC_PRO_API_KEY': process.env.CMC_API_KEY,
