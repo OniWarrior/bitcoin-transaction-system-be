@@ -40,8 +40,6 @@ router.post('/BuyBitcoin', checkIfPasswordExists, async (req, res, next) => {
 
 
         // Check balance to see if enough money exists to purchase bitcoin
-
-
         if (client.USD_balance <
             (order.Bitcoin_balance * order.bitcoin_price) ||
             isNaN(client.USD_balance) || client.USD_balance < 0) {
