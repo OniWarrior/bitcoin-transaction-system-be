@@ -13,9 +13,14 @@ const cryptoRouter = require('../api/crypto/crypto-router')
 
 const server = express()
 
+
+const corsOptions = {
+    origin: 'http://localhost:3000/', // Allow only your frontend domain
+    optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
+};
 server.use(express.json())
 server.use(helmet())
-server.use(cors())
+server.use(cors(corsOptions))
 server.use(cookieParser())
 
 
