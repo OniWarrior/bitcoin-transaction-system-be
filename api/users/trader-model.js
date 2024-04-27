@@ -103,6 +103,28 @@ async function retrieveTransferPayments(clientId) {
 
 }
 
+// For Trader--retrieve the records in the
+// cancel for the trader in question using trader id
+async function retrieveCancelLog(traderId) {
+    const cancelLog = await db('Cancel_log')
+        .select([
+            'log_id',
+            'order_id',
+            'client_id',
+            'trader_id',
+            'transac_id',
+            'date',
+            'comm_paid',
+            'comm_type',
+            'Bitcoin_balance',
+            'amount_paid'
+        ])
+        .where('trader_id', traderId)
+
+    return cancelLog
+
+}
+
 // For Trader-- update the Transfer records of
 // non invested transfers to invested
 function updateTransferRecords(clientId, notInvested, isInvested) {
@@ -175,5 +197,6 @@ module.exports = {
     updateIsCancelledTransfer,
     retreiveTraderInfo,
     retrieveTotalFromPendingTransferPayments,
-    updateTransferRecords
+    updateTransferRecords,
+    retrieveCancelLog
 }
