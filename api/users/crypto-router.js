@@ -2,7 +2,7 @@
 const router = require('express').Router()
 const axios = require('axios');
 
-router.get('/api/crypto/latest', async (req, res) => {
+router.get('/latest', async (req, res) => {
     try {
 
         const response = await axios.get('https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest', {
