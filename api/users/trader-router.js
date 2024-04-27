@@ -281,6 +281,15 @@ router.get('/clients/search', restricted, async (req, res, next) => {
 
 })
 
+// path to retrieve all records in the cancel log
+router.get('/cancel-log', async (req, res, next) => {
+    try {
+
+    }
+    catch (err) {
+        res.status(500).json(`Server Error: ${err.message}`)
+    }
+})
 
 // path to retrieve all transfer payments made by clients
 // and retrieve all transactions made by the trader
