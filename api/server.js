@@ -18,8 +18,9 @@ server.use(helmet())
 server.use(cors())
 server.use(cookieParser())
 
-server.use('/api/crypto', cryptoRouter)
+
 server.use('/api/auth', authRouter)
+server.use('/api/crypto', cryptoRouter)
 server.use('/api/users', clientRouter, traderRouter, managerRouter, restricted)
 
 module.exports = server
