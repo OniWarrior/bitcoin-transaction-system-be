@@ -3,8 +3,30 @@ const Client = require('./client-model')
 const { jwtDecode } = require('jwt-decode');
 const { restricted, checkIfPasswordExists } = require('../auth/auth-middleware')
 const Trader = require('./trader-model')
+const axios = require('axios');
 
+router.get('/latest', async (req, res, next) => {
+    try {
+        res.status(200).json('here')
+        const response = await axios.get('https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest', {
+            headers: {
+                'X-CMC_PRO_API_KEY': process.env.CMC_API_KEY,
+            },
+        });
 
+        const bitcoinData = response.data.data.find(crypto => crypto.symbol === 'BTC');
+        const bitcoinPrice = bitcoinData ? bitcoinData.quote.USD.price : null;
+
+        if (bitcoinPrice) {
+            res.status(200).json({ price: bitcoinPrice });
+        } else {
+            res.status(404).send('Bitcoin data not found');
+        }
+    } catch (error) {
+
+        res.status(500).send(`Server Error: ${error.message}`);
+    }
+});
 
 // retrieve all past orders for client
 router.get('/Orders', async (req, res, next) => {
