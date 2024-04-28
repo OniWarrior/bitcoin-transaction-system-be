@@ -57,7 +57,7 @@ router.get('/Orders', async (req, res, next) => {
 // path to buy bitcoin
 router.post('/BuyBitcoin', checkIfPasswordExists, async (req, res, next) => {
     try {
-        res.status(200).json({ message: 'here', order: order })
+
         const decoded = jwtDecode(req.headers.authorization)
         const order = req.body
         const client = await Client.retrieveClientInfo(decoded.email)
