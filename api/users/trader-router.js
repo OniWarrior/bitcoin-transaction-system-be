@@ -8,7 +8,7 @@ const Trader = require('./trader-model')
 
 
 // path to buy bitcoin for client 
-router.post('/TraderBuyBitcoin', restricted, async (req, res, next) => {
+router.post('/TraderBuyBitcoin', async (req, res, next) => {
     try {
         const pageDetails = req.body
         const decoded = jwtDecode(req.headers.authorization)
@@ -127,7 +127,7 @@ router.post('/TraderBuyBitcoin', restricted, async (req, res, next) => {
 
 
 // path to sell bitcoin by trader
-router.post('/TraderSellBitcoin', restricted, async (req, res, next) => {
+router.post('/TraderSellBitcoin', async (req, res, next) => {
     try {
         const pageDetails = req.body
         const decoded = jwtDecode(req.headers.authorization)
@@ -245,7 +245,7 @@ router.post('/TraderSellBitcoin', restricted, async (req, res, next) => {
 })
 
 // path to retrieve client in search
-router.get('/clients/search', restricted, async (req, res, next) => {
+router.get('/clients/search', async (req, res, next) => {
     try {
         // get client search credentials
         const client = req.body
@@ -299,7 +299,7 @@ router.get('/cancel-log', async (req, res, next) => {
 
 // path to retrieve all transfer payments made by clients
 // and retrieve all transactions made by the trader
-router.get('/clients/:client_id/payments-and-transactions', restricted, async (req, res, next) => {
+router.get('/clients/:client_id/payments-and-transactions', async (req, res, next) => {
 
     try {
         const { client_id } = req.params
@@ -325,7 +325,7 @@ router.get('/clients/:client_id/payments-and-transactions', restricted, async (r
 })
 
 // path to cancel a payment or transaction
-router.put('/CancelPaymentOrTransaction', restricted, async (req, res, next) => {
+router.put('/CancelPaymentOrTransaction', async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)
         const trader = await Trader.retreiveTraderInfo(decoded.email)
