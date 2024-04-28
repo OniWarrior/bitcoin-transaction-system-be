@@ -23,6 +23,6 @@ server.use(cookieParser())
 
 server.use('/api/auth', authRouter)
 
-server.use('/api/users', cryptoRouter, clientRouter, traderRouter, managerRouter)
+server.use('/api/users', cryptoRouter, clientRouter, traderRouter, managerRouter, restricted)
 
 module.exports = server
