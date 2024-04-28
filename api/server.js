@@ -21,8 +21,10 @@ server.use(cors())
 server.use(cookieParser())
 
 
-server.use('/api/auth', authRouter)
-
-server.use('/api/users', cryptoRouter, clientRouter, traderRouter, managerRouter, restricted)
+server.use('/api/users', restricted);
+server.use('/api/users/crypto', cryptoRouter);
+server.use('/api/users/clients', clientRouter);
+server.use('/api/users/traders', traderRouter);
+server.use('/api/users/managers', managerRouter);
 
 module.exports = server
