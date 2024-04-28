@@ -4,6 +4,7 @@ const { jwtDecode } = require('jwt-decode');
 const { restricted, checkIfPasswordExists } = require('../auth/auth-middleware')
 const Trader = require('./trader-model')
 const axios = require('axios');
+const User = require('./user-model')
 
 router.get('/latest', async (req, res, next) => {
     try {
@@ -62,8 +63,10 @@ router.post('/BuyBitcoin', async (req, res, next) => {
         const decoded = jwtDecode(req.headers.authorization)
         const order = req.body
         const client = await Client.retrieveClientInfo(decoded.email)
-        const { password } = req.body
-        const encryption = bcrypt.compareSync(password, foundUser.password)
+
+        const { email, password } = req.body
+        const user = await User.findByEmail(email)
+        const encryption = bcrypt.compareSync(password, user.password)
         if (password != encryption) {
             res.status(400)
                 .json('Invalid credentials. Identity not confirmed')
