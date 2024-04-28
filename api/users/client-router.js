@@ -68,8 +68,8 @@ router.post('/BuyBitcoin', async (req, res, next) => {
         const { email, password } = req.body
         const user = await User.findByEmail(email)
         const encryption = bcrypt.compareSync(password, user.password)
-        if (password != encryption) {
-            res.status(400)
+        if (user && encryption) {
+            res.status(200)
                 .json('Invalid credentials. Identity not confirmed')
         }
 
