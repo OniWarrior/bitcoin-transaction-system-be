@@ -51,7 +51,7 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
 
         // this is the current bitcoin the client possess + the amount of bitcoin
         // that can be purchased.
-        let updatedBitcoin = currentBitcoin + (remainingMoney / pageDetails.bitcoin_price)
+        let updatedBitcoin = currentBitcoin + (remainingMoney / pageDetails.Bitcoin_price)
 
 
         // Insert the updated bitcoin 
@@ -68,7 +68,7 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
             date: formattedDate,
             comm_paid: commissionPay,
             comm_type: 'USD',
-            Bitcoin_balance: (remainingMoney / pageDetails.bitcoin_price),
+            Bitcoin_balance: (remainingMoney / pageDetails.Bitcoin_price),
             isCancelled: false
 
         }
@@ -111,7 +111,7 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
             res.status(201)
                 .json({
                     message: `Successfully bought bitcoin for client`,
-                    amount: (remainingMoney / pageDetails.bitcoin_price)
+                    amount: (remainingMoney / pageDetails.Bitcoin_price)
                 })
         }
 
@@ -175,7 +175,7 @@ router.post('/TraderSellBitcoin', async (req, res, next) => {
 
             // calculate the remaining bitcoin dollar amount
             // after trader takes commission
-            const remainingUSD = (pageDetails.bitcoin_price * pageDetails.Bitcoin_balance) - (commissionPay * pageDetails.bitcoin_price)
+            const remainingUSD = (pageDetails.Bitcoin_price * pageDetails.Bitcoin_balance) - (commissionPay * pageDetails.Bitcoin_price)
 
             // update the usd balance for client
             const updateUSDBalance = await Client.updateUSDBalance(client.email, remainingUSD)
