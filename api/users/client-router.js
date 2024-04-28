@@ -60,7 +60,7 @@ router.post('/BuyBitcoin', checkIfPasswordExists, async (req, res, next) => {
         const decoded = jwtDecode(req.headers.authorization)
         const order = req.body
         const client = await Client.retrieveClientInfo(decoded.email)
-
+        res.status(200).json({ message: 'here', order: order })
 
         // Check balance to see if enough money exists to purchase bitcoin
         if (client.USD_balance <
