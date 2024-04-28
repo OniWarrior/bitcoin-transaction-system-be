@@ -269,14 +269,23 @@ router.post('/BuyBitcoin', async (req, res, next) => {
 })
 
 // path to sell bitcoin 
-router.post('/SellBitcoin', checkIfPasswordExists, async (req, res, next) => {
+router.post('/SellBitcoin', async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)
         const order = req.body
 
         // retrieve client info
         const client = await Client.retrieveClientInfo(decoded.email)
-        res.status(200).json(client)
+
+        // validate identity
+        const { email, password } = req.body
+        const user = await User.findByEmail(email)
+        const encryption = bcrypt.compareSync(password, user.password)
+        if (!(user && encryption)) {
+            res.status(400)
+                .json('Invalid credentials. Identity not confirmed')
+        }
+
         // retrieve current bitcoin balance and check to see if sale can be made
 
         if (client.Bitcoin_balance < order.Bitcoin_balance ||
