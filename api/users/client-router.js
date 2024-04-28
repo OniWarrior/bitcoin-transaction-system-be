@@ -370,7 +370,7 @@ router.post('/SellBitcoin', async (req, res, next) => {
                 }
             }
 
-            res.status(200).json(updatedBalance)
+
             // insert balance and bitcoin into tables to update
             const updateBitcoin = await Client.updateBitcoinWallet(decoded.email,
                 updatedBitcoin)
