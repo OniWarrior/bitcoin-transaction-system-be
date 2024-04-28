@@ -64,7 +64,7 @@ router.post('/BuyBitcoin', checkIfPasswordExists, async (req, res, next) => {
 
         // Check balance to see if enough money exists to purchase bitcoin
         if (client.USD_balance <
-            (order.Bitcoin_balance * order.bitcoin_price) ||
+            (order.Bitcoin_balance * order.Bitcoin_price) ||
             isNaN(client.USD_balance) || client.USD_balance < 0) {
             res.status(401)
                 .json('Client does not possess enough currency in account to make purchase')
@@ -74,7 +74,7 @@ router.post('/BuyBitcoin', checkIfPasswordExists, async (req, res, next) => {
             // Update balance and update bitcoin amount
             let updatedBalance = client.USD_balance -
                 (order.Bitcoin_balance *
-                    order.bitcoin_price)
+                    order.Bitcoin_price)
             const currentBitcoin = client.Bitcoin_balance
             let updatedBitcoin = currentBitcoin +
                 order.Bitcoin_balance
@@ -98,7 +98,7 @@ router.post('/BuyBitcoin', checkIfPasswordExists, async (req, res, next) => {
 
                     // reject if client doesn't possess enough money
                     if (client.USD_balance <
-                        ((order.Bitcoin_balance * order.bitcoin_price) +
+                        ((order.Bitcoin_balance * order.Bitcoin_price) +
                             commissionPay)) {
                         res.status(401)
                             .json('Client does not possess enough fiat USD to make purchase')
@@ -115,7 +115,7 @@ router.post('/BuyBitcoin', checkIfPasswordExists, async (req, res, next) => {
 
                     // reject if client doesn't possess enough money
                     if (client.USD_balance <
-                        ((order.Bitcoin_balance * order.bitcoin_price) +
+                        ((order.Bitcoin_balance * order.Bitcoin_price) +
                             commissionPay)) {
                         res.status(401)
                             .json('Client does not possess enough fiat USD to make purchase')
@@ -279,7 +279,7 @@ router.post('/SellBitcoin', checkIfPasswordExists, async (req, res, next) => {
             let updatedBitcoin = client.Bitcoin_balance - order.Bitcoin_balance
             let updatedBalance = client.USD_balance +
                 (order.Bitcoin_balance *
-                    order.bitcoin_price)
+                    order.Bitcoin_price)
             let commissionPay = 0.00
             let commissionPayUSD;
             let commissionPayBitcoin;
@@ -290,7 +290,7 @@ router.post('/SellBitcoin', checkIfPasswordExists, async (req, res, next) => {
 
                 if (client.mem_level === 'Silver') {
                     commissionPay = (order.Bitcoin_balance *
-                        order.bitcoin_price) * 0.1
+                        order.Bitcoin_price) * 0.1
                     if (client.USD_balance < commissionPay) {
                         res.status(401)
                             .json('Client does not possess enough fiat USD to pay commission')
@@ -305,7 +305,7 @@ router.post('/SellBitcoin', checkIfPasswordExists, async (req, res, next) => {
                 else if (client.mem_level === 'Gold') {
 
                     commissionPay = (order.Bitcoin_balance *
-                        order.bitcoin_price) * 0.05
+                        order.Bitcoin_price) * 0.05
                     if (client.USD_balance < commissionPay) {
                         res.status(401)
                             .json('Client does not possess enough fiat USD to pay commission')
