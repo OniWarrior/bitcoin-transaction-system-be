@@ -7,7 +7,7 @@ const axios = require('axios');
 
 router.get('/latest', async (req, res, next) => {
     try {
-        res.status(200).json('here')
+
 
         const response = await axios.get('https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest', {
             headers: {
