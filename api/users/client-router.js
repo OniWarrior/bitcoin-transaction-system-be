@@ -57,11 +57,16 @@ router.get('/Orders', async (req, res, next) => {
 // path to buy bitcoin
 router.post('/BuyBitcoin', async (req, res, next) => {
     try {
-        res.status(200).json('here')
+
+
         const decoded = jwtDecode(req.headers.authorization)
         const order = req.body
         const client = await Client.retrieveClientInfo(decoded.email)
-
+        const { email, password } = req.body
+        if (password != client.password) {
+            res.status(400)
+                .json('Invalid credentials. Identity not confirmed')
+        }
 
         // Check balance to see if enough money exists to purchase bitcoin
         if (client.USD_balance <
