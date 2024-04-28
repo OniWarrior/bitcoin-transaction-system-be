@@ -245,7 +245,7 @@ router.post('/TraderSellBitcoin', async (req, res, next) => {
 })
 
 // path to retrieve client in search
-router.get('/clients/search', async (req, res, next) => {
+router.post('/clients/search', async (req, res, next) => {
     try {
         // get client search credentials
         const client = req.body
