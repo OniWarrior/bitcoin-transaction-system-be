@@ -137,8 +137,8 @@ router.post('/TraderSellBitcoin', async (req, res, next) => {
         const pageDetails = req.body
         const decoded = jwtDecode(req.headers.authorization)
         const client = await Client.retrieveClientInfo(pageDetails.email)
-
-
+        const convertedBitcoinBalance = Number(pageDetails.Bitcoin_balance)
+        const convertedBitcoinPrice = Number(pageDetails.Bitcoin_price)
 
         // retrieve member level of client
         const memberLevel = client.mem_level
@@ -146,22 +146,22 @@ router.post('/TraderSellBitcoin', async (req, res, next) => {
 
         // calculate commission pay
         if (memberLevel === 'Silver') {
-            commissionPay = (pageDetails.Bitcoin_balance) * 0.1
+            commissionPay = (convertedBitcoinBalance) * 0.1
         }
         else if (memberLevel === 'Gold') {
-            commissionPay = (pageDetails.Bitcoin_balance) * 0.05
+            commissionPay = (convertedBitcoinBalance) * 0.05
         }
 
 
 
         // if current bitcoin balance is less than what the client wants sold reject otherwise proceed
-        if (client.Bitcoin_balance < pageDetails.Bitcoin_balance ||
+        if (client.Bitcoin_balance < convertedBitcoinBalance ||
             isNaN(client.Bitcoin_balance) || client.Bitcoin_balance < 0) {
             res.status(401)
                 .json('client does not possess enough bitcoin in account to make sale')
 
         }
-        else if (client.Bitcoin_balance < (pageDetails.Bitcoin_balance + commissionPay) ||
+        else if (client.Bitcoin_balance < (convertedBitcoinBalance + commissionPay) ||
             isNaN(client.Bitcoin_balance) || client.Bitcoin_balance < 0) {
             res.status(401)
                 .json('client does not possess enough bitcoin in account to make purchase and commission')
@@ -171,7 +171,7 @@ router.post('/TraderSellBitcoin', async (req, res, next) => {
             //  update bitcoin amount of client
             const currentBitcoin = client.Bitcoin_balance
             let updatedBitcoin = currentBitcoin -
-                pageDetails.Bitcoin_balance
+                convertedBitcoinBalance
 
 
             // Insert the updated bitcoin for client
@@ -180,7 +180,7 @@ router.post('/TraderSellBitcoin', async (req, res, next) => {
 
             // calculate the remaining bitcoin dollar amount
             // after trader takes commission
-            const remainingUSD = (pageDetails.Bitcoin_price * pageDetails.Bitcoin_balance) - (commissionPay * pageDetails.Bitcoin_price)
+            const remainingUSD = (convertedBitcoinPrice * convertedBitcoinBalance) - (commissionPay * convertedBitcoinPrice)
 
             // update the usd balance for client
             const updateUSDBalance = await Client.updateUSDBalance(client.email, remainingUSD)
@@ -195,7 +195,7 @@ router.post('/TraderSellBitcoin', async (req, res, next) => {
                 date: formattedDate,
                 comm_paid: commissionPay,
                 comm_type: 'Bitcoin',
-                Bitcoin_balance: pageDetails.Bitcoin_balance,
+                Bitcoin_balance: convertedBitcoinBalance,
                 isCancelled: false
 
             }
@@ -235,7 +235,7 @@ router.post('/TraderSellBitcoin', async (req, res, next) => {
                 res.status(201)
                     .json({
                         message: 'Successfully sold Bitcoin',
-                        amount: pageDetails.Bitcoin_balance
+                        amount: convertedBitcoinBalance
                     })
             }
 
