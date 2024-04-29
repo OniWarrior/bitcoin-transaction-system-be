@@ -61,7 +61,7 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
         const date = new Date()
         const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
 
-        res.status(200).json(pageDetails)
+
         // create object for record of order
         const orderCreds = {
             client_id: client.client_id,
@@ -78,7 +78,7 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
         const incrementedTrades = Number(client.num_trades + 1)
 
         const updateNumTrades = await Client.updateNumTrades(pageDetails.email, incrementedTrades)
-
+        res.status(200).json('Ive arrived')
 
         // Update trader transfer balance        
         let updatedBalance = trader.transfer_balance - convertedTransfersNotInvested
