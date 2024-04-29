@@ -89,7 +89,7 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
         const currentUSD = convertedTraderUSDBalance + commissionPay
 
 
-        res.status(200).json(currentUSD)
+
         const updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(trader.trader_id, currentUSD)
 
         // update the transfer records of the non invested transfers
