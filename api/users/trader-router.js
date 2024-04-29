@@ -96,12 +96,12 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
         isInvested = true
         const notInvested = false
         const updateNonInvestedTransferRecords = await Trader.updateTransferRecords(client.client_id, notInvested, isInvested)
-        res.status(200).json(updateNonInvestedTransferRecords)
+
 
 
         // insert order into order table
         const addOrder = await Client.addOrder(orderCreds)
-
+        res.status(200).json(addOrder)
 
 
         if (client &&
