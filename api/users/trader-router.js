@@ -83,7 +83,7 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
 
         // Update trader transfer balance        
         let updatedBalance = trader.transfer_balance - convertedTransfersNotInvested
-        //const updateTransferBalance = await Trader.updateTransferAccountById(trader.trader_id, updatedBalance)
+        const updateTransferBalance = await Trader.updateTransferAccountById(trader.trader_id, updatedBalance)
 
         // update trader USD balance with commission pay
         const currentUSD = convertedTraderUSDBalance + commissionPay
@@ -101,7 +101,7 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
 
         // insert order into order table
         const addOrder = await Client.addOrder(orderCreds)
-        res.status(200).json(addOrder)
+
 
 
         if (client &&
