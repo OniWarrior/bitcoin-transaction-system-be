@@ -78,12 +78,12 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
         const incrementedTrades = Number(client.num_trades + 1)
 
         const updateNumTrades = await Client.updateNumTrades(pageDetails.email, incrementedTrades)
-        res.status(200).json('Ive arrived')
+
 
         // Update trader transfer balance        
         let updatedBalance = trader.transfer_balance - convertedTransfersNotInvested
         const updateTransferBalance = await Trader.updateTransferAccountById(trader.trader_id, updatedBalance)
-
+        res.status(200).json('Ive arrived')
         // update trader USD balance with commission pay
         const currentUSD = trader.USD_balance + commissionPay
         const updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(trader.trader_id, currentUSD)
