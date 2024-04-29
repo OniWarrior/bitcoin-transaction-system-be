@@ -48,10 +48,11 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
         // calculate how much bitcoin can be purchased with the remaining
         // amount of money left over after commission
         const currentBitcoin = Number(client.Bitcoin_balance)
+        const convertedBitcoinPrice = Number(pageDetails.Bitcoin_price)
 
         // this is the current bitcoin the client possess + the amount of bitcoin
         // that can be purchased.
-        let updatedBitcoin = currentBitcoin + (remainingMoney / pageDetails.Bitcoin_price)
+        let updatedBitcoin = currentBitcoin + (remainingMoney / convertedBitcoinPrice)
 
 
         // Insert the updated bitcoin 
@@ -68,7 +69,7 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
             date: formattedDate,
             comm_paid: commissionPay,
             comm_type: 'USD',
-            Bitcoin_balance: (remainingMoney / pageDetails.Bitcoin_price),
+            Bitcoin_balance: (remainingMoney / convertedBitcoinPrice),
             isCancelled: false
 
         }
@@ -78,17 +79,17 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
         const incrementedTrades = Number(client.num_trades + 1)
 
         const updateNumTrades = await Client.updateNumTrades(pageDetails.email, incrementedTrades)
-
+        const convertedTraderUSDBalance = Number(trader.USD_balance)
 
         // Update trader transfer balance        
         let updatedBalance = trader.transfer_balance - convertedTransfersNotInvested
         //const updateTransferBalance = await Trader.updateTransferAccountById(trader.trader_id, updatedBalance)
 
         // update trader USD balance with commission pay
-        const currentUSD = trader.USD_balance + commissionPay
+        const currentUSD = convertedTraderUSDBalance + commissionPay
 
 
-        res.status(200).json({ usd: trader.USD_balance, comm: commissionPay })
+        res.status(200).json(currentUSD)
         const updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(trader.trader_id, currentUSD)
 
         // update the transfer records of the non invested transfers
