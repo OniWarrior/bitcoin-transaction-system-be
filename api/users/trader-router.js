@@ -18,7 +18,7 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
         let isInvested = false
         const transfersNotInvested = await Trader.retrieveTotalFromPendingTransferPayments(client.client_id, isInvested)
 
-        res.status(200).json("Ive arrived")
+
         // retrieve member level of client
         const memberLevel = client.mem_level
 
@@ -61,7 +61,7 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
         const date = new Date()
         const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
 
-
+        res.status(200).json(pageDetails)
         // create object for record of order
         const orderCreds = {
             client_id: client.client_id,
