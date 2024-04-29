@@ -14,7 +14,7 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
         const decoded = jwtDecode(req.headers.authorization)
         const client = await Client.retrieveClientInfo(pageDetails.email)
         const trader = await Trader.retreiveTraderInfo(decoded.email)
-
+        res.status(200).json("I've arrived")
         let isInvested = false
         const transfersNotInvested = await Trader.retrieveTotalFromPendingTransferPayments(client.client_id, isInvested)
 
