@@ -350,33 +350,7 @@ router.get('/clients/:client_id/payments', async (req, res, next) => {
 
 })
 
-// path to retrieve all transfer payments made by clients
-// and retrieve all transactions made by the trader
-/*router.get('/clients/:client_id/payments-and-transactions', async (req, res, next) => {
 
-    try {
-        const { client_id } = req.params
-        const orders = await Client.retrievePastOrders(client_id)
-        const transfers = await Trader.retrieveTransferPayments(client_id)
-
-
-
-        if (orders && transfers) {
-            res.status(200)
-                .json({
-                    orders: orders,
-                    transfers: transfers
-                })
-        }
-
-    }
-    catch (err) {
-        res.status(500)
-            .json(`Server Error: ${err.message}`)
-    }
-
-})
-*/
 
 // path to cancel a payment or transaction
 router.put('/CancelPaymentOrTransaction', async (req, res, next) => {
@@ -392,6 +366,7 @@ router.put('/CancelPaymentOrTransaction', async (req, res, next) => {
         // differentiate between order and transfer payment
         if ('comm_type' in paymentOrtransfer) {
             // update order to show that order is cancelled
+            res.status(200).json("here")
 
             order = await Trader.updateIsCancelledOrder(paymentOrtransfer.order_id, isCancelled, trader.trader_id)
 
