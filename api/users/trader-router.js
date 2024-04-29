@@ -302,9 +302,57 @@ router.get('/cancel-log', async (req, res, next) => {
     }
 })
 
+
+
+//path to retrieve all orders made by clients
+router.get('/clients/:client_id/transactions', async (req, res, next) => {
+
+    try {
+        const { client_id } = req.params
+        const orders = await Client.retrievePastOrders(client_id)
+
+
+
+
+        if (orders) {
+            res.status(200)
+                .json(orders)
+        }
+
+    }
+    catch (err) {
+        res.status(500)
+            .json(`Server Error: ${err.message}`)
+    }
+
+})
+
+//path to retrieve all transfers made by clients
+router.get('/clients/:client_id/payments', async (req, res, next) => {
+
+    try {
+        const { client_id } = req.params
+        const transfers = await Trader.retrieveTransferPayments(client_id)
+
+
+
+
+        if (transfers) {
+            res.status(200)
+                .json(transfers)
+        }
+
+    }
+    catch (err) {
+        res.status(500)
+            .json(`Server Error: ${err.message}`)
+    }
+
+})
+
 // path to retrieve all transfer payments made by clients
 // and retrieve all transactions made by the trader
-router.get('/clients/:client_id/payments-and-transactions', async (req, res, next) => {
+/*router.get('/clients/:client_id/payments-and-transactions', async (req, res, next) => {
 
     try {
         const { client_id } = req.params
@@ -328,6 +376,7 @@ router.get('/clients/:client_id/payments-and-transactions', async (req, res, nex
     }
 
 })
+*/
 
 // path to cancel a payment or transaction
 router.put('/CancelPaymentOrTransaction', async (req, res, next) => {
