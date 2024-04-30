@@ -366,7 +366,7 @@ router.put('/CancelPaymentOrTransaction', async (req, res, next) => {
         // differentiate between order and transfer payment
         if ('comm_type' in paymentOrtransfer) {
             // update order to show that order is cancelled
-            res.status(200).json("here")
+
 
             order = await Trader.updateIsCancelledOrder(paymentOrtransfer.order_id, isCancelled, trader.trader_id)
 
