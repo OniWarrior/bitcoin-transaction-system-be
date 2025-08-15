@@ -38,15 +38,21 @@ router.get('/latest', async (req, res, next) => {
     }
 });
 
-// retrieve all past orders for client
-router.get('/Orders', async (req, res, next) => {
+// /orders: endpoint that retrieves orders made by a client.
+router.get('/orders', async (req, res, next) => {
     try {
-        const decoded = jwtDecode(req.headers.authorization)
-        const client = await Client.retrieveClientInfo(decoded.email)
-        const orders = await Client.retrievePastOrders(client.client_id)
+        // process the token
+        const decoded = jwtDecode(req.headers.authorization);
 
+        // find the client info
+        const client = await Client.retrieveClientInfo(decoded.email);
 
+        // use the client id to retrieve the past orders of the client
+        const orders = await Client.retrievePastOrders(client.client_id);
+
+        // check if client and orders was successful
         if (client && orders) {
+            // success, send success response with the orders.
             res.status(200)
                 .json(orders)
         }
@@ -54,6 +60,7 @@ router.get('/Orders', async (req, res, next) => {
 
     }
     catch (err) {
+        // internal server error, send failure response.
         res.status(500)
             .json(`Server Error: ${err.message}`)
     }
