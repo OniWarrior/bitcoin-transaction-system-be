@@ -7,27 +7,33 @@ const axios = require('axios');
 const User = require('./user-model')
 const bcrypt = require('bcrypt')
 
-
+// /latest: endpoint that retrieves the latest bitcoin price
 router.get('/latest', async (req, res, next) => {
     try {
 
 
+        // third party api call that retrieves the latest bitcoin price
         const response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest', {
             headers: {
                 'X-CMC_PRO_API_KEY': process.env.CMC_API_KEY,
             },
         });
 
+        // The retrieves the bitcoin price from the crypto currency data that was retrieved.
         const bitcoinData = response.data.data.find(crypto => crypto.symbol === 'BTC');
         const bitcoinPrice = bitcoinData ? bitcoinData.quote.USD.price : null;
 
+        // check if the price was successfully retrieved
         if (bitcoinPrice) {
+            // successful, send success response with the btc price
             res.status(200).json({ price: bitcoinPrice });
         } else {
+            // failed, send failure response.
             res.status(404).send('Bitcoin data not found');
         }
     } catch (error) {
 
+        // internal server error, send failed response.
         res.status(500).send(`Server Error: ${error.message}`);
     }
 });
