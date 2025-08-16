@@ -1,11 +1,12 @@
-const router = require('express').Router()
-const Client = require('./client-model')
+const router = require('express').Router();
+const Client = require('./client-model');
 const { jwtDecode } = require('jwt-decode');
-const { restricted, checkIfPasswordExists } = require('../auth/auth-middleware')
-const Trader = require('./trader-model')
+const { checkIfPasswordExists, checkIfEmailExists } = require('../auth/auth-middleware');
+const Trader = require('./trader-model');
 const axios = require('axios');
-const User = require('./user-model')
-const bcrypt = require('bcrypt')
+const User = require('./user-model');
+const bcrypt = require('bcrypt');
+const { processClientBuyBitcoinOrder } = require("./client-middleware");
 
 // /latest: endpoint that retrieves the latest bitcoin price
 router.get('/latest', async (req, res, next) => {
@@ -70,207 +71,26 @@ router.get('/orders', async (req, res, next) => {
 })
 
 
-// path to buy bitcoin
-router.post('/BuyBitcoin', async (req, res, next) => {
+// /buy-bitcoin: endpoint that processes a bitcoin order placed by a client
+router.post('/buy-bitcoin', checkIfEmailExists, checkIfPasswordExists, processClientBuyBitcoinOrder, async (req, res, next) => {
     try {
 
+        // get the balance
+        const balance = req.balance;
 
-        const decoded = jwtDecode(req.headers.authorization)
-        const order = req.body
-        const client = await Client.retrieveClientInfo(decoded.email)
+        // retrieve is middleware operations were successful
+        const isOpSuccessful = req.isOpSuccessful;
 
-        // validate identity
-        const { email, password } = req.body
-        const user = await User.findByEmail(email)
-        const encryption = bcrypt.compareSync(password, user.password)
-        if (!(user && encryption)) {
-            res.status(400)
-                .json('Invalid credentials. Identity not confirmed')
+
+        // was op successful
+        if (isOpSuccessful) {
+            // op successful, send success response along with balance.
+            res.status(201)
+                .json({
+                    message: 'Successfully bought bitcoin',
+                    amount: balance
+                })
         }
-
-        // Check balance to see if enough money exists to purchase bitcoin
-        if (client.USD_balance <
-            (order.Bitcoin_balance * order.Bitcoin_price) ||
-            isNaN(client.USD_balance) || client.USD_balance < 0) {
-            res.status(401)
-                .json('Client does not possess enough currency in account to make purchase')
-        }
-        else {
-
-            // Update balance and update bitcoin amount
-            let updatedBalance = client.USD_balance -
-                (order.Bitcoin_balance *
-                    order.Bitcoin_price)
-            const currentBitcoin = client.Bitcoin_balance
-            let updatedBitcoin = currentBitcoin +
-                order.Bitcoin_balance
-
-
-            // retrieve member level of client
-            const memberLevel = client.mem_level
-            let commissionPay = 0.00
-            let commissionPayUSD;
-            let commissionPayBitcoin;
-
-
-            // Update balance according to choice made
-            // by client on how to pay for commission payment
-            if (order.comm_type === 'USD') {
-
-                // calculate commission pay based on member level
-                if (memberLevel === 'Silver') {
-                    commissionPay = (order.Bitcoin_balance * order.Bitcoin_price) * 0.1
-
-
-                    // reject if client doesn't possess enough money
-                    if (client.USD_balance <
-                        ((order.Bitcoin_balance * order.Bitcoin_price) +
-                            commissionPay)) {
-                        res.status(401)
-                            .json('Client does not possess enough fiat USD to make purchase')
-                    }
-                    else {
-                        updatedBalance -= commissionPay
-                        commissionPayUSD = commissionPay
-
-                    }
-
-                }
-                else if (memberLevel === 'Gold') {
-                    commissionPay = (order.Bitcoin_balance * order.Bitcoin_price) * 0.05
-
-                    // reject if client doesn't possess enough money
-                    if (client.USD_balance <
-                        ((order.Bitcoin_balance * order.Bitcoin_price) +
-                            commissionPay)) {
-                        res.status(401)
-                            .json('Client does not possess enough fiat USD to make purchase')
-                    }
-                    else {
-                        updatedBalance -= commissionPay
-                        commissionPayUSD = commissionPay
-
-                    }
-
-                }
-
-            }
-            else if (order.comm_type === 'Bitcoin') {
-
-                // calculate commission pay based on member level
-                if (memberLevel === 'Silver') {
-
-                    commissionPay = (order.Bitcoin_balance) * 0.1
-
-
-                    // reject if client doesn't possess enough money
-                    if (client.Bitcoin_balance < commissionPay) {
-                        res.status(401)
-                            .json('Client does not possess enough bitcoin to make purchase')
-                    }
-                    else {
-                        updatedBalance -= commissionPay
-                        commissionPayBitcoin = commissionPay
-
-                    }
-
-                }
-                else if (memberLevel === 'Gold') {
-                    commissionPay = (order.Bitcoin_balance) * 0.05
-                    // reject if client doesn't possess enough money
-                    if (client.Bitcoin_balance < commissionPay) {
-                        res.status(401)
-                            .json('Client does not possess enough bitcoin to make purchase')
-                    }
-                    else {
-                        updatedBalance -= commissionPay
-                        commissionPayBitcoin = commissionPay
-
-                    }
-
-                }
-
-            }
-
-
-            // Insert the updated bitcoin and usd balance to database account
-            const updateBitcoin = await Client.updateBitcoinWallet(decoded.email,
-                updatedBitcoin)
-            const updateUSD = await Client.updateUSDBalance(decoded.email,
-                updatedBalance)
-
-            const date = new Date()
-            const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
-
-            // create object for record of order
-            const orderCreds = {
-                client_id: client.client_id,
-                date: formattedDate,
-                comm_paid: commissionPay,
-                comm_type: order.comm_type,
-                Bitcoin_balance: order.Bitcoin_balance,
-                isCancelled: false
-
-            }
-
-            // increment trades by 1 and update number of client trades
-            const incrementedTrades = (client.num_trades + 1)
-            const updateNumTrades = await Client.updateNumTrades(client.email, incrementedTrades)
-
-            // Update trader balance--based on comm_type            
-            let updateUSDBalanceOfTrader;
-            let updateBitcoinBalanceOfTrader;
-
-            // insert order into order table
-            const addOrder = await Client.addOrder(orderCreds)
-
-            if (order.comm_type === 'USD') {
-
-                updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(client.trader_id, commissionPayUSD)
-
-
-
-                if (addOrder &&
-                    client &&
-                    updateBitcoin &&
-                    updateUSD &&
-                    updateNumTrades &&
-                    updateUSDBalanceOfTrader
-
-                ) {
-                    res.status(201)
-                        .json({
-                            message: 'Successfully bought bitcoin',
-                            amount: order.Bitcoin_balance
-                        })
-                }
-            }
-            else if (order.comm_type === 'Bitcoin') {
-                updateBitcoinBalanceOfTrader = await Trader.updateBitcoinBalanceOfTrader(client.trader_id, commissionPayBitcoin)
-
-
-
-                if (addOrder &&
-                    client &&
-                    updateBitcoin &&
-                    updateUSD &&
-                    updateNumTrades &&
-                    updateBitcoinBalanceOfTrader
-
-                ) {
-                    res.status(201)
-                        .json(
-                            {
-                                message: 'Successfully bought bitcoin',
-                                amount: order.Bitcoin_balance
-                            }
-                        )
-                }
-            }
-
-
-        }
-
 
     }
     catch (err) {
@@ -283,7 +103,7 @@ router.post('/BuyBitcoin', async (req, res, next) => {
 })
 
 // path to sell bitcoin 
-router.post('/SellBitcoin', async (req, res, next) => {
+router.post('/sell-bitcoin', async (req, res, next) => {
     try {
         const decoded = jwtDecode(req.headers.authorization)
         const order = req.body
