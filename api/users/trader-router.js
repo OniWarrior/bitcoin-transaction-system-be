@@ -4,56 +4,75 @@ const { jwtDecode } = require('jwt-decode');
 const Trader = require('./trader-model');
 
 
-
-
 // /trader-buy-bitcoin: path to buy bitcoin for client by trader
 router.post('/trader-buy-bitcoin', async (req, res, next) => {
     try {
-        const pageDetails = req.body
-        const decoded = jwtDecode(req.headers.authorization)
-        const client = await Client.retrieveClientInfo(pageDetails.email)
-        const trader = await Trader.retreiveTraderInfo(decoded.email)
 
+        // retrieve details of bitcoin purchase from req body
+        const pageDetails = req.body;
+
+        // decode token from auth header
+        const decoded = jwtDecode(req.headers.authorization);
+
+        // retrieve client info using email of client
+        const client = await Client.retrieveClientInfo(pageDetails.email);
+
+        // retrieve trader info from trader email
+        const trader = await Trader.retreiveTraderInfo(decoded.email);
+
+        // retrieve the transfers of money from client to trader that have not been invested.
         let isInvested = false
         const transfersNotInvested = await Trader.retrieveTotalFromPendingTransferPayments(client.client_id, isInvested)
 
 
         // retrieve member level of client
-        const memberLevel = client.mem_level
+        const memberLevel = client.mem_level;
 
+        //convert the money retrieved, which is a string at the moment, and convert to Number type
+        const convertedTransfersNotInvested = Number(transfersNotInvested[0].sum);
 
-
-        const convertedTransfersNotInvested = Number(transfersNotInvested[0].sum)
-        let commissionPay = 0.00
+        // vars for commission pay for trader and remaining money after commission pay.
+        let commissionPay = 0.00;
         let remainingMoney;
 
-        // calculate commission pay
+        // check if client membership is silver
         if (memberLevel === 'Silver') {
-            commissionPay = convertedTransfersNotInvested * 0.1
-            remainingMoney = convertedTransfersNotInvested - commissionPay
+            // membership is silver
+            // calculate the commission pay based on silver membership
+            commissionPay = convertedTransfersNotInvested * 0.1;
+
+            // calculate the remaining money by subtracting the commission pay.
+            remainingMoney = convertedTransfersNotInvested - commissionPay;
 
         }
+
+        // check if client membership is gold
         else if (memberLevel === 'Gold') {
-            commissionPay = convertedTransfersNotInvested * 0.05
-            remainingMoney = convertedTransfersNotInvested - commissionPay
+            // membership is gold
+            // calculate the commission pay based on gold membership
+            commissionPay = convertedTransfersNotInvested * 0.05;
+
+            // calculate the remaining money by subtracting the commission pay.
+            remainingMoney = convertedTransfersNotInvested - commissionPay;
         }
 
         // calculate how much bitcoin can be purchased with the remaining
         // amount of money left over after commission
-        const currentBitcoin = Number(client.Bitcoin_balance)
-        const convertedBitcoinPrice = Number(pageDetails.Bitcoin_price)
+        const currentBitcoin = Number(client.Bitcoin_balance);
+        const convertedBitcoinPrice = Number(pageDetails.Bitcoin_price);
 
         // this is the current bitcoin the client possess + the amount of bitcoin
         // that can be purchased.
-        let updatedBitcoin = currentBitcoin + (remainingMoney / convertedBitcoinPrice)
+        let updatedBitcoin = currentBitcoin + (remainingMoney / convertedBitcoinPrice);
 
 
         // Insert the updated bitcoin 
         const updateBitcoin = await Client.updateBitcoinWallet(pageDetails.email,
-            updatedBitcoin)
+            updatedBitcoin);
 
-        const date = new Date()
-        const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
+        // get today's date and format for db insertion.
+        const date = new Date();
+        const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`;
 
 
         // create object for record of order
@@ -82,7 +101,7 @@ router.post('/trader-buy-bitcoin', async (req, res, next) => {
         const currentUSD = convertedTraderUSDBalance + commissionPay
 
 
-
+        // update the trader usd balance in database and save result.
         const updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(trader.trader_id, currentUSD)
 
         // update the transfer records of the non invested transfers
@@ -96,7 +115,7 @@ router.post('/trader-buy-bitcoin', async (req, res, next) => {
         const addOrder = await Client.addOrder(orderCreds)
 
 
-
+        // check if operations succeeded
         if (client &&
             transfersNotInvested &&
             updateBitcoin &&
@@ -106,6 +125,7 @@ router.post('/trader-buy-bitcoin', async (req, res, next) => {
             addOrder &&
             updateNonInvestedTransferRecords &&
             trader) {
+            // operations successful, send success response.
             res.status(201)
                 .json({
                     message: `Successfully bought bitcoin for client`,
@@ -115,6 +135,7 @@ router.post('/trader-buy-bitcoin', async (req, res, next) => {
 
     }
     catch (err) {
+        // internal server error, send failure response.
         res.status(500)
             .json(`Server Error: ${err.message}`)
     }
@@ -239,7 +260,7 @@ router.post('/trader-sell-bitcoin', async (req, res, next) => {
     }
 })
 
-// path to retrieve client in search
+// /clients/search: path to retrieve client in search
 router.post('/clients/search', async (req, res, next) => {
     try {
         // get client search credentials
@@ -261,14 +282,16 @@ router.post('/clients/search', async (req, res, next) => {
 
         }
 
-
+        // check if op succeeded
         if (retrievedClient) {
+            // send success response.
             res.status(200)
                 .json(retrievedClient)
         }
 
     }
     catch (err) {
+        // internal server error, send failure response.
         res.status(500)
             .json(`Server Error: ${err.message}`)
 
@@ -279,10 +302,19 @@ router.post('/clients/search', async (req, res, next) => {
 // path to retrieve all records in the cancel log
 router.get('/cancel-log', async (req, res, next) => {
     try {
-        const decoded = jwtDecode(req.headers.authorization)
-        const trader = await Trader.retreiveTraderInfo(decoded.email)
-        const cancelLog = await Trader.retrieveCancelLog(trader.trader_id)
+
+        // decode the token from auth header
+        const decoded = jwtDecode(req.headers.authorization);
+
+        // get trader info using email
+        const trader = await Trader.retreiveTraderInfo(decoded.email);
+
+        // get the cancel log from db using trader id
+        const cancelLog = await Trader.retrieveCancelLog(trader.trader_id);
+
+        // check if ops succeeded
         if (trader && cancelLog) {
+            // send success response.
             res.status(200).json(cancelLog)
         }
 
@@ -298,19 +330,22 @@ router.get('/cancel-log', async (req, res, next) => {
 router.get('/clients/:client_id/transactions', async (req, res, next) => {
 
     try {
-        const { client_id } = req.params
-        const orders = await Client.retrievePastOrders(client_id)
+        // get the client id from params
+        const { client_id } = req.params;
 
+        // get the past orders using client id
+        const orders = await Client.retrievePastOrders(client_id);
 
-
-
+        // check if op succeeded.
         if (orders) {
+            // send success response.
             res.status(200)
                 .json(orders)
         }
 
     }
     catch (err) {
+        // internal server error, send failure response.
         res.status(500)
             .json(`Server Error: ${err.message}`)
     }
@@ -321,19 +356,23 @@ router.get('/clients/:client_id/transactions', async (req, res, next) => {
 router.get('/clients/:client_id/payments', async (req, res, next) => {
 
     try {
-        const { client_id } = req.params
-        const transfers = await Trader.retrieveTransferPayments(client_id)
 
+        // get the client id from req params
+        const { client_id } = req.params;
 
+        // get the transfers using client id.
+        const transfers = await Trader.retrieveTransferPayments(client_id);
 
-
+        // check if op succeeded.
         if (transfers) {
+            // send success response.
             res.status(200)
                 .json(transfers)
         }
 
     }
     catch (err) {
+        // internal server error, send failure response.
         res.status(500)
             .json(`Server Error: ${err.message}`)
     }
@@ -342,12 +381,20 @@ router.get('/clients/:client_id/payments', async (req, res, next) => {
 
 
 
-// path to cancel a payment or transaction
-router.put('/CancelPaymentOrTransaction', async (req, res, next) => {
+// /cancel-payment-or-transaction: path to cancel a payment or money transfer
+router.put('/cancel-payment-or-transfer', async (req, res, next) => {
     try {
-        const decoded = jwtDecode(req.headers.authorization)
-        const trader = await Trader.retreiveTraderInfo(decoded.email)
-        const paymentOrtransfer = req.body
+
+        // decode token from auth header.
+        const decoded = jwtDecode(req.headers.authorization);
+
+        // get the trader info with email
+        const trader = await Trader.retreiveTraderInfo(decoded.email);
+
+        // get the payment or money transfer from req body
+        const paymentOrtransfer = req.body;
+
+        // vars for order and transfer
         let order;
         let transfer;
 
@@ -356,8 +403,6 @@ router.put('/CancelPaymentOrTransaction', async (req, res, next) => {
         // differentiate between order and transfer payment
         if ('comm_type' in paymentOrtransfer) {
             // update order to show that order is cancelled
-
-
             order = await Trader.updateIsCancelledOrder(paymentOrtransfer.order_id, isCancelled, trader.trader_id)
 
         }
@@ -366,23 +411,28 @@ router.put('/CancelPaymentOrTransaction', async (req, res, next) => {
             transfer = await Trader.updateIsCancelledTransfer(paymentOrtransfer.transac_id, isCancelled)
         }
 
+        // add cancelled payment or transfer to db and save result.
         paymentOrtransfer.isCancelled = true
         const cancelledTransaction = await Trader.addTransacOrPayment(paymentOrtransfer)
 
 
 
 
-
+        // check if cancelled transaction, order, and trader ops succeeded
         if ((cancelledTransaction &&
             order && trader)) {
+            // send success response.
             res.status(201)
                 .json({
                     cancelledTransaction: cancelledTransaction,
                     cancelledOrder: order
                 })
         }
+
+        // check if cancelled transaction, transfer, and trader ops succeeded
         else if (cancelledTransaction &&
             transfer && trader) {
+            // send success response.
             res.status(201)
                 .json({
                     cancelledTransaction: cancelledTransaction,
@@ -393,6 +443,7 @@ router.put('/CancelPaymentOrTransaction', async (req, res, next) => {
 
     }
     catch (err) {
+        // internal server error, send failure response.
         res.status(500)
             .json(`Server Error: ${err.message}`)
     }
