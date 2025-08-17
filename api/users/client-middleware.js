@@ -1,7 +1,7 @@
-const { JWT_SECRET } = require('../secrets/secret.js');
-const jwt = require('jsonwebtoken');
-const User = require('./user-model.js');
+const { jwtDecode } = require('jwt-decode');
 const Client = require('./client-model.js');
+const Trader = require('./trader-model');
+
 
 // processClientBuyBitcoinOrder: process bitcoin purchase made buy a client.
 const processClientBuyBitcoinOrder = async (req, res, next) => {
@@ -216,6 +216,223 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
 
 }
 
+// processClientSellBitcoinOrder: process the selling of bitcoin by a client 
+const processClientSellBitcoinOrder = async (req, res, next) => {
+
+    // decode token
+    const decoded = jwtDecode(req.headers.authorization);
+
+    // retrieve the order from request body
+    const order = req.body
+
+    // retrieve client info
+    const client = await Client.retrieveClientInfo(decoded.email)
+
+    // retrieve current bitcoin balance and check to see if sale can be made
+    if (client.Bitcoin_balance < order.Bitcoin_balance ||
+        isNaN(client.Bitcoin_balance) || client.Bitcoin_balance < 0) {
+        // not enough, send failure response
+        res.status(401)
+            .json('Client does not posses enough bitcoin to perform sell')
+
+    }
+    else { // Theres enough in client account
+
+        // update balance of bitcoin and balance of usd
+        let updatedBitcoin = client.Bitcoin_balance - order.Bitcoin_balance;
+        let updatedBalance = client.USD_balance +
+            (order.Bitcoin_balance *
+                order.Bitcoin_price);
+
+        // set up vars for commission pay calculations of trader.
+        let commissionPay = 0.00
+        let commissionPayUSD;
+        let commissionPayBitcoin;
+
+        // update balance or bitcoin balance based on selection
+        // of how client wants to pay commission
+        if (order.comm_type === 'USD') {
+            // check if the membership level is silver
+            if (client.mem_level === 'Silver') {
+
+                // calculate commission pay based on silver membership
+                commissionPay = (order.Bitcoin_balance *
+                    order.Bitcoin_price) * 0.1;
+
+                // check the usd balance of client
+                if (client.USD_balance < commissionPay) {
+
+                    // client doesn't have enough usd, send failure response.
+                    res.status(401)
+                        .json('Client does not possess enough fiat USD to pay commission')
+                }
+                else {
+
+                    // update balance of client by subtracting commission pay from current balance
+                    updatedBalance -= commissionPay;
+
+                    // assign commission pay to trader
+                    commissionPayUSD = commissionPay;
+
+                }
+
+            }
+
+            // check if membership is gold
+            else if (client.mem_level === 'Gold') {
+
+                // calculate commission pay based on gold membership
+                commissionPay = (order.Bitcoin_balance *
+                    order.Bitcoin_price) * 0.05;
+
+                // check client's usd balance
+                if (client.USD_balance < commissionPay) {
+
+                    // not enough usd, send failure response.
+                    res.status(401)
+                        .json('Client does not possess enough fiat USD to pay commission')
+                }
+                else {
+                    // there is enough usd
+                    // update client balance
+                    updatedBalance -= commissionPay;
+
+                    // assign commission pay to trader
+                    commissionPayUSD = commissionPay;
+
+                }
+
+            }
+
+        }
+
+        // check if commission type is bitcoin
+        else if (order.comm_type === 'Bitcoin') {
+            // it is bitcoin.
+
+            // check if membership is silver
+            if (client.mem_level === 'Silver') {
+
+                // calculate the commission pay based on silver membership.
+                commissionPay = (order.Bitcoin_balance) * 0.1;
+
+                // check if client has enough usd in account
+                if (client.Bitcoin_balance < commissionPay) {
+                    // does not have enough usd, send failure response.
+                    res.status(401)
+                        .json('Client does not possess enough bitcoin to pay commission')
+                }
+                else {
+                    // the client does have enough
+
+                    // update bitcoin balance of client
+                    updatedBitcoin -= commissionPay;
+
+                    // assign commission pay to trader.
+                    commissionPayBitcoin = commissionPay
+
+                }
+
+            }
+
+            // check if the client membership is gold 
+            else if (client.mem_level === 'Gold') {
+                // it is gold, calculate the commission pay based on gold membership
+                commissionPay = (order.Bitcoin_balance) * 0.05;
+
+                // check if the client has enough bitcoin
+                if (client.Bitcoin_balance < commissionPay) {
+                    // not enough bitcoin, send failure response.
+                    res.status(401)
+                        .json('Client does not possess enough bitcoin to pay commission')
+                }
+                else {// the client does have enough bitcoin
+
+                    // update current bitcoin balance
+                    updatedBitcoin -= commissionPay;
+
+                    // assign commission pay to trader
+                    commissionPayBitcoin = commissionPay;
+
+                }
+
+            }
+        }
+
+
+        // insert balance and bitcoin into tables to update
+        const updateBitcoin = await Client.updateBitcoinWallet(decoded.email,
+            updatedBitcoin)
+        const updateUSD = await Client.updateUSDBalance(decoded.email,
+            updatedBalance)
+        const date = new Date()
+        const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
+
+        // create object for record of order
+        const orderCreds = {
+            client_id: client.client_id,
+            date: formattedDate,
+            comm_paid: commissionPay,
+            comm_type: order.comm_type,
+            Bitcoin_balance: order.Bitcoin_balance,
+            isCancelled: false
+
+        }
+        // increment trades by 1 and update number of client trades
+        const incrementedTrades = (client.num_trades + 1)
+        const updateNumTrades = await Client.updateNumTrades(client.email, incrementedTrades)
+
+        // Update trader balance--based on comm_type
+
+        let updateUSDBalanceOfTrader;
+        let updateBitcoinBalanceOfTrader;
+
+        // insert order into order table
+        const addOrder = await Client.addOrder(orderCreds)
+
+        // check if the commission type is usd
+        if (order.comm_type === 'USD') {
+            // it is usd update the balance of trader and save result
+            updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(client.trader_id, commissionPayUSD)
+
+            // check if all operations succeeded.
+            if (addOrder &&
+                client &&
+                updateBitcoin &&
+                updateUSD &&
+                updateNumTrades &&
+                updateUSDBalanceOfTrader) {
+                // assign variables in request  to tell that all ops succeeded and the bitcoin balance.
+                req.isOpSuccessful = true;
+                req.balance = order.Bitcoin_balance;
+                next();
+            }
+        }
+        // check if commission type is bitcoin
+        else if (order.comm_type === 'Bitcoin') {
+            // it is bitcoin update the bitcoin balance of trader in database and save result.
+            updateBitcoinBalanceOfTrader = await Trader.updateBitcoinBalanceOfTrader(client.trader_id, commissionPayBitcoin)
+
+            // check if all operations succeeded
+            if (addOrder &&
+                client &&
+                updateBitcoin &&
+                updateUSD &&
+                updateNumTrades &&
+                updateBitcoinBalanceOfTrader) {
+                // assign variables in request  to tell that all ops succeeded and the bitcoin balance.
+                req.isOpSuccessful = true;
+                req.balance = order.Bitcoin_balance;
+                next();
+            }
+        }
+
+
+    }
+
+}
+
 module.exports = {
-    processClientBuyBitcoinOrder
+    processClientBuyBitcoinOrder,
+    processClientSellBitcoinOrder
 };

@@ -1,14 +1,13 @@
-const router = require('express').Router()
-const Client = require('./client-model')
+const router = require('express').Router();
+const Client = require('./client-model');
 const { jwtDecode } = require('jwt-decode');
-const { restricted } = require('../auth/auth-middleware')
-const Trader = require('./trader-model')
+const Trader = require('./trader-model');
 
 
 
 
-// path to buy bitcoin for client 
-router.post('/TraderBuyBitcoin', async (req, res, next) => {
+// /trader-buy-bitcoin: path to buy bitcoin for client by trader
+router.post('/trader-buy-bitcoin', async (req, res, next) => {
     try {
         const pageDetails = req.body
         const decoded = jwtDecode(req.headers.authorization)
@@ -38,12 +37,6 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
             commissionPay = convertedTransfersNotInvested * 0.05
             remainingMoney = convertedTransfersNotInvested - commissionPay
         }
-
-
-
-
-
-
 
         // calculate how much bitcoin can be purchased with the remaining
         // amount of money left over after commission
@@ -120,9 +113,6 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
                 })
         }
 
-
-
-
     }
     catch (err) {
         res.status(500)
@@ -131,8 +121,8 @@ router.post('/TraderBuyBitcoin', async (req, res, next) => {
 })
 
 
-// path to sell bitcoin by trader
-router.post('/TraderSellBitcoin', async (req, res, next) => {
+// /trader-sell-bitcoin: path to sell bitcoin by trader for client
+router.post('/trader-sell-bitcoin', async (req, res, next) => {
     try {
         const pageDetails = req.body
         const decoded = jwtDecode(req.headers.authorization)
