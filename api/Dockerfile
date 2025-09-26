@@ -25,5 +25,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # expose the necessary ports for NGINX and API
 EXPOSE 80 5000
 
+ENV PORT=5000
+
 # Start NGINX and the API
-CMD ["sh", "-c", "nginx -g 'daemon off;' & npm start"]
+CMD ["bash","-lc","npm start & exec nginx -g 'daemon off;'"]
