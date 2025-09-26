@@ -1,0 +1,17 @@
+services:
+  api-nginx:
+    build:
+      context: ./api # Directory that contains Dockerfile
+      dockerfile: Dockerfile # This dockerfile starts NGINX and the API
+    ports:
+      - "80:80" # Map NGINX port 80 in the container to port 80 on the host
+    networks:
+      - app-network
+    env_file:
+      - .env # path to the env file with actual values
+    extra_hosts:
+      - "database: ${HOST_IP_ADDR} " # replace with your ip address. use ipconfig in command line to find ip addr 
+
+networks:
+  app-network:
+    driver: bridge
