@@ -5,10 +5,28 @@ const db = require('../data/dbConfig')
 // get the total number of trades for the month
 // for the client
 async function getClientNumTrades(clientId, month) {
-    const numTrades = await db('Client')
-        .select(['num_trades'])
-        .whereRaw('client_id=? and Month(date)=?', [clientId, month])
-        .first()
+
+    // First - retrieve all dates of orders for the client using the client id
+    const numDates = await db('Order')
+        .select('date')
+        .where('client_id', clientId)
+
+    // convert data to an array of strings
+    const numDatesArr = numDates.map(row => row.date)
+
+    // next iterate through the dates
+    let numTrades = 0  // var to carry the number of trades for the month
+    numDatesArr.forEach(date => {
+        // slice the date to extract the month
+        const slicedMonth = date.slice(0, 7)
+
+        // check if the sliced month is equal to month param
+        if (slicedMonth == month) {
+            // if yes then increment numTrades
+            numTrades += 1
+        }// else continue to the next date in the array
+
+    });
     return numTrades
 }
 // update the member level of the client
