@@ -169,7 +169,7 @@ router.post('/transfer-money', async (req, res, next) => {
         const transfer = req.body;
 
         // check if usd is 0.
-        if (client.USD_balance <= 0) {
+        if (parseFloat(client.USD_balance) <= 0) {
             // dont have enough usd, send failure response.
             res.status(401)
                 .json('You do not have enough usd in your account')
@@ -185,7 +185,7 @@ router.post('/transfer-money', async (req, res, next) => {
         const transferCreds = {
             client_id: client.client_id,
             trader_id: client.trader_id,
-            amount_paid: transfer.amount_paid,
+            amount_paid: parseFloat(transfer.amount_paid),
             date: formattedDate,
             isCancelled: false,
             isInvested: false
@@ -196,13 +196,13 @@ router.post('/transfer-money', async (req, res, next) => {
         const transferMoney = await Client.transerMoney(transferCreds)
 
         // update the usd balance of the client
-        const reducedBalance = client.USD_balance - transfer.amount_paid
+        const reducedBalance = parseFloat(client.USD_balance) - parseFloat(transfer.amount_paid)
 
         // update the usd balance in db and save result
         const updateUSDBalance = await Client.updateUSDBalance(decoded.email, reducedBalance)
 
         // update the transfer account of the trader
-        const updateTransferAccount = await Trader.updateTransferAccountById(client.trader_id, transfer.amount_paid)
+        const updateTransferAccount = await Trader.updateTransferAccountById(client.trader_id, parseFloat(transfer.amount_paid))
 
 
         // check if operations were successful

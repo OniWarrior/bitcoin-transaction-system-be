@@ -9,7 +9,7 @@ router.get('/daily', async (req, res, next) => {
 
         // retrieve date information from body then reformat to be retrieved from database
         const date = req.body
-        const formattedDate = `${date.year}-${date.month}-${date.day}`;
+        const formattedDate = `${date.year}-${date.month - 1}-${date.day}`;
 
         // retrieve the total daily transactions
         const totalDailyTransactions = await Manager.retrieveDailyTransactions(formattedDate)
@@ -41,8 +41,8 @@ router.get('/weekly', async (req, res, next) => {
 
         // retrieve date information from body then reformat to be retrieved from database
         const date = req.body;
-        const startDate = `${date.start_year}` + '-' + `${date.start_month}` + '-' + `${date.start_day}`;
-        const endDate = `${date.end_year}` + '-' + `${date.end_month}` + '-' + `${date.end_day}`;
+        const startDate = `${date.start_year}` + '-' + `${date.start_month - 1}` + '-' + `${date.start_day}`;
+        const endDate = `${date.end_year}` + '-' + `${date.end_month - 1}` + '-' + `${date.end_day}`;
 
         // retrieve total weekly transactions
         const totalWeeklyTransactions = await Manager.retrieveWeeklyTransactions(startDate, endDate);
@@ -70,7 +70,7 @@ router.get('/monthly', async (req, res, next) => {
         const date = req.body;
 
         // retrieve the total monthly transactions from db and save result
-        const totalMonthlyTransactions = await Manager.retrieveMonthlyTransactions(date.month, date.year);
+        const totalMonthlyTransactions = await Manager.retrieveMonthlyTransactions(date.month - 1, date.year);
 
         // check if retrieval was successful
         if (totalMonthlyTransactions) {
