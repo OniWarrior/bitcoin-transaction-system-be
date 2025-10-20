@@ -81,8 +81,9 @@ const checkForMissingEmailOrPassword = (req, res, next) => {
 const checkIfPasswordExists = async (req, res, next) => {
     try {
         const { email, password } = req.body
-        const client = await Client.retrieveClientInfo(email)
-        if (password != client.password) {
+        const client = await Client.retrieveClientCreds(email, password)
+        
+        if (!client || client === "") {
             res.status(400)
                 .json('Invalid credentials. Identity not confirmed')
         }

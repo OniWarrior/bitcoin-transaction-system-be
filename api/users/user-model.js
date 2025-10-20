@@ -17,15 +17,27 @@ async function getClientNumTrades(clientId, month) {
     // next iterate through the dates
     let numTrades = 0  // var to carry the number of trades for the month
     numDatesArr.forEach(date => {
-        // slice the date to extract the month
-        const slicedMonth = date.slice(0, 7)
 
-        // check if the sliced month is equal to month param
-        if (slicedMonth == month) {
-            // if yes then increment numTrades
+        // slice out the month from the date object
+        let slicedDate = date.getMonth() + 1
+        slicedDate = slicedDate.toString()
+
+        // check if the sliced date month is single digit
+        if (slicedDate.length < 2) {
+            slicedDate = "0" + slicedDate
+        }
+
+        // convert month to string
+        let convMonth = month.toString()
+        // check if month is single digit
+        if (convMonth.length < 2) {
+            convMonth = "0" + convMonth
+        }
+
+        // check if the sliced date and month are a match
+        if (slicedDate === convMonth) {
             numTrades += 1
-        }// else continue to the next date in the array
-
+        }
     });
     return numTrades
 }

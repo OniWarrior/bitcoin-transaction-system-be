@@ -15,17 +15,17 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
     const client = await Client.retrieveClientInfo(decoded.email);
 
     // Check balance to see if enough money exists to purchase bitcoin
-    if (client.USD_balance <
+    if (parseFloat(client.USD_balance) <
         (order.Bitcoin_balance * order.Bitcoin_price) ||
-        isNaN(client.USD_balance) || client.USD_balance < 0) {
+        isNaN(parseFloat(client.USD_balance)) || parseFloat(client.USD_balance) < 0) {
         res.status(401)
             .json('Client does not possess enough currency in account to make purchase')
     }
 
     // Update balance and update bitcoin amount
-    let updatedBalance = client.USD_balance -
+    let updatedBalance = parseFloat(client.USD_balance) -
         (order.Bitcoin_balance * order.Bitcoin_price);
-    const currentBitcoin = client.Bitcoin_balance;
+    const currentBitcoin = parseFloat(client.Bitcoin_balance);
     let updatedBitcoin = currentBitcoin + order.Bitcoin_balance;
 
 
@@ -49,7 +49,7 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
 
 
             // reject if client doesn't possess enough money
-            if (client.USD_balance <
+            if (parseFloat(client.USD_balance) <
                 ((order.Bitcoin_balance * order.Bitcoin_price) +
                     commissionPay)) {
                 res.status(401)
@@ -71,7 +71,7 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
             commissionPay = (order.Bitcoin_balance * order.Bitcoin_price) * 0.05;
 
             // reject if client doesn't possess enough money
-            if (client.USD_balance <
+            if (parseFloat(client.USD_balance) <
                 ((order.Bitcoin_balance * order.Bitcoin_price) +
                     commissionPay)) {
                 res.status(401)
@@ -97,7 +97,7 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
 
 
             // reject if client doesn't possess enough money
-            if (client.Bitcoin_balance < commissionPay) {
+            if (parseFloat(client.Bitcoin_balance) < commissionPay) {
                 res.status(401)
                     .json('Client does not possess enough bitcoin to make purchase')
             }
@@ -117,7 +117,7 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
             // calculate pay based on gold membership level.
             commissionPay = (order.Bitcoin_balance) * 0.05
             // reject if client doesn't possess enough money
-            if (client.Bitcoin_balance < commissionPay) {
+            if (parseFloat(client.Bitcoin_balance) < commissionPay) {
                 res.status(401)
                     .json('Client does not possess enough bitcoin to make purchase')
             }
@@ -229,8 +229,8 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
     const client = await Client.retrieveClientInfo(decoded.email)
 
     // retrieve current bitcoin balance and check to see if sale can be made
-    if (client.Bitcoin_balance < order.Bitcoin_balance ||
-        isNaN(client.Bitcoin_balance) || client.Bitcoin_balance < 0) {
+    if (parseFloat(client.Bitcoin_balance) < order.Bitcoin_balance ||
+        isNaN(parseFloat(client.Bitcoin_balance)) || parseFloat(client.Bitcoin_balance) < 0) {
         // not enough, send failure response
         res.status(401)
             .json('Client does not posses enough bitcoin to perform sell')
@@ -239,8 +239,8 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
     else { // Theres enough in client account
 
         // update balance of bitcoin and balance of usd
-        let updatedBitcoin = client.Bitcoin_balance - order.Bitcoin_balance;
-        let updatedBalance = client.USD_balance +
+        let updatedBitcoin = parseFloat(client.Bitcoin_balance) - order.Bitcoin_balance;
+        let updatedBalance = parseFloat(client.USD_balance) +
             (order.Bitcoin_balance *
                 order.Bitcoin_price);
 
@@ -260,7 +260,7 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
                     order.Bitcoin_price) * 0.1;
 
                 // check the usd balance of client
-                if (client.USD_balance < commissionPay) {
+                if (parseFloat(client.USD_balance) < commissionPay) {
 
                     // client doesn't have enough usd, send failure response.
                     res.status(401)
@@ -269,7 +269,9 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
                 else {
 
                     // update balance of client by subtracting commission pay from current balance
+
                     updatedBalance -= commissionPay;
+
 
                     // assign commission pay to trader
                     commissionPayUSD = commissionPay;
@@ -286,7 +288,7 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
                     order.Bitcoin_price) * 0.05;
 
                 // check client's usd balance
-                if (client.USD_balance < commissionPay) {
+                if (parseFloat(client.USD_balance) < commissionPay) {
 
                     // not enough usd, send failure response.
                     res.status(401)
@@ -317,7 +319,7 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
                 commissionPay = (order.Bitcoin_balance) * 0.1;
 
                 // check if client has enough usd in account
-                if (client.Bitcoin_balance < commissionPay) {
+                if (parseFloat(client.Bitcoin_balance) < commissionPay) {
                     // does not have enough usd, send failure response.
                     res.status(401)
                         .json('Client does not possess enough bitcoin to pay commission')
@@ -341,7 +343,7 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
                 commissionPay = (order.Bitcoin_balance) * 0.05;
 
                 // check if the client has enough bitcoin
-                if (client.Bitcoin_balance < commissionPay) {
+                if (parseFloat(client.Bitcoin_balance) < commissionPay) {
                     // not enough bitcoin, send failure response.
                     res.status(401)
                         .json('Client does not possess enough bitcoin to pay commission')
