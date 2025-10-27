@@ -69,7 +69,7 @@ router.get('/purchasing-power', async (req, res) => {
 })
 
 
-// getPorfolioValue: calculates and retrieves the total usd value for bitcoin holdings
+// portfolioValue: calculates and retrieves the total usd value for bitcoin holdings
 router.get('/portfolio-value', async (req, res) => {
     try {
         // process token
