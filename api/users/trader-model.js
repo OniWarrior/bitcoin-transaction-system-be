@@ -150,10 +150,10 @@ async function retrieveTotalFromPendingTransferPayments(clientId, isInvested) {
 
 // For Trader--update order record
 // to indicate that a tranfser payment is cancelled
-function updateIsCancelledOrder(orderId, isCancelled, traderId) {
+function updateIsCancelledOrder(orderId, isCancelled) {
     return db('Order')
         .where('order_id', orderId)
-        .update({ isCancelled: isCancelled, trader_id: traderId })
+        .update({ isCancelled: isCancelled })
         .returning('isCancelled');
 }
 

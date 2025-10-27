@@ -2,7 +2,7 @@ const router = require('express').Router();
 const Client = require('./client-model');
 const { jwtDecode } = require('jwt-decode');
 const Trader = require('./trader-model');
-const { processTraderBuyBitcoinOrder } = require('./trader-middleware');
+const { processTraderBuyBitcoinOrder, processTraderSellBitcoinOrder } = require('./trader-middleware');
 
 
 // /trader-buy-bitcoin: path to buy bitcoin for client by trader
@@ -36,7 +36,7 @@ router.post('/trader-buy-bitcoin', processTraderBuyBitcoinOrder, async (req, res
 
 
 // /trader-sell-bitcoin: path to sell bitcoin by trader for client
-router.post('/trader-sell-bitcoin', async (req, res, next) => {
+router.post('/trader-sell-bitcoin', processTraderSellBitcoinOrder, async (req, res, next) => {
     try {
         // get the balance
         const balance = req.balance;
@@ -204,7 +204,7 @@ router.put('/cancel-payment-or-transfer', async (req, res, next) => {
         // differentiate between order and transfer payment
         if ('comm_type' in paymentOrtransfer) {
             // update order to show that order is cancelled
-            order = await Trader.updateIsCancelledOrder(paymentOrtransfer.order_id, isCancelled, trader.trader_id)
+            order = await Trader.updateIsCancelledOrder(paymentOrtransfer.order_id, isCancelled)
 
         }
         else {

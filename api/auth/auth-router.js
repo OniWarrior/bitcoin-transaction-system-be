@@ -135,6 +135,7 @@ router.post('/login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
                         .cookie('token', token)
                         .json({
                             message: `Welcome back ${foundUser.email}`, token,
+                            ur: `${foundUser.user_type}`
                         })
                 }
                 else {
@@ -168,6 +169,7 @@ router.post('/login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
                         .cookie('token', token)
                         .json({
                             message: `Welcome back ${foundUser.email}`, token,
+                            ur: `${foundUser.user_type}`
                         })
                 }
                 else {
@@ -195,6 +197,7 @@ router.post('/login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
                     .cookie('token', token)
                     .json({
                         message: `Welcome back ${foundUser.email}`, token,
+                        ur: `${foundUser.user_type}`
                     })
             }
             else {
@@ -219,8 +222,8 @@ const makeToken = (user) => {
     const payload = {
         user_id: user.user_id,
         email: user.email,
-        password: user.password,
-        user_type: user.user_type
+        password: user.password
+
     }
 
     // expiration object for the expiration of the token
