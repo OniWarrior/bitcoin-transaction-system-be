@@ -9,7 +9,7 @@ const User = require('./user-model');
 const { processClientBuyBitcoinOrder, processClientSellBitcoinOrder } = require("./client-middleware");
 
 // /latest: endpoint that retrieves the latest bitcoin price
-router.get('/latest', async (req, res, next) => {
+router.get('/latest', async (req, res) => {
     try {
 
 
@@ -35,12 +35,83 @@ router.get('/latest', async (req, res, next) => {
     } catch (error) {
 
         // internal server error, send failed response.
-        res.status(500).send(`Server Error: ${error.message}`);
+        res.status(500).json(`Server Error: ${error.message}`);
     }
 });
 
+// purchasing-power: endpoint that retrieves the current amount
+//                 : of money in a client's account
+router.get('/purchasing-power', async (req, res) => {
+    try {
+
+        //process token
+        const decoded = jwtDecode(req.headers.authorization);
+
+        // retrieve client info using email
+        const client = await Client.retrieveClientInfo(decoded.email);
+
+        // usd balance
+        const balance = client.USD_balance;
+
+        // check if retrieval was successful
+        if (client) {
+            // retrieval successful, send the balance
+            res.status(200).json(balance);
+        }
+
+
+
+    } catch (err) {
+        // internal server error send failed response
+        res.status(500).json(`Server Error: ${err.message}`);
+    }
+
+})
+
+
+// getPorfolioValue: calculates and retrieves the total usd value for bitcoin holdings
+router.get('/portfolio-value', async (req, res) => {
+    try {
+        // process token
+        const decoded = jwtDecode(req.headers.authorization);
+
+        // retrieve client info
+        const client = await Client.retrieveClientInfo(decoded.email);
+
+        // third party api call that retrieves the latest bitcoin price
+        const response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest', {
+            headers: {
+                'X-CMC_PRO_API_KEY': process.env.CMC_API_KEY,
+            },
+        });
+
+        // The retrieves the bitcoin price from the crypto currency data that was retrieved.
+        const bitcoinData = response.data.data.find(crypto => crypto.symbol === 'BTC');
+        const bitcoinPrice = bitcoinData ? bitcoinData.quote.USD.price : null;
+
+        // bitcoin holdings
+        const wallet = client.Bitcoin_balance;
+
+        // calculate the portfolio total usd value
+        const portfolioWorth = parseFloat(bitcoinPrice) * parseFloat(wallet);
+
+        // check if client and response were successful
+        if (client && response) {
+            // success, send portfolio total worth
+            res.status(200).json(portfolioWorth);
+        }
+
+
+
+    } catch (err) {
+        // internal server error send failed response
+        req.status(500).json(`Server Error: ${err.message}`);
+    }
+})
+
+
 // /orders: endpoint that retrieves orders made by a client.
-router.get('/orders', async (req, res, next) => {
+router.get('/orders', async (req, res) => {
     try {
         // process the token
         const decoded = jwtDecode(req.headers.authorization);
