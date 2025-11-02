@@ -14,19 +14,25 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
     // retrieve the client info based on the client email in the decoded token.
     const client = await Client.retrieveClientInfo(decoded.email);
 
+    // vars of converted strings to floats
+    const cBalance = parseFloat(client.USD_balance);
+    const cBTC = parseFloat(client.Bitcoin_balance);
+    const btcAmount = parseFloat(order.Bitcoin_balance);
+    const btcPrice = parseFloat(order.Bitcoin_price);
+
+
     // Check balance to see if enough money exists to purchase bitcoin
-    if (parseFloat(client.USD_balance) <
-        (order.Bitcoin_balance * order.Bitcoin_price) ||
-        isNaN(parseFloat(client.USD_balance)) || parseFloat(client.USD_balance) < 0) {
-        res.status(401)
+    if (cBalance <
+        (btcAmount * btcPrice) ||
+        isNaN(cBalance) || cBalance < 0) {
+        return res.status(401)
             .json('Client does not possess enough currency in account to make purchase')
     }
 
     // Update balance and update bitcoin amount
-    let updatedBalance = parseFloat(client.USD_balance) -
-        (order.Bitcoin_balance * order.Bitcoin_price);
-    const currentBitcoin = parseFloat(client.Bitcoin_balance);
-    let updatedBitcoin = currentBitcoin + order.Bitcoin_balance;
+    let updatedBalance = cBalance - (btcAmount * btcPrice);
+    const currentBitcoin = cBTC;
+    let updatedBitcoin = currentBitcoin + btcAmount;
 
 
     // retrieve member level of client
@@ -45,14 +51,12 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
         // calculate commission pay based on member level
         if (memberLevel === 'Silver') {
             // calculate commission pay for silver level membership
-            commissionPay = (order.Bitcoin_balance * order.Bitcoin_price) * 0.1;
+            commissionPay = (btcAmount * btcPrice) * 0.1;
 
 
             // reject if client doesn't possess enough money
-            if (parseFloat(client.USD_balance) <
-                ((order.Bitcoin_balance * order.Bitcoin_price) +
-                    commissionPay)) {
-                res.status(401)
+            if (cBalance < (btcAmount * btcPrice) + commissionPay) {
+                return res.status(401)
                     .json('Client does not possess enough fiat USD to make purchase')
             }
             else { // client does have enough money
@@ -68,13 +72,11 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
         }
         else if (memberLevel === 'Gold') {
             // calculate commission pay for gold member level
-            commissionPay = (order.Bitcoin_balance * order.Bitcoin_price) * 0.05;
+            commissionPay = (btcAmount * btcPrice) * 0.05;
 
             // reject if client doesn't possess enough money
-            if (parseFloat(client.USD_balance) <
-                ((order.Bitcoin_balance * order.Bitcoin_price) +
-                    commissionPay)) {
-                res.status(401)
+            if (cBalance < ((btcAmount * btcPrice) + commissionPay)) {
+                return res.status(401)
                     .json('Client does not possess enough fiat USD to make purchase')
             }
             else {
@@ -93,12 +95,12 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
         // calculate commission pay based on member level
         if (memberLevel === 'Silver') {
 
-            commissionPay = (order.Bitcoin_balance) * 0.1;
+            commissionPay = (btcAmount) * 0.1;
 
 
             // reject if client doesn't possess enough money
-            if (parseFloat(client.Bitcoin_balance) < commissionPay) {
-                res.status(401)
+            if (cBTC < commissionPay) {
+                return res.status(401)
                     .json('Client does not possess enough bitcoin to make purchase')
             }
             else {
@@ -115,10 +117,10 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
         }
         else if (memberLevel === 'Gold') {
             // calculate pay based on gold membership level.
-            commissionPay = (order.Bitcoin_balance) * 0.05
+            commissionPay = (btcAmount) * 0.05
             // reject if client doesn't possess enough money
-            if (parseFloat(client.Bitcoin_balance) < commissionPay) {
-                res.status(401)
+            if (cBTC < commissionPay) {
+                return res.status(401)
                     .json('Client does not possess enough bitcoin to make purchase')
             }
             else {
@@ -144,7 +146,7 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
 
     // capture today's date and format it for the database insertion.
     const date = new Date()
-    const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
+    const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth() + 1}` + '-' + `${date.getDate()}`
 
     // create object for record of order
     const orderCreds = {
@@ -152,7 +154,7 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
         date: formattedDate,
         comm_paid: commissionPay,
         comm_type: order.comm_type,
-        Bitcoin_balance: order.Bitcoin_balance,
+        Bitcoin_balance: btcAmount,
         isCancelled: false
 
     }
@@ -161,16 +163,18 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
     const incrementedTrades = (client.num_trades + 1)
     const updateNumTrades = await Client.updateNumTrades(client.email, incrementedTrades)
 
-    // Update trader balance--based on comm_type            
-    let updateUSDBalanceOfTrader;
-    let updateBitcoinBalanceOfTrader;
 
     // insert order into order table
     const addOrder = await Client.addOrder(orderCreds)
 
     if (order.comm_type === 'USD') {
-        // update the usd dollar balance of the trader
-        updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(client.trader_id, commissionPayUSD)
+
+        // retrieve current usd balance of trader
+        const traderInfo = await Trader.retreiveTraderInfoById(client.trader_id);
+        const traderUSD = parseFloat(traderInfo.USD_balance);
+
+        // update the usd dollar balance of the trader by adding current balance to comm pay
+        const updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(client.trader_id, commissionPayUSD + traderUSD)
 
         // check if all operations succeeded.
         if (addOrder &&
@@ -183,13 +187,18 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
         ) {
             // assign variables in request  to tell that all ops succeeded and the bitcoin balance.
             req.isOpSuccessful = true;
-            req.balance = order.Bitcoin_balance;
+            req.balance = btcAmount;
             next();
         }
     }
     else if (order.comm_type === 'Bitcoin') {
-        // update bitcoin balance of the trader
-        updateBitcoinBalanceOfTrader = await Trader.updateBitcoinBalanceOfTrader(client.trader_id, commissionPayBitcoin)
+
+        // retrieve current btc of trader
+        const traderInfo = await Trader.retreiveTraderInfoById(client.trader_id);
+        const traderBTC = parseFloat(traderInfo.Bitcoin_balance);
+
+        // update bitcoin balance of the trader by adding current btc to comm pay
+        const updateBitcoinBalanceOfTrader = await Trader.updateBitcoinBalanceOfTrader(client.trader_id, traderBTC + commissionPayBitcoin)
 
 
         // check if all operations succeeded.
@@ -203,7 +212,7 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
         ) {
             // assign variables in request  to tell that all ops succeeded and the bitcoin balance.
             req.isOpSuccessful = true;
-            req.balance = order.Bitcoin_balance;
+            req.balance = btcAmount;
             next();
         }
     }
@@ -226,23 +235,26 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
     const order = req.body
 
     // retrieve client info
-    const client = await Client.retrieveClientInfo(decoded.email)
+    const client = await Client.retrieveClientInfo(decoded.email);
+
+    // vars of converted strings to floats
+    const cBalance = parseFloat(client.USD_balance);
+    const cBTC = parseFloat(client.Bitcoin_balance);
+    const btcAmount = parseFloat(order.Bitcoin_balance);
+    const btcPrice = parseFloat(order.Bitcoin_price)
 
     // retrieve current bitcoin balance and check to see if sale can be made
-    if (parseFloat(client.Bitcoin_balance) < order.Bitcoin_balance ||
-        isNaN(parseFloat(client.Bitcoin_balance)) || parseFloat(client.Bitcoin_balance) < 0) {
+    if (cBTC < btcAmount || isNaN(cBTC) || cBTC < 0) {
         // not enough, send failure response
-        res.status(401)
+        return res.status(401)
             .json('Client does not posses enough bitcoin to perform sell')
 
     }
     else { // Theres enough in client account
 
         // update balance of bitcoin and balance of usd
-        let updatedBitcoin = parseFloat(client.Bitcoin_balance) - order.Bitcoin_balance;
-        let updatedBalance = parseFloat(client.USD_balance) +
-            (order.Bitcoin_balance *
-                order.Bitcoin_price);
+        let updatedBitcoin = cBTC - btcAmount;
+        let updatedBalance = cBalance + (btcAmount * btcPrice);
 
         // set up vars for commission pay calculations of trader.
         let commissionPay = 0.00
@@ -256,14 +268,13 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
             if (client.mem_level === 'Silver') {
 
                 // calculate commission pay based on silver membership
-                commissionPay = (order.Bitcoin_balance *
-                    order.Bitcoin_price) * 0.1;
+                commissionPay = (btcAmount * btcPrice) * 0.1;
 
                 // check the usd balance of client
-                if (parseFloat(client.USD_balance) < commissionPay) {
+                if (cBalance < commissionPay) {
 
                     // client doesn't have enough usd, send failure response.
-                    res.status(401)
+                    return res.status(401)
                         .json('Client does not possess enough fiat USD to pay commission')
                 }
                 else {
@@ -284,14 +295,13 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
             else if (client.mem_level === 'Gold') {
 
                 // calculate commission pay based on gold membership
-                commissionPay = (order.Bitcoin_balance *
-                    order.Bitcoin_price) * 0.05;
+                commissionPay = (btcAmount * btcPrice) * 0.05;
 
                 // check client's usd balance
-                if (parseFloat(client.USD_balance) < commissionPay) {
+                if (cBalance < commissionPay) {
 
                     // not enough usd, send failure response.
-                    res.status(401)
+                    return res.status(401)
                         .json('Client does not possess enough fiat USD to pay commission')
                 }
                 else {
@@ -316,12 +326,12 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
             if (client.mem_level === 'Silver') {
 
                 // calculate the commission pay based on silver membership.
-                commissionPay = (order.Bitcoin_balance) * 0.1;
+                commissionPay = (btcAmount) * 0.1;
 
-                // check if client has enough usd in account
-                if (parseFloat(client.Bitcoin_balance) < commissionPay) {
-                    // does not have enough usd, send failure response.
-                    res.status(401)
+                // check if client has enough bitcoin in account
+                if (cBTC < commissionPay) {
+                    // does not have enough bitcoin, send failure response.
+                    return res.status(401)
                         .json('Client does not possess enough bitcoin to pay commission')
                 }
                 else {
@@ -340,12 +350,12 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
             // check if the client membership is gold 
             else if (client.mem_level === 'Gold') {
                 // it is gold, calculate the commission pay based on gold membership
-                commissionPay = (order.Bitcoin_balance) * 0.05;
+                commissionPay = (btcAmount) * 0.05;
 
                 // check if the client has enough bitcoin
-                if (parseFloat(client.Bitcoin_balance) < commissionPay) {
+                if (cBTC < commissionPay) {
                     // not enough bitcoin, send failure response.
-                    res.status(401)
+                    return res.status(401)
                         .json('Client does not possess enough bitcoin to pay commission')
                 }
                 else {// the client does have enough bitcoin
@@ -368,7 +378,7 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
         const updateUSD = await Client.updateUSDBalance(decoded.email,
             updatedBalance)
         const date = new Date()
-        const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
+        const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth() + 1}` + '-' + `${date.getDate()}`
 
         // create object for record of order
         const orderCreds = {
@@ -376,7 +386,7 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
             date: formattedDate,
             comm_paid: commissionPay,
             comm_type: order.comm_type,
-            Bitcoin_balance: order.Bitcoin_balance,
+            Bitcoin_balance: btcAmount,
             isCancelled: false
 
         }
@@ -394,8 +404,13 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
 
         // check if the commission type is usd
         if (order.comm_type === 'USD') {
+
+            // retrieve current usd balance of trader
+            const traderInfo = await Trader.retreiveTraderInfoById(client.trader_id);
+            const traderUSD = parseFloat(traderInfo.USD_balance);
+
             // it is usd update the balance of trader and save result
-            updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(client.trader_id, commissionPayUSD)
+            updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(client.trader_id, traderUSD + commissionPayUSD)
 
             // check if all operations succeeded.
             if (addOrder &&
@@ -412,8 +427,13 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
         }
         // check if commission type is bitcoin
         else if (order.comm_type === 'Bitcoin') {
+
+            // retrieve current btc of trader
+            const traderInfo = await Trader.retreiveTraderInfoById(client.trader_id);
+            const traderBTC = parseFloat(traderInfo.Bitcoin_balance);
+
             // it is bitcoin update the bitcoin balance of trader in database and save result.
-            updateBitcoinBalanceOfTrader = await Trader.updateBitcoinBalanceOfTrader(client.trader_id, commissionPayBitcoin)
+            updateBitcoinBalanceOfTrader = await Trader.updateBitcoinBalanceOfTrader(client.trader_id, commissionPayBitcoin + traderBTC)
 
             // check if all operations succeeded
             if (addOrder &&

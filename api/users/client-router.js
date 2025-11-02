@@ -4,7 +4,7 @@ const { jwtDecode } = require('jwt-decode');
 const { checkIfPasswordExists, checkIfEmailExists } = require('../auth/auth-middleware');
 const Trader = require('./trader-model');
 const axios = require('axios');
-const User = require('./user-model');
+
 
 const { processClientBuyBitcoinOrder, processClientSellBitcoinOrder } = require("./client-middleware");
 
@@ -22,55 +22,29 @@ router.get('/latest', async (req, res) => {
 
         // The retrieves the bitcoin price from the crypto currency data that was retrieved.
         const bitcoinData = response.data.data.find(crypto => crypto.symbol === 'BTC');
-        const bitcoinPrice = bitcoinData ? bitcoinData.quote.USD.price : null;
+        const bitcoinPrice = parseFloat(bitcoinData ? bitcoinData.quote.USD.price : null).toFixed(2);
 
         // check if the price was successfully retrieved
         if (bitcoinPrice) {
             // successful, send success response with the btc price
-            res.status(200).json({ price: bitcoinPrice });
+            return res.status(200).json({ price: bitcoinPrice });
         } else {
             // failed, send failure response.
-            res.status(404).send('Bitcoin data not found');
+            return res.status(404).send('Bitcoin data not found');
         }
     } catch (error) {
 
         // internal server error, send failed response.
-        res.status(500).json(`Server Error: ${error.message}`);
+        return res.status(500).json(`Server Error: ${error.message}`);
     }
 });
 
-// purchasing-power: endpoint that retrieves the current amount
-//                 : of money in a client's account
-router.get('/purchasing-power', async (req, res) => {
-    try {
-
-        //process token
-        const decoded = jwtDecode(req.headers.authorization);
-
-        // retrieve client info using email
-        const client = await Client.retrieveClientInfo(decoded.email);
-
-        // usd balance
-        const balance = client.USD_balance;
-
-        // check if retrieval was successful
-        if (client) {
-            // retrieval successful, send the balance
-            res.status(200).json(balance);
-        }
 
 
 
-    } catch (err) {
-        // internal server error send failed response
-        res.status(500).json(`Server Error: ${err.message}`);
-    }
-
-})
-
-
-// portfolioValue: calculates and retrieves the total usd value for bitcoin holdings
-router.get('/portfolio-value', async (req, res) => {
+// portfolio: calculates and retrieves the total usd value for bitcoin holdings.
+//          : It also sends the current bitcoin holdings and current usd balance.
+router.get('/portfolio', async (req, res) => {
     try {
         // process token
         const decoded = jwtDecode(req.headers.authorization);
@@ -93,19 +67,23 @@ router.get('/portfolio-value', async (req, res) => {
         const wallet = client.Bitcoin_balance;
 
         // calculate the portfolio total usd value
-        const portfolioWorth = parseFloat(bitcoinPrice) * parseFloat(wallet);
+        const portfolioWorth = (parseFloat(bitcoinPrice) * parseFloat(wallet)).toFixed(2);
 
         // check if client and response were successful
         if (client && response) {
             // success, send portfolio total worth
-            res.status(200).json(portfolioWorth);
+            return res.status(200).json({
+                portfolioValue: portfolioWorth,
+                wallet: wallet,
+                balance: client.USD_balance
+            });
         }
 
 
 
     } catch (err) {
         // internal server error send failed response
-        req.status(500).json(`Server Error: ${err.message}`);
+        return res.status(500).json(`Server Error: ${err.message}`);
     }
 })
 
@@ -125,7 +103,7 @@ router.get('/orders', async (req, res) => {
         // check if client and orders was successful
         if (client && orders) {
             // success, send success response with the orders.
-            res.status(200)
+            return res.status(200)
                 .json(orders)
         }
 
@@ -133,7 +111,7 @@ router.get('/orders', async (req, res) => {
     }
     catch (err) {
         // internal server error, send failure response.
-        res.status(500)
+        return res.status(500)
             .json(`Server Error: ${err.message}`)
     }
 
@@ -156,7 +134,7 @@ router.post('/buy-bitcoin', checkIfEmailExists, checkIfPasswordExists, processCl
         // was op successful
         if (isOpSuccessful) {
             // op successful, send success response along with balance.
-            res.status(201)
+            return res.status(201)
                 .json({
                     message: 'Successfully bought bitcoin',
                     amount: balance
@@ -164,7 +142,7 @@ router.post('/buy-bitcoin', checkIfEmailExists, checkIfPasswordExists, processCl
         }
     }
     catch (err) {
-        res.status(500)
+        return res.status(500)
             .json(`Server Error: ${err.message}`)
     }
 
@@ -182,7 +160,7 @@ router.post('/sell-bitcoin', checkIfEmailExists, checkIfPasswordExists, processC
         // check if op successful.
         if (isOpSuccessful) {
             // op successful send success response.
-            res.status(201)
+            return res.status(201)
                 .json({
                     message: 'successfully sold bitcoin',
                     amount: balance
@@ -191,7 +169,7 @@ router.post('/sell-bitcoin', checkIfEmailExists, checkIfPasswordExists, processC
     }
     catch (err) {
         // internal server error, send failure response.
-        res.status(500)
+        return res.status(500)
             .json(`Server Error: ${err.message}`)
     }
 })
@@ -209,15 +187,15 @@ router.get('/bitcoin-wallet', async (req, res, next) => {
         //check if wallet was retrieved.
         if (wallet) {
             // wallet was retrieved, send success response with wallet.
-            res.status(200)
-                .json(wallet.Bitcoin_balance)
+            return res.status(200)
+                .json({ wallet: wallet.Bitcoin_balance })
         }
 
     }
     catch (err) {
 
         // internal server error, send failure response.
-        res.status(500)
+        return res.status(500)
             .json(`Server Error: ${err.message}`)
     }
 
@@ -242,15 +220,21 @@ router.post('/transfer-money', async (req, res, next) => {
         // check if usd is 0.
         if (parseFloat(client.USD_balance) <= 0) {
             // dont have enough usd, send failure response.
-            res.status(401)
+            return res.status(401)
                 .json('You do not have enough usd in your account')
+        }
+
+        // check for null or empty amount transfer
+        if (transfer.amount_paid === '' || isNaN(transfer.amount_paid) || transfer.amount_paid === undefined) {
+            // non acceptable value
+            return res.status(401).json("Not an acceptable value")
         }
 
 
 
         // get the current date and format it for db insertion
         const date = new Date()
-        const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
+        const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth() + 1}` + '-' + `${date.getDate()}`
 
         // create object for the record
         const transferCreds = {
@@ -272,8 +256,15 @@ router.post('/transfer-money', async (req, res, next) => {
         // update the usd balance in db and save result
         const updateUSDBalance = await Client.updateUSDBalance(decoded.email, reducedBalance)
 
+        // get current transfer balance of trader
+        const traderInfo = await Trader.retreiveTraderInfoById(client.trader_id);
+
+        // add amount paid to current transfer balance
+        const totalTransferBalance = parseFloat(traderInfo.transfer_balance) + parseFloat(transfer.amount_paid)
+
+
         // update the transfer account of the trader
-        const updateTransferAccount = await Trader.updateTransferAccountById(client.trader_id, parseFloat(transfer.amount_paid))
+        const updateTransferAccount = await Trader.updateTransferAccountById(client.trader_id, totalTransferBalance)
 
 
         // check if operations were successful
@@ -283,7 +274,7 @@ router.post('/transfer-money', async (req, res, next) => {
             updateTransferAccount) {
 
             // operations succeeded, send success response.
-            res.status(201)
+            return res.status(201)
                 .json('Successfully transferred payment to trader')
 
         }
@@ -293,7 +284,7 @@ router.post('/transfer-money', async (req, res, next) => {
     }
     catch (err) {
         // internal server error, send failure response.
-        res.status(500)
+        return res.status(500)
             .json(`Server Error: ${err.message}`)
     }
 })

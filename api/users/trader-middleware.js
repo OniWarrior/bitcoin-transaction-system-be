@@ -85,7 +85,7 @@ const processTraderBuyBitcoinOrder = async (req, res, next) => {
 
         // get today's date and format for db insertion.
         const date = new Date();
-        const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`;
+        const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth() + 1}` + '-' + `${date.getDate()}`;
 
 
         // create object for record of order
@@ -146,7 +146,7 @@ const processTraderBuyBitcoinOrder = async (req, res, next) => {
         }
 
     } catch (err) {
-        res.status(500).json(`Server Error: ${err.message}`);
+        return res.status(500).json(`Server Error: ${err.message}`);
 
     }
 
@@ -190,13 +190,13 @@ const processTraderSellBitcoinOrder = async (req, res, next) => {
         // if current bitcoin balance is less than what the client wants sold reject otherwise proceed
         if (client.Bitcoin_balance < convertedBitcoinBalance ||
             isNaN(client.Bitcoin_balance) || client.Bitcoin_balance < 0) {
-            res.status(401)
+            return res.status(401)
                 .json('client does not possess enough bitcoin in account to make sale')
 
         }
         else if (client.Bitcoin_balance < (convertedBitcoinBalance + commissionPay) ||
             isNaN(client.Bitcoin_balance) || client.Bitcoin_balance < 0) {
-            res.status(401)
+            return res.status(401)
                 .json('client does not possess enough bitcoin in account to make purchase and commission')
 
         }
@@ -219,7 +219,7 @@ const processTraderSellBitcoinOrder = async (req, res, next) => {
             const updateUSDBalance = await Client.updateUSDBalance(client.email, remainingUSD);
 
             const date = new Date();
-            const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`;
+            const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth() + 1}` + '-' + `${date.getDate()}`;
 
 
             // create object for record of order
@@ -270,7 +270,7 @@ const processTraderSellBitcoinOrder = async (req, res, next) => {
         }
 
     } catch (err) {
-        res.status(500).json(`Server error: ${err.message}`);
+        return res.status(500).json(`Server error: ${err.message}`);
     }
 
 

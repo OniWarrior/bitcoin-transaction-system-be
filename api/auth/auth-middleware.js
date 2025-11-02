@@ -8,12 +8,12 @@ const restricted = (req, res, next) => {
     const token = req.headers.authorization
 
     if (!token) {
-        res.status(401).json("Token required")
+        return res.status(401).json("Token required")
     }
     else {
         jwt.verify(token, JWT_SECRET, (err, decoded) => {
             if (err) {
-                res.status(401).json('Token invalid')
+                return res.status(401).json('Token invalid')
             }
             else {
                 req.decodedToken = decoded
@@ -37,7 +37,7 @@ const checkIfEmailExists = async (req, res, next) => {
         next()
     }
     else {
-        res.status(401).json('Invalid credentials')
+        return res.status(401).json('Invalid credentials')
     }
 
 
@@ -52,7 +52,7 @@ const checkIfEmailAlreadyRegistered = async (req, res, next) => {
 
     const user = await User.findByEmail(email)
     if (user) {
-        res.status(422).json("Email is already registered")
+        return res.status(422).json("Email is already registered")
     }
     else {
         next()
@@ -69,7 +69,7 @@ const checkForMissingEmailOrPassword = (req, res, next) => {
 
     if (!email || email === "" ||
         !password || password == "") {
-        res.status(400).json("Email and password are required")
+        return res.status(400).json("Email and password are required")
 
     }
     else {
@@ -82,9 +82,9 @@ const checkIfPasswordExists = async (req, res, next) => {
     try {
         const { email, password } = req.body
         const client = await Client.retrieveClientCreds(email, password)
-        
+
         if (!client || client === "") {
-            res.status(400)
+            return res.status(400)
                 .json('Invalid credentials. Identity not confirmed')
         }
         else {
@@ -93,7 +93,7 @@ const checkIfPasswordExists = async (req, res, next) => {
 
     }
     catch (err) {
-        res.status(500).json(`Server Error: ${err.message}`)
+        return res.status(500).json(`Server Error: ${err.message}`)
     }
 
 
