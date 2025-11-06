@@ -15,10 +15,11 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
     const client = await Client.retrieveClientInfo(decoded.email);
 
     // vars of converted strings to floats
-    const cBalance = parseFloat(client.USD_balance);
-    const cBTC = parseFloat(client.Bitcoin_balance);
-    const btcAmount = parseFloat(order.Bitcoin_balance);
-    const btcPrice = parseFloat(order.Bitcoin_price);
+    const cBalance = Number(client.USD_balance);
+    const cBTC = Number(client.Bitcoin_balance);
+    const btcAmount = Number(order.Bitcoin_balance);
+    const btcPrice = Number(order.Bitcoin_price);
+
 
 
     // Check balance to see if enough money exists to purchase bitcoin
@@ -171,7 +172,7 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
 
         // retrieve current usd balance of trader
         const traderInfo = await Trader.retreiveTraderInfoById(client.trader_id);
-        const traderUSD = parseFloat(traderInfo.USD_balance);
+        const traderUSD = Number(traderInfo.USD_balance);
 
         // update the usd dollar balance of the trader by adding current balance to comm pay
         const updateUSDBalanceOfTrader = await Trader.updateUSDBalanceOfTrader(client.trader_id, commissionPayUSD + traderUSD)

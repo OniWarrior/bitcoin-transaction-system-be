@@ -19,7 +19,7 @@ router.post('/trader-buy-bitcoin', processTraderBuyBitcoinOrder, async (req, res
         // check if operations succeeded
         if (isOpSuccessful) {
             // operations successful, send success response.
-            res.status(201)
+            return res.status(201)
                 .json({
                     message: `Successfully bought bitcoin for client`,
                     amount: balance
@@ -29,7 +29,7 @@ router.post('/trader-buy-bitcoin', processTraderBuyBitcoinOrder, async (req, res
     }
     catch (err) {
         // internal server error, send failure response.
-        res.status(500)
+        return res.status(500)
             .json(`Server Error: ${err.message}`)
     }
 })
@@ -47,7 +47,7 @@ router.post('/trader-sell-bitcoin', processTraderSellBitcoinOrder, async (req, r
 
         // check if the ops were successful
         if (isOpSuccessful) {
-            res.status(201)
+            return res.status(201)
                 .json({
                     message: 'Successfully sold Bitcoin',
                     amount: balance
@@ -56,7 +56,7 @@ router.post('/trader-sell-bitcoin', processTraderSellBitcoinOrder, async (req, r
 
     }
     catch (err) {
-        res.status(500)
+        return res.status(500)
             .json(`Server Error: ${err.message}`)
     }
 })
@@ -82,18 +82,21 @@ router.post('/clients/search', async (req, res, next) => {
             retrievedClient = await Trader.findClientByEmail(client.email)
 
         }
+        else {
+            return res.status(401).json('Not enough credentials provided for client search')
+        }
 
         // check if op succeeded
         if (retrievedClient) {
             // send success response.
-            res.status(200)
+            return res.status(200)
                 .json(retrievedClient)
         }
 
     }
     catch (err) {
         // internal server error, send failure response.
-        res.status(500)
+        return res.status(500)
             .json(`Server Error: ${err.message}`)
 
     }
@@ -108,7 +111,7 @@ router.get('/cancel-log', async (req, res, next) => {
         const decoded = jwtDecode(req.headers.authorization);
 
         // get trader info using email
-        const trader = await Trader.retreiveTraderInfo(decoded.email);
+        const trader = await Trader.retreiveTraderInfoByEmail(decoded.email);
 
         // get the cancel log from db using trader id
         const cancelLog = await Trader.retrieveCancelLog(trader.trader_id);
@@ -116,12 +119,12 @@ router.get('/cancel-log', async (req, res, next) => {
         // check if ops succeeded
         if (trader && cancelLog) {
             // send success response.
-            res.status(200).json(cancelLog)
+            return res.status(200).json(cancelLog)
         }
 
     }
     catch (err) {
-        res.status(500).json(`Server Error: ${err.message}`)
+        return res.status(500).json(`Server Error: ${err.message}`)
     }
 })
 
@@ -140,14 +143,14 @@ router.get('/clients/:client_id/transactions', async (req, res, next) => {
         // check if op succeeded.
         if (orders) {
             // send success response.
-            res.status(200)
+            return res.status(200)
                 .json(orders)
         }
 
     }
     catch (err) {
         // internal server error, send failure response.
-        res.status(500)
+        return res.status(500)
             .json(`Server Error: ${err.message}`)
     }
 
@@ -167,14 +170,14 @@ router.get('/clients/:client_id/payments', async (req, res, next) => {
         // check if op succeeded.
         if (transfers) {
             // send success response.
-            res.status(200)
+            return res.status(200)
                 .json(transfers)
         }
 
     }
     catch (err) {
         // internal server error, send failure response.
-        res.status(500)
+        return res.status(500)
             .json(`Server Error: ${err.message}`)
     }
 
@@ -190,7 +193,7 @@ router.put('/cancel-payment-or-transfer', async (req, res, next) => {
         const decoded = jwtDecode(req.headers.authorization);
 
         // get the trader info with email
-        const trader = await Trader.retreiveTraderInfo(decoded.email);
+        const trader = await Trader.retreiveTraderInfoByEmail(decoded.email);
 
         // get the payment or money transfer from req body
         const paymentOrtransfer = req.body;
@@ -201,6 +204,10 @@ router.put('/cancel-payment-or-transfer', async (req, res, next) => {
 
         const isCancelled = true
 
+        const date = new Date();
+        const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth() + 1}` + '-' + `${date.getDate()}`;
+
+        paymentOrtransfer.date = formattedDate
         // differentiate between order and transfer payment
         if ('comm_type' in paymentOrtransfer) {
             // update order to show that order is cancelled
@@ -223,7 +230,7 @@ router.put('/cancel-payment-or-transfer', async (req, res, next) => {
         if ((cancelledTransaction &&
             order && trader)) {
             // send success response.
-            res.status(201)
+            return res.status(201)
                 .json({
                     cancelledTransaction: cancelledTransaction,
                     cancelledOrder: order
@@ -234,7 +241,7 @@ router.put('/cancel-payment-or-transfer', async (req, res, next) => {
         else if (cancelledTransaction &&
             transfer && trader) {
             // send success response.
-            res.status(201)
+            return res.status(201)
                 .json({
                     cancelledTransaction: cancelledTransaction,
                     cancelledTransfer: transfer
@@ -245,7 +252,7 @@ router.put('/cancel-payment-or-transfer', async (req, res, next) => {
     }
     catch (err) {
         // internal server error, send failure response.
-        res.status(500)
+        return res.status(500)
             .json(`Server Error: ${err.message}`)
     }
 })

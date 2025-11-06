@@ -23,7 +23,7 @@ const processTraderBuyBitcoinOrder = async (req, res, next) => {
         const client = await Client.retrieveClientInfo(pageDetails.email);
 
         // retrieve trader info from trader email
-        const trader = await Trader.retreiveTraderInfo(decoded.email);
+        const trader = await Trader.retreiveTraderInfoByEmail(decoded.email);
 
         // retrieve the transfers of money from client to trader that have not been invested.
         let isInvested = false
@@ -180,22 +180,24 @@ const processTraderSellBitcoinOrder = async (req, res, next) => {
         // calculate commission pay
         if (memberLevel === 'Silver') {
             commissionPay = (convertedBitcoinBalance) * 0.1
+
         }
         else if (memberLevel === 'Gold') {
             commissionPay = (convertedBitcoinBalance) * 0.05
         }
 
-
+        // converted client btc balance
+        const cBTC = Number(client.Bitcoin_balance);
 
         // if current bitcoin balance is less than what the client wants sold reject otherwise proceed
-        if (client.Bitcoin_balance < convertedBitcoinBalance ||
-            isNaN(client.Bitcoin_balance) || client.Bitcoin_balance < 0) {
+        if (cBTC < convertedBitcoinBalance ||
+            isNaN(cBTC) || cBTC < 0) {
             return res.status(401)
                 .json('client does not possess enough bitcoin in account to make sale')
 
         }
-        else if (client.Bitcoin_balance < (convertedBitcoinBalance + commissionPay) ||
-            isNaN(client.Bitcoin_balance) || client.Bitcoin_balance < 0) {
+        else if (cBTC < (convertedBitcoinBalance + commissionPay) ||
+            isNaN(cBTC) || cBTC < 0) {
             return res.status(401)
                 .json('client does not possess enough bitcoin in account to make purchase and commission')
 
@@ -203,20 +205,23 @@ const processTraderSellBitcoinOrder = async (req, res, next) => {
         else {
             //  update bitcoin amount of client
             const currentBitcoin = Number(client.Bitcoin_balance);
-            let updatedBitcoin = currentBitcoin -
+            const updatedBitcoin = currentBitcoin -
                 convertedBitcoinBalance;
 
 
             // Insert the updated bitcoin for client
-            const updateBitcoin = await Client.updateBitcoinWallet(decoded.email,
+            const updateBitcoin = await Client.updateBitcoinWallet(pageDetails.email,
                 updatedBitcoin);
 
             // calculate the remaining bitcoin dollar amount
             // after trader takes commission
             const remainingUSD = (convertedBitcoinPrice * convertedBitcoinBalance) - (commissionPay * convertedBitcoinPrice);
 
+            // add remainingUSD to current balance of client
+            const profit = remainingUSD + Number(client.USD_balance);
+
             // update the usd balance for client
-            const updateUSDBalance = await Client.updateUSDBalance(client.email, remainingUSD);
+            const updateUSDBalance = await Client.updateUSDBalance(client.email, profit);
 
             const date = new Date();
             const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth() + 1}` + '-' + `${date.getDate()}`;
@@ -241,7 +246,7 @@ const processTraderSellBitcoinOrder = async (req, res, next) => {
             const updateNumTrades = await Client.updateNumTrades(client.email, incrementedTrades);
 
             // Update trader bitcoin balance            
-            const trader = await Trader.retreiveTraderInfo(decoded.email);
+            const trader = await Trader.retreiveTraderInfoByEmail(decoded.email);
             const updatedTraderBitoinBalance = Number(trader.Bitcoin_balance) + Number(commissionPay);
 
 
