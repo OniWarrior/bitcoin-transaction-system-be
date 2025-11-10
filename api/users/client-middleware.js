@@ -239,10 +239,10 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
     const client = await Client.retrieveClientInfo(decoded.email);
 
     // vars of converted strings to floats
-    const cBalance = parseFloat(client.USD_balance);
-    const cBTC = parseFloat(client.Bitcoin_balance);
-    const btcAmount = parseFloat(order.Bitcoin_balance);
-    const btcPrice = parseFloat(order.Bitcoin_price)
+    const cBalance = Number(client.USD_balance);
+    const cBTC = Number(client.Bitcoin_balance);
+    const btcAmount = Number(order.Bitcoin_balance);
+    const btcPrice = Number(order.Bitcoin_price)
 
     // retrieve current bitcoin balance and check to see if sale can be made
     if (cBTC < btcAmount || isNaN(cBTC) || cBTC < 0) {

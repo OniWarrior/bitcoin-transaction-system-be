@@ -3,9 +3,54 @@ const Client = require('./client-model');
 const { jwtDecode } = require('jwt-decode');
 const Trader = require('./trader-model');
 const { processTraderBuyBitcoinOrder, processTraderSellBitcoinOrder } = require('./trader-middleware');
+const axios = require('axios');
+
+// trader-portfolio: retrieves usd and bitcoin commission pay.
+//                 : It also calculates the total usd value of both types of commission pay.
+router.get('/trader-portfolio', async (req, res) => {
+    try {
+        // process token
+        const decoded = jwtDecode(req.headers.authorization);
+
+        // retrieve trader info
+        const trader = await Trader.retreiveTraderInfoByEmail(decoded.email);
+
+        // third party api call that retrieves the latest bitcoin price
+        const response = await axios.get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest', {
+            headers: {
+                'X-CMC_PRO_API_KEY': process.env.CMC_API_KEY,
+            },
+        });
+
+        // The retrieves the bitcoin price from the crypto currency data that was retrieved.
+        const bitcoinData = response.data.data.find(crypto => crypto.symbol === 'BTC');
+        const bitcoinPrice = bitcoinData ? bitcoinData.quote.USD.price : null;
+
+        // bitcoin holdings
+        const wallet = trader.Bitcoin_balance;
+
+        // calculate the portfolio total usd value of both commission pay types
+        const portfolioWorth = Number((Number(bitcoinPrice) * Number(wallet)).toFixed(2)) + Number(trader.USD_balance);
+
+        // check if client and response were successful
+        if (trader && response) {
+            // success, send portfolio total worth
+            return res.status(200).json({
+                portfolioValue: portfolioWorth,
+                wallet: wallet,
+                balance: trader.USD_balance
+            });
+        }
 
 
-// /trader-buy-bitcoin: path to buy bitcoin for client by trader
+
+    } catch (err) {
+        // internal server error send failed response
+        return res.status(500).json(`Server Error: ${err.message}`);
+    }
+})
+
+// trader-buy-bitcoin: path to buy bitcoin for client by trader
 router.post('/trader-buy-bitcoin', processTraderBuyBitcoinOrder, async (req, res, next) => {
     try {
 
@@ -81,16 +126,22 @@ router.post('/clients/search', async (req, res, next) => {
         else if (client.email) {
             retrievedClient = await Trader.findClientByEmail(client.email)
 
+
         }
         else {
             return res.status(401).json('Not enough credentials provided for client search')
         }
+
 
         // check if op succeeded
         if (retrievedClient) {
             // send success response.
             return res.status(200)
                 .json(retrievedClient)
+        }
+        else {
+            // failure due to not finding client with provided credentials
+            return res.status(404).json('Client not found');
         }
 
     }

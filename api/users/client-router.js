@@ -275,7 +275,9 @@ router.post('/transfer-money', async (req, res, next) => {
 
             // operations succeeded, send success response.
             return res.status(201)
-                .json('Successfully transferred payment to trader')
+                .json({
+                    message: `Successfully transferred $ ${transfer.amount_paid} to trader.`
+                })
 
         }
 
