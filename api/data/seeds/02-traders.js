@@ -1,7 +1,7 @@
 
 const traders = [
     {
-        trader_id: 1,
+
         first_name: 'Sauron',
         last_name: 'Elfson',
         phone_num: '(214)-321-6262',
@@ -17,7 +17,7 @@ const traders = [
 
     },
     {
-        trader_id: 2,
+
         first_name: 'Kirsche',
         last_name: 'Vahl',
         phone_num: '(214)-969-6262',
@@ -33,7 +33,7 @@ const traders = [
 
     },
     {
-        trader_id: 3,
+
         first_name: 'Donkey',
         last_name: 'Kong',
         phone_num: '(352)-321-6262',
@@ -49,7 +49,7 @@ const traders = [
 
     },
     {
-        trader_id: 4,
+
         first_name: 'Diddy',
         last_name: 'Kong',
         phone_num: '(214)-753-9512',

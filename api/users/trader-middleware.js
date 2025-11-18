@@ -7,6 +7,7 @@
 const { jwtDecode } = require('jwt-decode');
 const Client = require('./client-model.js');
 const Trader = require('./trader-model');
+const { client } = require('../data/dbConfig.js');
 
 
 // processTraderBuyBitcoinOrder: Middleware to process the purchase

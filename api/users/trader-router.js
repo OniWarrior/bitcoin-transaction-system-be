@@ -51,7 +51,7 @@ router.get('/trader-portfolio', async (req, res) => {
 })
 
 // trader-buy-bitcoin: path to buy bitcoin for client by trader
-router.post('/trader-buy-bitcoin', processTraderBuyBitcoinOrder, async (req, res, next) => {
+router.post('/trader-buy-bitcoin', processTraderBuyBitcoinOrder, async (req, res) => {
     try {
 
         // get the balance
