@@ -1,7 +1,7 @@
 
 const clients = [
     {
-        client_id: 1,
+
         trader_id: 1,
         first_name: 'John',
         last_name: 'Bryon',
@@ -18,7 +18,7 @@ const clients = [
         num_trades: 5
     },
     {
-        client_id: 2,
+
         trader_id: 1,
         first_name: 'Dennis',
         last_name: 'Ritchie',
@@ -37,7 +37,7 @@ const clients = [
     },
 
     {
-        client_id: 3,
+
         trader_id: 1,
         first_name: 'Chelsey',
         last_name: 'Jacobsen',
@@ -55,7 +55,7 @@ const clients = [
     },
 
     {
-        client_id: 4,
+
         trader_id: 1,
         first_name: 'Craig',
         last_name: 'Jones',
@@ -72,7 +72,7 @@ const clients = [
         num_trades: 5
     },
     {
-        client_id: 5,
+
         trader_id: 1,
         first_name: 'John',
         last_name: 'Smith',
@@ -91,7 +91,7 @@ const clients = [
     },
 
     {
-        client_id: 6,
+
         trader_id: 2,
         first_name: 'Brian',
         last_name: 'Kernigan',
@@ -108,7 +108,7 @@ const clients = [
         num_trades: 20
     },
     {
-        client_id: 7,
+
         trader_id: 2,
         first_name: 'Jake',
         last_name: 'Mallory',
@@ -125,7 +125,7 @@ const clients = [
         num_trades: 4
     },
     {
-        client_id: 8,
+
         trader_id: 2,
         first_name: 'John',
         last_name: 'Bonham',
@@ -144,7 +144,7 @@ const clients = [
     },
 
     {
-        client_id: 9,
+
         trader_id: 2,
         first_name: 'John',
         last_name: 'Johns',
@@ -161,7 +161,7 @@ const clients = [
         num_trades: 2
     },
     {
-        client_id: 10,
+
         trader_id: 2,
         first_name: 'john',
         last_name: 'bryon',
@@ -178,7 +178,7 @@ const clients = [
         num_trades: 6
     },
     {
-        client_id: 11,
+
         trader_id: 3,
         first_name: 'Abe',
         last_name: 'Lincoln',
@@ -197,7 +197,7 @@ const clients = [
     },
 
     {
-        client_id: 12,
+
         trader_id: 3,
         first_name: 'Ivan',
         last_name: 'Drago',
@@ -215,7 +215,7 @@ const clients = [
     },
 
     {
-        client_id: 13,
+
         trader_id: 3,
         first_name: 'Stephen',
         last_name: 'Johnson',
@@ -232,7 +232,7 @@ const clients = [
         num_trades: 5
     },
     {
-        client_id: 14,
+
         trader_id: 3,
         first_name: 'James',
         last_name: 'Sunderland',
@@ -251,7 +251,7 @@ const clients = [
     },
 
     {
-        client_id: 15,
+
         trader_id: 3,
         first_name: 'Winston',
         last_name: 'Churchill',
@@ -269,7 +269,7 @@ const clients = [
     },
 
     {
-        client_id: 16,
+
         trader_id: 4,
         first_name: 'Julia',
         last_name: 'Bond',
@@ -286,7 +286,7 @@ const clients = [
         num_trades: 5
     },
     {
-        client_id: 17,
+
         trader_id: 4,
         first_name: 'Bilbo',
         last_name: 'Baggins',
@@ -305,7 +305,7 @@ const clients = [
     },
 
     {
-        client_id: 18,
+
         trader_id: 4,
         first_name: 'Gandolf',
         last_name: 'Vinar',
@@ -322,7 +322,7 @@ const clients = [
         num_trades: 26
     },
     {
-        client_id: 19,
+
         trader_id: 4,
         first_name: 'Frodo',
         last_name: 'Baggins',
@@ -339,7 +339,7 @@ const clients = [
         num_trades: 5
     },
     {
-        client_id: 20,
+
         trader_id: 4,
         first_name: 'Aragorn',
         last_name: 'Ranger',

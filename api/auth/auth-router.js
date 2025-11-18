@@ -14,15 +14,18 @@ const User = require('../users/user-model');
 const { JWT_SECRET } = require('../secrets/secret');
 
 // path to register new account
-router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPassword, async (req, res, next) => {
+// /Signup: endpoint that processes the user information for the creation of a new account
+router.post('/signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPassword, async (req, res, next) => {
     try {
+
+        // capture user information and hash the password
         let user = req.body
         const rounds = parseInt(process.env.ROUNDS)
         const hash = bcrypt.hashSync(user.password, rounds)
         user.password = hash
 
 
-
+        // create object of pulled user info
         const userCredentials = {
             email: user.email,
             password: user.password,
@@ -30,16 +33,17 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
         }
 
 
-
+        // attempt to add the user and save result
         const addUser = await User.addUser(userCredentials)
 
 
-
+        // if adding a user was successful/ check if the user is a client or trader
         if (addUser) {
 
-
+            // if client, then create a client object and add a client record
             if (user.user_type === 'Client') {
 
+                // create client object filled with client credentials
                 const clientCredentials = {
 
                     first_name: user.first_name,
@@ -53,14 +57,18 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
                     zip_code: user.zip_code
                 }
 
+                // attempt to add the client object and save the results
                 const addClient = await User.addClient(clientCredentials)
 
+                // client addition to database was successful, send success response with code.
                 if (addClient) {
                     res.status(201).json({ user: addUser, client: addClient })
                 }
             }
+            // if the user type is a trader, process trader obj and insert into database
             else if (user.user_type === 'Trader') {
 
+                // create a trader obj
                 const traderCredentials = {
 
                     first_name: user.first_name,
@@ -74,8 +82,11 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
                     zip_code: user.zip_code,
 
                 }
+
+                // attempt to add the trader obj to the database and save result
                 const addTrader = await User.addTrader(traderCredentials)
 
+                // trader insertion successful, return success response.
                 if (addTrader) {
                     res.status(201).json({ user: addUser, trader: addTrader })
                 }
@@ -85,6 +96,7 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
 
     }
     catch (err) {
+        // internal server error, send failure response.
         res.status(500).json(`Server error: ${err.message}`)
 
     }
@@ -94,7 +106,7 @@ router.post('/Signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
 
 
 // path to login an existing user
-router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async (req, res, next) => {
+router.post('/login', checkForMissingEmailOrPassword, checkIfEmailExists, async (req, res, next) => {
 
 
     try {
@@ -123,6 +135,7 @@ router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
                         .cookie('token', token)
                         .json({
                             message: `Welcome back ${foundUser.email}`, token,
+                            ur: `${foundUser.user_type}`
                         })
                 }
                 else {
@@ -134,29 +147,33 @@ router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
                 // retrieve the total number of trades for the client for the month
                 let month = new Date().getMonth()
                 const totalTransactions = await User.getClientNumTrades(client.client_id, month)
-                let updateMemberLevel
+
 
                 // check if the client member level needs to be updated
                 if (totalTransactions >= 20) {
                     let memberLevel = "Gold"
-                    updateMemberLevel = await User.updateMemberLevel(client.client_id, memberLevel)
+                    await User.updateMemberLevel(client.client_id, memberLevel);
                 }
 
                 // find whether or not the password matches database password
                 const encryption = bcrypt.compareSync(password, foundUser.password)
 
 
-
+                // if foundUser and encryption succeeded then make a token and send success response
                 if (foundUser && encryption) {
+                    // successful, make token
                     const token = makeToken(foundUser)
 
+                    // send success response with email and token
                     res.status(201)
                         .cookie('token', token)
                         .json({
                             message: `Welcome back ${foundUser.email}`, token,
+                            ur: `${foundUser.user_type}`
                         })
                 }
                 else {
+                    // if failed, then send failed response
                     res.status(401).json('Invalid email/password credentials')
                 }
 
@@ -164,26 +181,33 @@ router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
 
             }
         }
-        else {
+        else { // usertype is a trader
 
             // find whether or not the password matches database password
             const encryption = bcrypt.compareSync(password, foundUser.password)
 
+            // check if foundUser and encryption succeeded
             if (foundUser && encryption) {
+
+                // success, make a token
                 const token = makeToken(foundUser)
 
+                // send success response with email and token
                 res.status(201)
                     .cookie('token', token)
                     .json({
                         message: `Welcome back ${foundUser.email}`, token,
+                        ur: `${foundUser.user_type}`
                     })
             }
             else {
+                // if failed, send failed response.
                 res.status(401).json('Invalid email/password credentials')
             }
         }
     }
     catch (err) {
+        // internal server error, send failure response with server error code.
         res.status(500)
             .json(`Server error: ${err.message}`)
 
@@ -193,13 +217,16 @@ router.post('/Login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
 
 //create token after successful login
 const makeToken = (user) => {
+
+    // payload obj that carries the relevant user credentials
     const payload = {
         user_id: user.user_id,
         email: user.email,
-        password: user.password,
-        user_type: user.user_type
+        password: user.password
+
     }
 
+    // expiration object for the expiration of the token
     const option = {
         expiresIn: '1d'
     }

@@ -1,13 +1,13 @@
 const db = require('../data/dbConfig')
 
 // For trader--update the USD balance account of trader
-function updateUSDBalanceOfTrader(traderId, USD) {
-    return db('Trader')
-        .returning([
-            'USD_balance'
-        ])
-        .where({ trader_id: traderId })
+async function updateUSDBalanceOfTrader(traderId, USD) {
+
+    const usd_balance = await db("Trader")
+        .where('trader_id', traderId)
         .update({ USD_balance: USD })
+
+    return usd_balance
 }
 
 // For trader--update the Bitcoin balance account of trader
@@ -29,7 +29,6 @@ function updateTransferAccountById(traderId, USD) {
         .where('trader_id', traderId)
         .update({ transfer_balance: USD })
 }
-
 
 
 
@@ -150,10 +149,10 @@ async function retrieveTotalFromPendingTransferPayments(clientId, isInvested) {
 
 // For Trader--update order record
 // to indicate that a tranfser payment is cancelled
-function updateIsCancelledOrder(orderId, isCancelled, traderId) {
+function updateIsCancelledOrder(orderId, isCancelled) {
     return db('Order')
         .where('order_id', orderId)
-        .update({ isCancelled: isCancelled, trader_id: traderId })
+        .update({ isCancelled: isCancelled })
         .returning('isCancelled');
 }
 
@@ -168,7 +167,7 @@ function updateIsCancelledTransfer(transacId, isCancelled) {
 }
 
 // For Trader--retrieve trader info
-async function retreiveTraderInfo(email) {
+async function retreiveTraderInfoByEmail(email) {
     const foundInfo = await db('Trader')
         .select([
             'trader_id',
@@ -177,6 +176,22 @@ async function retreiveTraderInfo(email) {
             'transfer_balance',
         ])
         .where('email', email)
+        .first()
+    return foundInfo
+
+
+}
+
+// For Trader--retrieve trader info
+async function retreiveTraderInfoById(traderId) {
+    const foundInfo = await db('Trader')
+        .select([
+            'email',
+            'Bitcoin_balance',
+            'USD_balance',
+            'transfer_balance',
+        ])
+        .where('trader_id', traderId)
         .first()
     return foundInfo
 
@@ -195,8 +210,11 @@ module.exports = {
     retrieveTransferPayments,
     updateIsCancelledOrder,
     updateIsCancelledTransfer,
-    retreiveTraderInfo,
+    retreiveTraderInfoByEmail,
     retrieveTotalFromPendingTransferPayments,
     updateTransferRecords,
-    retrieveCancelLog
+    retrieveCancelLog,
+    retreiveTraderInfoById
+
+
 }

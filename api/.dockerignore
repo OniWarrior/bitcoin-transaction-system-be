@@ -1,0 +1,6 @@
+# Excludes local modules and logs
+node_modules
+npm-debug.log
+
+#Ignore example env file
+.env.example

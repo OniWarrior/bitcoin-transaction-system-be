@@ -8,7 +8,6 @@ async function retrieveDailyTransactions(todaysDate) {
     const transactions = await db('Order')
         .count('order_id')
         .where('date', todaysDate)
-        .first()
     return transactions
 }
 
@@ -18,7 +17,6 @@ async function retrieveWeeklyTransactions(startDate, endDate) {
     const transactions = await db('Order')
         .count('order_id')
         .whereBetween('date', [startDate, endDate])
-        .first()
     return transactions
 
 
@@ -31,7 +29,7 @@ async function retrieveMonthlyTransactions(month, year) {
     const transactions = await db('Order')
         .count('order_id')
         .whereRaw('EXTRACT(MONTH FROM date) = ? AND EXTRACT(YEAR FROM date) = ?', [month, year])
-        .first()
+
     return transactions
 }
 

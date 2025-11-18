@@ -20,7 +20,15 @@ async function retrieveClientInfo(email) {
     return clientInfo
 }
 
+// For client--use parameters to retrieve client's user id for id confirmation
 
+async function retrieveClientCreds(email, password) {
+    const clientId = await db('User')
+        .select(['user_id'])
+        .where('password', password)
+        .where('email', email)
+    return clientId
+}
 
 
 
@@ -119,5 +127,6 @@ module.exports = {
     updateUSDBalance,
     addOrder,
     transerMoney,
-    updateNumTrades
+    updateNumTrades,
+    retrieveClientCreds
 }

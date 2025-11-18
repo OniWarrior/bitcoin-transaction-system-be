@@ -2,7 +2,7 @@ const date = new Date()
 const formattedDate = `${date.getFullYear()}` + '-' + `${date.getMonth()}` + '-' + `${date.getDate()}`
 const cancelled = [
     {
-        log_id: 1,
+
         order_id: 2,
         client_id: 1,
         trader_id: 1,
@@ -18,7 +18,7 @@ const cancelled = [
 
     },
     {
-        log_id: 2,
+
         order_id: 4,
         client_id: 2,
         trader_id: 1,
@@ -33,7 +33,7 @@ const cancelled = [
 
     },
     {
-        log_id: 3,
+
         order_id: 6,
         client_id: 3,
         trader_id: 1,
@@ -48,7 +48,7 @@ const cancelled = [
 
     },
     {
-        log_id: 4,
+
         order_id: 8,
         client_id: 4,
         trader_id: 1,
@@ -63,7 +63,7 @@ const cancelled = [
 
     },
     {
-        log_id: 5,
+
         order_id: 10,
         client_id: 5,
         trader_id: 1,
@@ -78,7 +78,7 @@ const cancelled = [
 
     },
     {
-        log_id: 6,
+
         order_id: 12,
         client_id: 6,
         trader_id: 2,
@@ -93,7 +93,7 @@ const cancelled = [
 
     },
     {
-        log_id: 7,
+
         order_id: 14,
         client_id: 7,
         trader_id: 2,
@@ -108,7 +108,7 @@ const cancelled = [
 
     },
     {
-        log_id: 8,
+
         order_id: 16,
         client_id: 8,
         trader_id: 2,
@@ -123,7 +123,7 @@ const cancelled = [
 
     },
     {
-        log_id: 9,
+
         order_id: 18,
         client_id: 9,
         trader_id: 2,
@@ -138,7 +138,7 @@ const cancelled = [
 
     },
     {
-        log_id: 10,
+
         order_id: 20,
         client_id: 10,
         trader_id: 2,
@@ -153,7 +153,7 @@ const cancelled = [
 
     },
     {
-        log_id: 11,
+
         order_id: 22,
         client_id: 11,
         trader_id: 3,
@@ -168,7 +168,7 @@ const cancelled = [
 
     },
     {
-        log_id: 12,
+
         order_id: 24,
         client_id: 12,
         trader_id: 3,
@@ -183,7 +183,7 @@ const cancelled = [
 
     },
     {
-        log_id: 13,
+
         order_id: 26,
         client_id: 13,
         trader_id: 3,
@@ -198,7 +198,7 @@ const cancelled = [
 
     },
     {
-        log_id: 14,
+
         order_id: 28,
         client_id: 14,
         trader_id: 3,
@@ -213,7 +213,7 @@ const cancelled = [
 
     },
     {
-        log_id: 15,
+
         order_id: 30,
         client_id: 15,
         trader_id: 3,
@@ -228,7 +228,7 @@ const cancelled = [
 
     },
     {
-        log_id: 16,
+
         order_id: 32,
         client_id: 16,
         trader_id: 4,
@@ -243,7 +243,7 @@ const cancelled = [
 
     },
     {
-        log_id: 17,
+
         order_id: 34,
         client_id: 17,
         trader_id: 4,
@@ -258,7 +258,7 @@ const cancelled = [
 
     },
     {
-        log_id: 18,
+
         order_id: 36,
         client_id: 18,
         trader_id: 4,
@@ -273,7 +273,7 @@ const cancelled = [
 
     },
     {
-        log_id: 19,
+
         order_id: 38,
         client_id: 19,
         trader_id: 4,
@@ -288,7 +288,7 @@ const cancelled = [
 
     },
     {
-        log_id: 20,
+
         order_id: 40,
         client_id: 20,
         trader_id: 4,
@@ -303,7 +303,7 @@ const cancelled = [
 
     },
     {
-        log_id: 21,
+
         order_id: null,
         client_id: 3,
         trader_id: 1,
@@ -318,7 +318,7 @@ const cancelled = [
 
     },
     {
-        log_id: 22,
+
         order_id: null,
         client_id: 6,
         trader_id: 2,
@@ -333,7 +333,7 @@ const cancelled = [
 
     },
     {
-        log_id: 23,
+
         order_id: null,
         client_id: 7,
         trader_id: 2,
@@ -348,7 +348,7 @@ const cancelled = [
 
     },
     {
-        log_id: 24,
+
         order_id: null,
         client_id: 11,
         trader_id: 3,
@@ -363,7 +363,7 @@ const cancelled = [
 
     },
     {
-        log_id: 25,
+
         order_id: null,
         client_id: 13,
         trader_id: 3,
@@ -378,7 +378,7 @@ const cancelled = [
 
     },
     {
-        log_id: 26,
+
         order_id: null,
         client_id: 18,
         trader_id: 4,
