@@ -13,19 +13,13 @@ const managerRouter = require('../api/users/manager-router')
 
 const server = express()
 
-// CORS Configuration
-const corsOptions = {
-    origin: ['http://localhost:3000', 'rev-bts.vercel.app/'], // List all domains that are allowed to access or use '*'
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true, // if your site uses cookies/session
-};
+
 
 
 
 server.use(express.json())
 server.use(helmet())
-server.use(cors(corsOptions))
+server.use(cors())
 server.use(cookieParser())
 
 
