@@ -15,7 +15,7 @@ const server = express()
 
 // CORS Configuration
 const corsOptions = {
-    origin: ['http://localhost:3000', 'rev-bts.vercel.app'], // List all domains that are allowed to access or use '*'
+    origin: ['http://localhost:3000', 'https://rev-bts.vercel.app/'], // List all domains that are allowed to access or use '*'
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true, // if your site uses cookies/session
