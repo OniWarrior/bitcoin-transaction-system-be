@@ -15,7 +15,7 @@ const { JWT_SECRET } = require('../secrets/secret');
 
 // path to register new account
 // /Signup: endpoint that processes the user information for the creation of a new account
-router.post('/signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPassword, async (req, res, next) => {
+router.post('/signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPassword, async (req, res) => {
     try {
 
         // capture user information and hash the password
@@ -62,7 +62,7 @@ router.post('/signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
 
                 // client addition to database was successful, send success response with code.
                 if (addClient) {
-                    res.status(201).json({ user: addUser, client: addClient })
+                    return res.status(201).json({ user: addUser, client: addClient })
                 }
             }
             // if the user type is a trader, process trader obj and insert into database
@@ -88,7 +88,7 @@ router.post('/signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
 
                 // trader insertion successful, return success response.
                 if (addTrader) {
-                    res.status(201).json({ user: addUser, trader: addTrader })
+                    return res.status(201).json({ user: addUser, trader: addTrader })
                 }
             }
         }
@@ -97,7 +97,7 @@ router.post('/signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
     }
     catch (err) {
         // internal server error, send failure response.
-        res.status(500).json(`Server error: ${err.message}`)
+        return res.status(500).json(`Server error: ${err.message}`)
 
     }
 
@@ -106,7 +106,7 @@ router.post('/signup', checkIfEmailAlreadyRegistered, checkForMissingEmailOrPass
 
 
 // path to login an existing user
-router.post('/login', checkForMissingEmailOrPassword, checkIfEmailExists, async (req, res, next) => {
+router.post('/login', checkForMissingEmailOrPassword, checkIfEmailExists, async (req, res) => {
 
 
     try {
@@ -131,7 +131,7 @@ router.post('/login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
                 if (foundUser && encryption) {
                     const token = makeToken(foundUser)
 
-                    res.status(201)
+                    return res.status(201)
                         .cookie('token', token)
                         .json({
                             message: `Welcome back ${foundUser.email}`, token,
@@ -139,7 +139,7 @@ router.post('/login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
                         })
                 }
                 else {
-                    res.status(401).json('Invalid email/password credentials')
+                    return res.status(401).json('Invalid email/password credentials')
                 }
             }
             else {  // clients member level is Silver
@@ -165,7 +165,7 @@ router.post('/login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
                     const token = makeToken(foundUser)
 
                     // send success response with email and token
-                    res.status(201)
+                    return res.status(201)
                         .cookie('token', token)
                         .json({
                             message: `Welcome back ${foundUser.email}`, token,
@@ -174,7 +174,7 @@ router.post('/login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
                 }
                 else {
                     // if failed, then send failed response
-                    res.status(401).json('Invalid email/password credentials')
+                    return res.status(401).json('Invalid email/password credentials')
                 }
 
 
@@ -193,7 +193,7 @@ router.post('/login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
                 const token = makeToken(foundUser)
 
                 // send success response with email and token
-                res.status(201)
+                return res.status(201)
                     .cookie('token', token)
                     .json({
                         message: `Welcome back ${foundUser.email}`, token,
@@ -202,13 +202,13 @@ router.post('/login', checkForMissingEmailOrPassword, checkIfEmailExists, async 
             }
             else {
                 // if failed, send failed response.
-                res.status(401).json('Invalid email/password credentials')
+                return res.status(401).json('Invalid email/password credentials')
             }
         }
     }
     catch (err) {
         // internal server error, send failure response with server error code.
-        res.status(500)
+        return res.status(500)
             .json(`Server error: ${err.message}`)
 
     }

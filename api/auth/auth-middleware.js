@@ -93,7 +93,7 @@ const checkIfPasswordExists = async (req, res, next) => {
 
     }
     catch (err) {
-        return res.status(500).json(`Server Error: ${err.message}`)
+        return res.status(400).json(`DB Error: ${err.message}`)
     }
 
 
