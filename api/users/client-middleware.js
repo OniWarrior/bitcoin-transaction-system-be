@@ -27,7 +27,7 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
         (btcAmount * btcPrice) ||
         isNaN(cBalance) || cBalance < 0) {
         return res.status(401)
-            .json('Client does not possess enough currency in account to make purchase')
+            .json({ message: 'Client does not possess enough currency in account to make purchase' })
     }
 
     // Update balance and update bitcoin amount
@@ -58,7 +58,7 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
             // reject if client doesn't possess enough money
             if (cBalance < (btcAmount * btcPrice) + commissionPay) {
                 return res.status(401)
-                    .json('Client does not possess enough fiat USD to make purchase')
+                    .json({ message: 'Client does not possess enough fiat USD to make purchase' })
             }
             else { // client does have enough money
 
@@ -78,7 +78,7 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
             // reject if client doesn't possess enough money
             if (cBalance < ((btcAmount * btcPrice) + commissionPay)) {
                 return res.status(401)
-                    .json('Client does not possess enough fiat USD to make purchase')
+                    .json({ message: 'Client does not possess enough fiat USD to make purchase' })
             }
             else {
                 // update client balance for commission pay
@@ -102,7 +102,7 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
             // reject if client doesn't possess enough money
             if (cBTC < commissionPay) {
                 return res.status(401)
-                    .json('Client does not possess enough bitcoin to make purchase')
+                    .json({ message: 'Client does not possess enough bitcoin to make purchase' })
             }
             else {
 
@@ -122,7 +122,7 @@ const processClientBuyBitcoinOrder = async (req, res, next) => {
             // reject if client doesn't possess enough money
             if (cBTC < commissionPay) {
                 return res.status(401)
-                    .json('Client does not possess enough bitcoin to make purchase')
+                    .json({ message: 'Client does not possess enough bitcoin to make purchase' })
             }
             else {
                 // client has enough money
@@ -248,7 +248,7 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
     if (cBTC < btcAmount || isNaN(cBTC) || cBTC < 0) {
         // not enough, send failure response
         return res.status(401)
-            .json('Client does not posses enough bitcoin to perform sell')
+            .json({ message: 'Client does not posses enough bitcoin to perform sell' })
 
     }
     else { // Theres enough in client account
@@ -276,7 +276,7 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
 
                     // client doesn't have enough usd, send failure response.
                     return res.status(401)
-                        .json('Client does not possess enough fiat USD to pay commission')
+                        .json({ message: 'Client does not possess enough fiat USD to pay commission' })
                 }
                 else {
 
@@ -303,7 +303,7 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
 
                     // not enough usd, send failure response.
                     return res.status(401)
-                        .json('Client does not possess enough fiat USD to pay commission')
+                        .json({ message: 'Client does not possess enough fiat USD to pay commission' })
                 }
                 else {
                     // there is enough usd
@@ -333,7 +333,7 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
                 if (cBTC < commissionPay) {
                     // does not have enough bitcoin, send failure response.
                     return res.status(401)
-                        .json('Client does not possess enough bitcoin to pay commission')
+                        .json({ message: 'Client does not possess enough bitcoin to pay commission' })
                 }
                 else {
                     // the client does have enough
@@ -357,7 +357,7 @@ const processClientSellBitcoinOrder = async (req, res, next) => {
                 if (cBTC < commissionPay) {
                     // not enough bitcoin, send failure response.
                     return res.status(401)
-                        .json('Client does not possess enough bitcoin to pay commission')
+                        .json({ message: 'Client does not possess enough bitcoin to pay commission' })
                 }
                 else {// the client does have enough bitcoin
 
