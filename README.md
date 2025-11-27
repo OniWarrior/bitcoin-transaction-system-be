@@ -51,7 +51,7 @@ user_id (PK)<br>
 email <br>
 password <br>
 user_type
----
+
 ### Trader
 trader_id (PK) <br>
 first_name <br>
@@ -66,7 +66,7 @@ zip_code <br>
 USD_balance <br>
 Bitcoin_balance <br>
 transfer_balace
---
+
 ## Client
 client_id   (PK) <br>
 trader_id   (FK) <br>
@@ -83,7 +83,7 @@ USD_balance <br>
 Bitcoin_balance <br>
 mem_level <br>
 num_trades 
----
+
 ## Order
 order_id    (PK) <br>
 client_id   (FK) <br>
@@ -92,7 +92,7 @@ comm_paid <br>
 comm_type <br>
 Bitcoin_balance <br>
 isCancelled 
----
+
 ## Transfer
 transac_id   (PK) <br>
 client_id    (FK) <br>
@@ -101,7 +101,7 @@ amount_paid <br>
 date <br>
 isCancelled <br>
 isInvested
----
+
 ## Cancel_log
 log_id       (PK) <br>
 order_id     (FK) <br>
