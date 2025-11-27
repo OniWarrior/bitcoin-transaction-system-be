@@ -19,6 +19,8 @@ This backend exposes REST API endpoints consumed by the React/Redux frontend.
 ---
 
 ## 📁 Project Structure
+
+ ```
 bitcoin-transaction-system-be/
 │── api/
 │ ├── __tests__/
@@ -30,6 +32,7 @@ bitcoin-transaction-system-be/
 │
 ├── knexfile.js
 └── package.json
+ ```
 ---
 
 ## 🔐 Authentication
