@@ -201,23 +201,23 @@ All `/api/users/*` routes require a valid JWT.
 
 ### This backend demonstrates:
 
-Authentication & protected route design
+- Authentication & protected route design
 
-Secure password handling with bcrypt
+- Secure password handling with bcrypt
 
-REST API structure and routing
+- REST API structure and routing
 
-PostgreSQL data modeling
+- PostgreSQL data modeling
 
-Transaction workflow logic
+- Transaction workflow logic
 
-Clean architecture with controllers, models, and middleware
+- Clean architecture with controllers, models, and middleware
 
-Knex migrations and seeds
+- Knex migrations and seeds
 
-JSON Web Token flow
+- JSON Web Token flow
 
-## This project reflects real-world backend development patterns.
+### This project reflects real-world backend development patterns.
 
 ### 📬 Contact
 
