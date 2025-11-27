@@ -1,80 +1,236 @@
-# bitcoin-transaction-system-be
-This is the back-end api for the bitcoin transaction system app
-being developed for UTD Database management systems course.
+# Bitcoin Transaction System — Backend API
+Backend service for the Bitcoin Transaction System portfolio project created for University of Texas at Dallas Database course.  
+Provides user authentication, secure password handling, Bitcoin buy/sell logic, and persistent transaction storage using PostgreSQL.
 
-# Description
-This api contains the CRUD operations endpoints for the front end.
+This backend exposes REST API endpoints consumed by the React/Redux frontend.
 
-# auth endpoints
-/Signup: The endpoint that performs the registration of a new account
-With this endpoint, because a trader can't be assigned the endpoint, an arbitrary
-choice was made to assign a new client account to a default trader that will not be stated
-for security reasons. 
+---
 
-/Login: This endpoint posts the login of the user. Upon successful login a json web token
-is assigned to the user.
+## 🛠️ Tech Stack
 
-# trader endpoints
-/TraderBuyBitcoin: This endpoints performs the logic necessary to post a purchase
-of Bitcoin on behalf of a client. All of the necessary logic to update the respective
-accounts of the client and trader are performed in the CRUD OP.
+- **Node.js**  
+- **Express.js**  
+- **PostgreSQL**  
+- **Knex.js** (migrations & seeds)  
+- **JWT** (JSON Web Tokens)  
+- **bcrypt** (password hashing)  
+- **Axios** (for internal requests if needed)
 
-/TraderSellBitcoin: This endpoint operates the same as TraderBuy. The only difference is that it post a sell of Bitcoin rather than a buy for the client in question. The logic to update accounts are also performed.
+---
 
-/clients/search: This endpoint receives the credentials entered by a trader trying to
-perform a search for a specific client. It receives first name, last name, and email.
-The main mechanism to make the search successful is the email because it is the unique credential that guarantees to find the client that is associated with this email if it exists.
+## 📁 Project Structure
+bitcoin-transaction-system-be/
+│── api/
+│ ├── __tests__/
+│ ├── auth/
+│ ├── data/
+│ ├── secrets/
+│ ├── users/
+│ └── server.js
+│
+├── knexfile.js
+└── package.json
+---
 
-/cancel-log: This endpoint retrieves the cancel log of the specific trader.
+## 🔐 Authentication
+The backend uses:
 
-/clients/:client_id/transactions: This endpoints performs a retrieval of all transactions
-made by the client or the trader on behalf of the client.
+- **JWT** for authentication and protected routes  
+- **bcrypt** for hashing passwords  
+- Middleware that validates tokens for all `/api/users/*` routes  
 
-/clients:/:client_id/payments: This endpoint performs a retrieval of all payments
-made by the client or the trader on behalf of the client.
+---
 
-/CancelPaymentOrTransaction: This endpoint performs a cancelation of a payment or transaction.
+## 🗄️ Database Schema
 
-# client endpoints
-/Orders: This retrieve all orders made by the client in the past
-
-/BuyBitcoin: This will post an order for buying Bitcoin for the client.
-This also performs identity validation logic and updates the clients
-account.
-
-/SellBitcoin: This will post an order for selling Bitcoin for the client
-This performs the same identity validation logic as BuyBitcoin and updates the 
-client's account.
-
-/BitcoinWallet: This endpoint will retrieve the client's Bitcoin Wallet by using
-their email credential.
-
-/TransferMoney: This endpoint will post a transfer payment order for the client.
-This order represents a transfer of USD from the client to their respective trader.
-
-# Bitcoin endpoints
-/latest: This endpoint is used by both the client and trader. This is a third party
-API call from coinmarketcap. This fetches the current price of Bitcoin for the front end of the application.
+### User
+user_id (PK)
+email
+password
+user_type
 
 
+### Trader
+trader_id (PK)
+first_name
+last_name
+phone_num
+cell_num
+email     (FK)
+city
+state
+street_addr
+zip_code
+USD_balance
+Bitcoin_balance
+transfer_balace
 
-# npm i
-Go into the command line, cd into api, and type in the command npm i.
-This command will install all the dependencies for this project.
+## Client
+client_id   (PK)
+trader_id   (FK)
+first_name
+last_name
+phone_num
+cell_num
+email       (FK)
+city
+state
+street_addr
+zip_code
+USD_balance
+Bitcoin_balance
+mem_level
+num_trades
 
-# Testing -- npm run test
-Set up local testing database via pgAdmin. Then, cd into api and into __tests__. Once in __tests__ enter npm run test in terminal to run tests.
+## Order
+order_id    (PK)
+client_id   (FK)
+date  
+comm_paid
+comm_type
+Bitcoin_balance
+isCancelled
 
-# Technologies
-knex.js
-node.js
-express
-helmet
-json web token
-pg
+## Transfer
+transac_id   (PK)
+client_id    (FK)
+trader_id    (FK)
+amount_paid
+date
+isCancelled
+isInvested
 
-# Full Stack Engineer
+## Cancel_log
+log_id       (PK)
+order_id     (FK)
+client_id    (FK)
+trader_id    (FK)
+transac_id
+date  
+comm_paid
+comm_type
+Bitcoin_balance
+amount_paid
+isCancelled
+isInvested
+
+Built and managed using **Knex migrations and seeds**.
+
+---
+
+## 🚀 Running the Backend
+
+### 1. Install dependencies
+
+npm install
+
+### 2. Configure environment variables
+example .env
+PORT=5000
+NODE_ENV = development
+DEV_DATABASE_URL= your-postgres-url
+TESTING_DATABASE_URL = your-postgres-url
+DATABASE_URL= (production url)
+JWT_SECRET=your-secret-key
+CMC_API_KEY = your-api-key-from-coinmarketcap 
+
+### 3. Run migrations / seeds
+npm run migrate
+npm run seed
+
+### 4. Start the server
+npm run server
+
+## 🧪 API Endpoints (Backend)
+
+### **Auth Routes**
+| Method | Endpoint          | Description                |
+|--------|-------------------|----------------------------|
+| POST   | `/api/auth/signup`   | Register new user         |
+| POST   | `/api/auth/login`    | Login & receive JWT token |
+
+### **User: Client / Transaction Routes**
+| Method | Endpoint                 | Description                      |
+|--------|---------------------------|----------------------------------|
+| GET    | `/api/users/latest`            | Get current price of Bitcoin     |
+| GET    | `/api/users/portfolio`         | Retrieves portfolio              |
+| GET    | `/api/users/orders`            | Retrieves orders made by user    |
+| POST   | `/api/users/buy-bitcoin`       | Buy bitcoin                      |
+| POST   | `/api/users/sell-bitcoin`      | Sell bitcoin                     |
+| GET    | `/api/users/bitcoin-wallet`    | Get user bitcoin wallet          |
+| POST   | `/api/users/transfer-money`    | Transfer money to trader         |
+
+### **User: Trader / Transaction Routes**
+| Method | Endpoint                 | Description                                                 |
+|--------|---------------------------|--------------------------------------------------------------|
+| GET    | `/api/users/trader-portfolio`                | Retrieves portfolio                           |
+| POST   | `/api/users/trader-buy-bitcoin`              | Buy bitcoin  (behalf of client)               |
+| POST   | `/api/users/trader-sell-bitcoin`             | Sell bitcoin (behalf of client)               |
+| POST   | `/api/users/clients/search`                  | Get client information                        |
+| GET    | `/api/users/cancel-log`                      | Retrieves cancel log                          |
+| GET    | `/api/users/clients/:client_id/transactions` | Retrieves orders made by clients              |
+| GET    | `/api/users/clients/:client_id/payments`     | Retrieves money transfers made by clients     |
+| PUT    | `/api/users/cancel-payment-or-transfer`      | Cancel order or money transfer made by client |
+
+### **Secret User: Manager (limited Admin type): Manager Routes**
+| Method | Endpoint                 | Description                      |
+|--------|---------------------------|----------------------------------|
+| POST   | `/api/users/daily`             | Get total number of daily transactions     |
+| POST   | `/api/users/weekly`            | Get total number of weekly transactions    |
+| POST   | `/api/users/monthly`           | Get total number of monthly                |
+
+
+
+
+All `/api/users/*` routes require a valid JWT.
+
+---
+
+## 🤝 Notes for Recruiters
+
+### This backend demonstrates:
+
+Authentication & protected route design
+
+Secure password handling with bcrypt
+
+REST API structure and routing
+
+PostgreSQL data modeling
+
+Transaction workflow logic
+
+Clean architecture with controllers, models, and middleware
+
+Knex migrations and seeds
+
+JSON Web Token flow
+
+## This project reflects real-world backend development patterns.
+
+### 📬 Contact
+
 Stephen Aranda
+**Email:** aranda.stephen88@gmail.com
+
+**LinkedIn:** https://www.linkedin.com/in/stephen-aranda-9b9974205
+
+---
+
+### Bitcoin Transaction system README's
+
+project-frontend/
+   rev-bts/README.md                        <-- Full project overview
+<br>
+**Link:** https://github.com/OniWarrior/rev-bts
+
+project-backend/
+   bitcoin-transaction-system-be/README.md  <-- Backend-only details
+<br>
+**Link:** https://github.com/OniWarrior/bitcoin-transaction-system-be
+
+
+
 
 
 
