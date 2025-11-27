@@ -46,13 +46,13 @@ The backend uses:
 
 ## 🗄️ Database Schema
 
-### User
+## User
 user_id (PK)<br>
 email <br>
 password <br>
 user_type
 
-### Trader
+## Trader
 trader_id (PK) <br>
 first_name <br>
 last_name <br>
