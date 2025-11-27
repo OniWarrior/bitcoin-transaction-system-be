@@ -51,71 +51,71 @@ user_id (PK)<br>
 email <br>
 password <br>
 user_type
-
-
+---
 ### Trader
-trader_id (PK)
-first_name
-last_name
-phone_num
-cell_num
-email     (FK)
-city
-state
-street_addr
-zip_code
-USD_balance
-Bitcoin_balance
+trader_id (PK) <br>
+first_name <br>
+last_name <br>
+phone_num <br>
+cell_num <br>
+email     (FK) <br>
+city <br>
+state <br>
+street_addr <br>
+zip_code <br>
+USD_balance <br>
+Bitcoin_balance <br>
 transfer_balace
-
+--
 ## Client
-client_id   (PK)
-trader_id   (FK)
-first_name
-last_name
-phone_num
-cell_num
-email       (FK)
-city
-state
-street_addr
-zip_code
-USD_balance
-Bitcoin_balance
-mem_level
-num_trades
-
+client_id   (PK) <br>
+trader_id   (FK) <br>
+first_name <br>
+last_name <br>
+phone_num <br>
+cell_num <br>
+email       (FK) <br>
+city <br>
+state <br>
+street_addr <br>
+zip_code <br>
+USD_balance <br>
+Bitcoin_balance <br>
+mem_level <br>
+num_trades 
+---
 ## Order
-order_id    (PK)
-client_id   (FK)
-date  
-comm_paid
-comm_type
-Bitcoin_balance
-isCancelled
-
+order_id    (PK) <br>
+client_id   (FK) <br>
+date   <br>
+comm_paid <br>
+comm_type <br>
+Bitcoin_balance <br>
+isCancelled 
+---
 ## Transfer
-transac_id   (PK)
-client_id    (FK)
-trader_id    (FK)
-amount_paid
-date
-isCancelled
+transac_id   (PK) <br>
+client_id    (FK) <br>
+trader_id    (FK) <br>
+amount_paid <br>
+date <br>
+isCancelled <br>
 isInvested
-
+---
 ## Cancel_log
-log_id       (PK)
-order_id     (FK)
-client_id    (FK)
-trader_id    (FK)
-transac_id
-date  
-comm_paid
-comm_type
-Bitcoin_balance
-amount_paid
-isCancelled
-isInvested
+log_id       (PK) <br>
+order_id     (FK) <br>
+client_id    (FK) <br>
+trader_id    (FK) <br>
+transac_id <br>
+date   <br>
+comm_paid <br>
+comm_type <br>
+Bitcoin_balance <br>
+amount_paid <br>
+isCancelled <br>
+isInvested <br>
+
 
 Built and managed using **Knex migrations and seeds**.
 
