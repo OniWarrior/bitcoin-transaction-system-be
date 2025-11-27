@@ -47,9 +47,9 @@ The backend uses:
 ## 🗄️ Database Schema
 
 ### User
-user_id (PK)
-email
-password
+user_id (PK)<br>
+email <br>
+password <br>
 user_type
 
 
