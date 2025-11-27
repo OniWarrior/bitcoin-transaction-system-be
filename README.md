@@ -221,7 +221,7 @@ All `/api/users/*` routes require a valid JWT.
 
 ### 📬 Contact
 
-Stephen Aranda
+Stephen Aranda <br>
 **Email:** aranda.stephen88@gmail.com
 
 **LinkedIn:** https://www.linkedin.com/in/stephen-aranda-9b9974205
