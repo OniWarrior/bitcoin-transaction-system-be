@@ -129,13 +129,21 @@ npm install
 
 ### 2. Configure environment variables
 example .env
+
 PORT=5000
+<br>
 NODE_ENV = development
-DEV_DATABASE_URL= your-postgres-url
-TESTING_DATABASE_URL = your-postgres-url
-DATABASE_URL= (production url)
+<br>
+DATABASE_URL=postgres://your-db-url
+<br>
+TESTING_DATABASE_URL = postgres://your-db-url
+<br>
+DEV_DATABASE_URL = postgres://your-db-url
+<br>
 JWT_SECRET=your-secret-key
-CMC_API_KEY = your-api-key-from-coinmarketcap 
+<br>
+CMC_API_KEY = your api key to retrieve latest price of bitcoin from coin market cap
+
 
 ### 3. Run migrations / seeds
 npm run migrate
