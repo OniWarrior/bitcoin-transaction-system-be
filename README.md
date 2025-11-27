@@ -146,7 +146,7 @@ CMC_API_KEY = your api key to retrieve latest price of bitcoin from coin market 
 
 
 ### 3. Run migrations / seeds
-npm run migrate
+npm run migrate <br>
 npm run seed
 
 ### 4. Start the server
